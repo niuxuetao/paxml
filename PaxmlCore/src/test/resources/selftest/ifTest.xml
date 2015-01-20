@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario arf1="100" >
+    
+    <if test="false">
+      <fail/>
+    </if>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else>
+      <data id="x1">1</data>
+    </else>
+    <assert actual="${x1}" expected="1"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else test="false">
+      <fail/>
+    </else>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else test="false">
+      <fail/>
+    </else>
+    <else test="false">
+      <fail/>
+    </else>
+        
+    <if test="false">
+      <fail/>
+    </if>
+    <else test="false">
+      <fail/>
+    </else>
+    <else>
+      <data id="x2" >2</data>
+    </else>
+    <assert actual="${x2}" expected="2"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else test="false">
+      <fail/>
+    </else>
+    <else test="false">
+      <fail/>
+    </else>
+    <else>
+      <data id="x3" >3</data>
+    </else>
+    <assert actual="${x3}" expected="3"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else test="false">
+      <fail/>
+    </else>
+    <else test="true">
+      <data id="x4" >4</data>
+    </else>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${x4}" expected="4"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else test="true">
+      <data id="x5" >5</data>
+    </else>
+    <else test="false">
+      <fail/>
+    </else>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${x5}" expected="5"/>
+    
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else test="true">
+      <data id="x6" >6</data>
+    </else>
+    <else test="true">
+      <fail/>
+    </else>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${x6}" expected="6"/>
+        
+    <!-- test negated -->
+    
+    <if test="true">
+      <data id="y1">1</data>
+    </if>
+    <assert actual="${y1}" expected="1"/>
+    
+    <if test="true">
+      <data id="y2">2</data>
+    </if>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${y2}" expected="2"/>
+    
+    <if test="true">
+      <data id="y3">3</data>
+    </if>
+    <else test="false">
+      <fail/>
+    </else>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${y3}" expected="3"/>
+    
+    <if test="true">
+      <data id="y4">4</data>
+    </if>
+    <else test="true">
+      <fail/>
+    </else>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${y4}" expected="4"/>
+     
+    <if test="true">
+      <data id="y5">5</data>
+    </if>
+    <else test="true">
+      <fail/>
+    </else>
+    <else test="true">
+      <fail/>
+    </else>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${y5}" expected="5"/>
+    
+    <if test="true">
+      <data id="y6">6</data>
+    </if>
+    <else test="false">
+      <fail/>
+    </else>
+    <else test="false">
+      <fail/>
+    </else>
+    <else>
+      <fail/>
+    </else>
+    <assert actual="${y6}" expected="6"/>    
+    
+    <!-- test consecutive -->
+    
+    <if test="true">
+      <data id="z1">1</data>
+    </if>
+    <if test="true">
+      <data id="z2">2</data>
+    </if>
+    <assert actual="${z1}" expected="1"/>
+    <assert actual="${z2}" expected="2"/>   
+    
+    <if test="true">
+      <data id="z3">3</data>
+    </if>
+    <if test="false">
+      <fail/>
+    </if>
+    <assert actual="${z3}" expected="3"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <if test="true">
+      <data id="z4">4</data>
+    </if>
+    <assert actual="${z4}" expected="4"/>
+    
+    <if test="false">
+      <fail/>
+    </if>  
+    <if test="false">
+      <fail/>
+    </if>  
+        
+    <!-- test nested -->
+    
+    <if test="true">
+      <if test="true">
+        <data id="a1">1</data>
+      </if>
+      <else>
+        <fail/>
+      </else>
+    </if>
+    <assert actual="${a1}" expected="1"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else>
+      <if test="true">
+        <data id="a2">2</data>
+      </if>
+      <else>
+        <fail/>
+      </else>
+    </else>
+    <assert actual="${a2}" expected="2"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else>
+      <if test="false">
+        <fail/>
+      </if>
+      <else>
+        <data id="a3">3</data>
+      </else>
+    </else>
+    <assert actual="${a3}" expected="3"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else>
+      <if test="false">
+        <fail/>
+      </if>
+      <else test="false">
+        <fail/>
+      </else>
+      <else test="true">
+        <data id="a4">4</data>
+      </else>
+      <else>
+        <fail/>
+      </else>
+    </else>
+    <assert actual="${a4}" expected="4"/>
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else>
+      <if test="false">
+        <fail/>
+      </if>
+      <else test="false">
+        <fail/>
+      </else>
+      <else test="true">
+        <if test="false">
+          <fail/>
+        </if>
+        <else>
+          <data id="a5">5</data>
+        </else>
+      </else>
+      <else>
+        <fail/>
+      </else>
+    </else>
+    <assert actual="${a5}" expected="5"/>   
+    
+    <if test="false">
+      <fail/>
+    </if>
+    <else>
+      <if test="true">        
+        <if test="false">
+          <fail/>
+        </if>
+        <else>
+          <data id="a6">6</data>
+        </else>
+      </if>
+      <else>
+        <fail/>
+      </else>
+    </else>
+    <assert actual="${a6}" expected="6"/>     
+    
+    <!-- test if nested in data tag -->
+    <assert expected="1">
+      <actual>
+        <if test="true">${1}</if>
+        <else>${2}</else>
+      </actual>
+    </assert>
+    <assert expected="2">
+      <actual>
+        <if test="false">${1}</if>
+        <else>
+          <expression>${2}</expression>
+        </else>
+      </actual>
+    </assert>
+</scenario>
+ 

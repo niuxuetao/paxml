@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- this one recursively calls itself to do step plus down to 0 -->
+<scenario a="" >
+  
+  <log >a=${a}</log>
+  <if test="${a le 0}">
+    <return>${a}</return>
+    <fail/>
+  </if>
+  <else>
+    <returnResult id="next" a="${a-1}" />
+    <return>${a+next}</return>
+    <fail/>
+  </else>
+  
+  <fail/>
+ 
+</scenario>
+ 

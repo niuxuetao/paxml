@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario param1="">
+    
+    <assertNull actual="${param0}"/>
+    
+    <data id="innerData">
+        <iterate times="3">${var+1}</iterate>
+    </data>
+    
+    <iterate values="${innerData}" >
+        <assert actual="${param1}" expected="300" />
+        <assert expected="${index+1}" actual="${var}"/>
+    </iterate>
+    
+    <log>param1=${param1}</log>
+    <log>log=${log}</log>
+    <log>value=${value}</log>
+    <result>
+        <log>${param1*10}</log>
+    </result>     
+    
+    <assert expected="300" actual="${param1}" />
+    <assert expected="5" actual="${log}" />
+    <assert expected="100" actual="${value.0}" />
+    <assert expected="200" actual="${value.1}" />
+    
+    <furtherInvoked x="xxx">blabla</furtherInvoked>
+    
+    <assert expected="param1" actual="${util.findConstId(param1, true, true)}" />
+    <assert expected="param1" actual="${util.findConstId(param1, true, false)}" />
+    <assert expected="x1" actual="${util.findConstId(x1, true, true)}" />
+    <assertNull actual="${util.findConstId(x1, true, false)}" />
+    
+    <assert expected="param1" actual="${util.findConstId(param1, false, true)}" />
+    <assert expected="param1" actual="${util.findConstId(param1, false, false)}" />
+    <assert expected="x1" actual="${util.findConstId(x1, false, true)}" />
+    <assertNull actual="${util.findConstId(x1, false, false)}" />
+</scenario>
+ 

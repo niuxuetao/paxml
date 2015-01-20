@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+
+    <!-- check global property --> 
+    <assert expected="g1" actual="${gp1}" />
+    <assert expected="g2" actual="${gp2}" />
+    <assert expected="l1" actual="${lp1}" />
+    <assert expected="l2" actual="${lp2}" />
+
+    <md id="x0">
+        <x>222</x>
+        <y>aaa</y>
+    </md>
+    <log>x0=${x0}</log>
+    <assert expected="222" actual="${x0.x}" />
+    <assert expected="aaa" actual="${x0.y}" />
+    <assert expected="2" actual="${size(x0)}" />
+
+    <md id="x1">
+        <x>333</x>
+        <x>ddd</x>
+    </md>
+    <log>x1=${x1}</log>
+    <assert expected="2" actual="${size(x1.x)}" />
+    <assert expected="1" actual="${size(x1)}" />
+    <assert expected="333" actual="${x1.x[0]}" />
+    <assert expected="ddd" actual="${x1.x[1]}" />
+
+    <md id="x1_1">
+        <!-- make "x1_1" a list -->
+        <iterate times="10">
+            asd_${var}
+        </iterate>
+    </md>
+    <log>x1_1=${x1_1}</log>
+    <assert expected="10" actual="${size(x1_1)}" />
+
+    <md id="x1_2">
+        <!-- make "x1_2" a list -->
+        <iterate times="3" var="var">
+            <log>${var}</log>
+        </iterate>
+    </md>
+    <log>x1_2=${x1_2}</log>
+    <assert expected="3" actual="${size(x1_2)}" />
+    <assert expected="0" actual="${x1_2.0}" />
+    <assert expected="1" actual="${x1_2.1}" />
+    <assert expected="2" actual="${x1_2.2}" />
+
+    <data id="x2">
+        <!-- make c a list -->
+        <iterate times="10" var="var">
+            <c> ${var} </c>
+        </iterate>
+    </data>
+    <log>x2=${x2}</log>
+    <assert expected="10" actual="${size(x2.c)}" />
+    <assert expected="1" actual="${size(x2)}" />
+
+
+    <data id="x2_1">
+        <c>
+            <!-- make c a list -->
+            <iterate times="4" var="var">
+                ${var}
+        </iterate>
+        </c>
+    </data>
+    <log>x2_1=${x2_1}</log>
+    <assert expected="1" actual="${size(x2_1)}" />
+    <assert expected="4" actual="${size(x2_1.c)}" />
+
+    <data id="x3">
+        <log>123</log>
+    </data>
+    <log>x3=${x3}</log>
+    <assert expected="123" actual="${x3}" />
+
+    <data id="x4">
+        <x>
+            <!-- make x a list -->
+            <log>123</log>
+            <log>456</log>
+        </x>
+    </data>
+    <log>x4=${x4}</log>
+    <assert expected="123" actual="${x4.x[0]}" />
+    <assert expected="456" actual="${x4.x[1]}" />
+    <assert expected="2" actual="${size(x4.x)}" />
+    <assert expected="1" actual="${size(x4)}" />
+
+    <data id="x5">
+        <x>
+            <!-- make x a list -->
+            <iterate times="2">
+                <log>123</log>
+                <log>456</log>
+            </iterate>
+        </x>
+    </data>
+    <log>x5=${x5}</log>
+    <assert expected="1" actual="${size(x5)}" />
+    <assert expected="4" actual="${size(x5.x)}" />
+    <assert expected="123" actual="${x5.x[0]}" />
+    <assert expected="456" actual="${x5.x.1}" />
+    <assert expected="123" actual="${x5.x.2}" />
+    <assert expected="456" actual="${x5.x[3]}" />
+
+    <data id="x6">
+        <x>
+            <log>
+                <log>sss</log>
+            </log>
+        </x>
+    </data>
+    <log>x6=${x6}</log>
+    <assert expected="1" actual="${size(x6)}" />
+    <assert expected="sss" actual="${x6.x}" />
+
+    <!-- start mixed sub ele and attr -->
+    <data id="x7">
+      <a x="x1" y="y1"/>      
+      <!-- this should not be parsed -->
+      <a x="x2" y="y2"/>
+    </data>
+    <log>x7=${x7}</log>
+    <assert expected="1" actual="${size(x7)}" />
+    <assert expected="2" actual="${size(x7.a)}" />
+    <assert expected="2" actual="${size(x7.a[0])}" />
+    <assert expected="2" actual="${size(x7.a[1])}" />    
+    <assert expected="x1" actual="${x7.a.0.x}" />
+    <assert expected="x2" actual="${x7.a.1.x}" />
+    <assert expected="y1" actual="${x7.a.0.y}" />
+    <assert expected="y2" actual="${x7.a.1.y}" />
+
+    <data id="x7_1">
+        <a>
+          <x>x1</x>
+          <y>y1</y>
+        </a>
+        <a>
+          <x>x2</x>
+          <y>y2</y>
+        </a>
+    </data>
+    <log>x7_1=${x7_1}</log>
+    <assert expected="1" actual="${size(x7_1)}" />
+    <assert expected="${x7}" actual="${x7_1}" />
+
+    <data id="x7_2">
+        <a1>
+            <q>v_a1.q</q>
+            <e>v_a1</e>
+        </a1>
+    </data>
+    <log>x7_2=${x7_2}</log>
+    <assert expected="${util.map('a1',util.map('q','v_a1.q','e','v_a1'))}" actual="${x7_2}" />
+
+    <data id="x8">
+        <expression>10</expression>
+        <expression>20</expression>
+
+    </data>
+    <log>x8=${x8}</log>
+    <assert expected="2" actual="${size(x8)}" />
+    <iterate values="${x8}" var="var" index="index">
+        <assert expected="${(index+1)*10}" actual="${var}" />
+    </iterate>
+
+    <data id="x8_1" >
+        <expression>0</expression>
+        <expression>10</expression>
+        <expression>20</expression>
+        <expression>${30}</expression>
+    </data>
+    <log>x8_1=${x8_1}</log>
+    <assert expected="4" actual="${size(x8_1)}" />
+    
+    <iterate values="${x8_1}" var="var" index="index">
+      <print>${index}=${var}</print>
+      <assert expected="${index*10}" actual="${var}"  />
+    </iterate>
+
+    <data id="x10"></data>
+    <assertNull actual="${x10}" />
+    <data id="x10">xxx</data>
+    <assert expected="xxx" actual="${x10}" />
+    
+    <data id="x11">
+      <x>0</x>
+      <x>1</x>
+    </data>
+    
+    <assert expected="1" actual="${size(x11)}"/>
+    <assert expected="${util.list(0,1)}" actual="${x11.x}"/>
+    
+    <data id="x12">
+      <x>
+      <expression>0</expression>
+      <expression>1</expression>
+      </x>
+    </data>
+    <assert expected="${x11}" actual="${x12}"/>
+   
+    <data id="x13">
+      <a x="1"></a>
+      <a x="2"></a>
+    </data>
+    <assert expected="${util.map('a',util.list(util.map('x',1),util.map('x',2)))}" actual="${x13}"/>
+    <data id="x14">
+      <a>
+        <x>
+        <expression>1</expression>
+        <expression>2</expression>
+        </x>
+      </a>      
+    </data>
+    <print>${x13}</print>
+    <print>${x14}</print>
+   <assert expected="${util.map('a',util.map('x',util.list(1,2)))}" actual="${x14}"/>
+ 
+
+    <expression>
+   ${util.setConst('dynamic1',100, false)}
+   </expression>
+   <assert expected="100" actual="${dynamic1}"/>
+   
+   <!-- the following expression should be parsed and evaluated -->
+   ${util.setConst('dynamic2',200, false)}
+   <assert expected="200" actual="${dynamic2}"/>
+   
+   <assert expected="x12" actual="${util.findConstIdExcept(x11, false, true, ['x11'])}" />    
+   <assert expected="x11" actual="${util.findConstId(x11, false, true)}" />
+   <assert expected="x11" actual="${util.findConstId(x11, true, true)}" />
+   <assert expected="x13" actual="${util.findConstId(x13, false, true)}" />
+   <assert expected="x13" actual="${util.findConstId(x13, true, true)}" />
+   
+   <assert expected="x11" actual="${util.findConstId(x11, false, false)}" />
+   <assert expected="x11" actual="${util.findConstId(x11, true, false)}" />
+   <assert expected="x13" actual="${util.findConstId(x13, false, false)}" />
+   <assert expected="x13" actual="${util.findConstId(x13, true, false)}" />
+   
+   <data id="list1">
+    <expression>${x13}</expression>
+    <expression>${x11}</expression>
+   </data>
+   
+   <iterate list="${list1}">
+    <assert expected="x13" actual="${util.findConstIdExcept(var,false,false,['var'])}" if="${index==0}"/>
+    <assert expected="x11" actual="${util.findConstIdExcept(var,false,false,['var'])}" if="${index==1}"/>
+   </iterate>
+</scenario>
+ 

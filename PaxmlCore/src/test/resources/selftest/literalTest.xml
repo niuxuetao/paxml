@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+
+  <literal id="x0"></literal>  
+  <assertNull actual="${x0}"/>
+  <literal id="x00">${''}</literal>
+  <assert expected="${''}" actual="${x00}"/>
+    
+  <literal id="x1"><html> <body class="xxx"> content </body> </html></literal>
+    
+  <assert actual="${x1}"
+    expected="&lt;html&gt; &lt;body class=&quot;xxx&quot;&gt; content &lt;/body&gt; &lt;/html&gt;" />
+  
+  
+  <literal id="x2"><data id="xxx" attr="yyy"/></literal>
+  
+  <assert actual="${x2}"
+    expected="&lt;data id=&quot;xxx&quot; attr=&quot;yyy&quot; /&gt;" />
+    
+  <!-- make sure the literal's inner content isn't parsed as paxml -->
+  <assertFalse actual="${util.hasConst('xxx', true)}" />
+    
+  <!-- make sure that the expressions will be evaluated within literal tag -->  
+  <data id="d100">100</data>
+  <literal id="x3"><whatever>${d100}</whatever></literal>  
+  
+  <assert expected="&lt;whatever&gt;100&lt;/whatever&gt;" actual="${x3}"/>
+    
+  <!-- test line breaks -->  
+  <assert actual="1
+2" expected="1${' '}2" />
+
+  <!-- test line breaks with literal tag -->  
+  <assert expected="1${util.makeString(10)}2" >
+    <actual><literal>1
+2</literal></actual>
+  </assert>    
+  
+  <!-- test line breaks with CDATA -->  
+  <assert expected="1${util.makeString(10)}2" >
+    <actual><![CDATA[1
+2]]></actual>
+  </assert>
+  
+  <!-- test line breaks with CDATA and literal tag -->  
+  <assert expected="1${util.makeString(10)}2" >
+    <actual><literal><![CDATA[1
+2]]></literal></actual>
+  </assert>  
+</scenario>
+ 

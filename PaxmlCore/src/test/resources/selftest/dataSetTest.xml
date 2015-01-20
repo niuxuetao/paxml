@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario xmlns:f="http://paxml.org/file">
+    <dataSet1 scope="local" flag="x" />
+    <assert expected="local_ds1_1_value_x" actual="${local_ds1_1}"/>
+    <assert expected="local_ds1_2_value_x" actual="${local_ds1_2}"/>
+    
+    <dataSetTestInvoked flag="y" />
+    
+    <assert expected="global_ds1_1_value_y" actual="${global_ds1_1}"/>
+    <assert expected="global_ds1_2_value_y" actual="${global_ds1_2}"/>
+    
+    <assertFalse actual="${util.hasConst('local_ds2_1',true)}" />
+    <assertFalse actual="${util.hasConst('local_ds2_2',true)}" />
+</scenario>
+

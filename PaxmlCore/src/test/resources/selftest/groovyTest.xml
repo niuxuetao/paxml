@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+  <data id="x">100</data>
+  <!-- groovy tag optionally uses CDATA to escape sensitive chars -->
+  <groovy id="g">
+<![CDATA[
+    println 'Hello Groovy!';
+  
+    int a = 3 
+    int b = 1 
+    assert "result=2"=="result=$${a-b}"
+    
+    println 'x='+x;
+    
+    assert x=='100';
+    
+    assert util.today()==dates.truncate(new Date(), Calendar.DATE);
+    z=9;
+    // it takes the last expression's value as the final result
+    y=1;
+     ]]>
+  </groovy>
+  <!--  check the groovy execution result -->
+  <assert expected="1" actual="${g}"/>
+  <!-- check that groovy doesn't export anything to paxml -->
+  <assertNull actual="?{y}" />
+  
+  
+</scenario>
+ 

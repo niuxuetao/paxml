@@ -1,0 +1,107 @@
+* {
+	font-family: Arial,Sans-Serif;	
+}
+.closed .togglable{
+	display:none;
+}
+
+.toggleView {
+	
+	padding:0 5px 0 5px;
+		
+}
+
+.toggleViewTitle {
+	cursor: pointer;
+}
+.summaryContainer {
+	border: 1px solid;
+	
+	padding-bottom:10px;
+}
+.toggleViewTitlePlus{
+	display:none;
+}
+.closed .toggleViewTitlePlus {
+	display:inline;	
+}
+.toggleViewTitleMinus {
+	display:inline;
+}
+.closed .toggleViewTitleMinus {
+	display:none;	
+}
+.summaryItemContainer {
+	
+	margin-left:20px;	
+	border-bottom:1px solid;	
+	border-color:black;
+	padding:5px;
+}
+
+.summaryItemLink {	
+	text-decoration:none;	
+	padding:0;
+	marrgin:0;
+}
+.summaryItem {
+	cursor:pointer;	
+}
+.hover .summaryItem {	
+	background-color:#F2F6F7;	
+}
+.selected .summaryItem {
+	background-color:#E6EBF9;
+}
+
+.succeeded .summaryItem {
+	color:green;	
+}
+.failed .summaryItem {
+	color:red;	
+}
+.summaryTitle {
+	color:red;
+}
+.succeeded .summaryTitle {
+	color: green;
+}
+.failed .summaryTitle {
+	color: red;
+}
+.totalText {
+	color:black;
+}
+.failedText {
+	color:red;
+}
+.succeededText {
+	color: green;	
+}
+.errorMessage {
+	color:red;	
+}
+.errorStack {
+	color:red;	
+}
+.globalSummary {
+	text-align:center;
+	font-weight:bold;	
+}
+.globalSummaryLabel {
+	font-weight:bold;
+}
+.listButton {	
+	font-size:16px;	
+	font-family: "Times New Roman",Georgia,Serif;	
+}
+.screenshotLabel {
+	font-size:14px;
+	cursor:pointer;	
+}
+.hover .screenshotLabel {
+	background-color:#F2F6F7;
+}
+.selected .screenshotLabel {
+	background-color:#E6EBF9;	
+}

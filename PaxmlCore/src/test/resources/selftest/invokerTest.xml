@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario xmlns:f="http://paxml.org/file">
+    
+    <data id="x1">
+        <log>123</log>
+    </data>
+    <assert expected="123" actual="${x1}" />
+    <assert>
+        <expected>123</expected>
+        <actual>${x1}</actual>
+    </assert>
+
+    <assert expected="3000">
+        <actual>
+            <invoked log="5">
+                <value>${100}</value>
+                <log>200</log>
+                <param1>300</param1>
+                <param0 />
+            </invoked>
+        </actual>
+    </assert>
+
+    <data id="r1">
+        <invokedWithResult1>
+            <transitive>false</transitive>
+        </invokedWithResult1>
+    </data>
+    <assert expected="100" actual="${r1}" />
+
+    <data id="r2">
+        <invokedWithResult1>
+            <transitive>true</transitive>
+        </invokedWithResult1>
+    </data>
+    <assert expected="100" actual="${r2}" />
+
+
+    <assert expected="1">
+        <actual>
+            <invokedWithResult2>
+                <param1>true</param1>
+                <param2>false</param2>
+            </invokedWithResult2>
+        </actual>
+    </assert>
+
+    <assert expected="2">
+        <actual>
+            <invokedWithResult2>
+                <param1>true</param1>
+                <param2>true</param2>
+            </invokedWithResult2>
+        </actual>
+    </assert>
+
+    <!-- make sure the log.xml file, not the log command is actually invoked -->
+    <assert expected="50">
+        <actual>
+            <f:log>
+                <value>5</value>
+                <times>10</times>
+            </f:log>
+        </actual>
+    </assert>
+    <!-- make sure the log command still works -->
+    <assert expected="5">
+        <actual>
+          <!-- this is calling the internal java log tag -->
+            <log>5</log>
+        </actual>
+    </assert>
+    
+    <data id="paramToRemove">true</data>
+    <invokedWithRemovedParam paramToRemove="" />
+    <assert expected="true" actual="${paramToRemove}"/>
+    <invokedWithRemovedParam paramToRemove="${null}" />
+    <assert expected="true" actual="${paramToRemove}"/>
+</scenario>
+ 

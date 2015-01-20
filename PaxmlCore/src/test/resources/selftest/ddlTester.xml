@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+  
+  <ODSs/>
+  
+  <data id="cleanSchemaSql">      
+    drop table DDL_VERSION if exists;
+  </data>
+  
+  <data id="jdbcTemplate">${testJdbcTemplate}</data>
+  <!-- For oracle, this would be: SELECT x.* FROM (SELECT VERSION_NUMBER FROM DDL_VERSION order by ID desc) x WHERE ROWNUM = 1 -->
+  <data id="readVersionSql">select VERSION_NUMBER from DDL_VERSION order by ID desc limit 1</data>   
+  <data id="readVersionHistorySql">select VERSION_NUMBER, UPDATE_TYPE from DDL_VERSION order by ID asc</data>
+    
+  <!-- make sure it is cleaned -->
+  <ddl action="clean" />
+  
+  <!-- create schema and update to an intermediate version -->
+  <ddl action="create" toVersion="1.0.2" >    
+    <include>*data*.sql</include>
+    <include>**/*ddl*.*</include>       
+  </ddl>  
+  
+  <!-- assert version history -->
+  <data id="r1">
+    <row VERSION_NUMBER="1.0.0" UPDATE_TYPE="create-ddl" />
+    <row VERSION_NUMBER="1.0.0" UPDATE_TYPE="create-data" />
+    <row VERSION_NUMBER="1.0.1" UPDATE_TYPE="update-ddl" />
+    <row VERSION_NUMBER="1.0.1" UPDATE_TYPE="update-data" />
+    <row VERSION_NUMBER="1.0.2" UPDATE_TYPE="update-ddl" />
+    <row VERSION_NUMBER="1.0.2" UPDATE_TYPE="update-data" />
+  </data>
+  <assert expected="${r1.row}">
+    <actual>
+      <sql>${readVersionHistorySql}</sql>
+    </actual>
+  </assert>
+  
+  <!-- assert highest version -->
+  <assert expected="${util.list(util.map('VERSION_NUMBER', '1.0.2'))}">
+    <actual>
+      <sql>${readVersionSql}</sql>
+    </actual>
+  </assert>
+    
+  <!-- update to the highest version from the current version -->
+  <ddl action="update" fromVersion="${readVersionSql}"  >
+    <include>*.sql</include>
+  </ddl> 
+  <!-- assert version history -->
+  <data id="r2">
+    <row VERSION_NUMBER="1.0.0" UPDATE_TYPE="create-ddl" />
+    <row VERSION_NUMBER="1.0.0" UPDATE_TYPE="create-data" />
+    <row VERSION_NUMBER="1.0.1" UPDATE_TYPE="update-ddl" />
+    <row VERSION_NUMBER="1.0.1" UPDATE_TYPE="update-data" />
+    <row VERSION_NUMBER="1.0.2" UPDATE_TYPE="update-ddl" />
+    <row VERSION_NUMBER="1.0.2" UPDATE_TYPE="update-data" />
+    <!-- 1.0.3 is missing on file system -->    
+    <row VERSION_NUMBER="1.0.4" UPDATE_TYPE="update-ddl" />
+  </data>
+  <assert expected="${r2.row}">
+    <actual>
+      <sql>${readVersionHistorySql}</sql>
+    </actual>
+  </assert>
+  <!-- assert the end version -->
+  <assert expected="${util.list(util.map('VERSION_NUMBER', '1.0.4'))}">
+    <actual>
+      <sql>${readVersionSql}</sql>
+    </actual>
+  </assert>
+  
+  <!-- clean the schema -->
+  <ddl action="clean" />
+  
+  <!-- assume clean succeeded, if not, creating the same table will report problem -->
+  <!-- 1.0.9 file does not exist, the highest is 1.0.4 -->
+  <ddl action="create" toVersion="1.0.9" />
+  
+  <!-- assert version history -->
+  <assert expected="${r2.row}">
+    <actual>
+      <sql>${readVersionHistorySql}</sql>
+    </actual>
+  </assert>
+    
+  <!-- should have created/updated to the highest version -->
+  <assert expected="${util.list(util.map('VERSION_NUMBER', '1.0.4'))}">
+    <actual>
+      <sql>${readVersionSql}</sql>
+    </actual>
+  </assert> 
+  
+  <!-- should have no effect because it is already the newest -->
+  <ddl action="update" fromVersion="${readVersionSql}" />  
+  <assert expected="${util.list(util.map('VERSION_NUMBER', '1.0.4'))}">
+    <actual>
+      <sql>${readVersionSql}</sql>
+    </actual>
+  </assert> 
+  <assert expected="${r2.row}">
+    <actual>
+      <sql>${readVersionHistorySql}</sql>
+    </actual>
+  </assert>
+  
+  <!-- should have no effect because it is already the newest -->
+  <ddl action="update" fromVersion="1.11.5" />
+  <assert expected="${util.list(util.map('VERSION_NUMBER', '1.0.4'))}">
+    <actual>
+      <sql>${readVersionSql}</sql>
+    </actual>
+  </assert> 
+  <assert expected="${r2.row}">
+    <actual>
+      <sql>${readVersionHistorySql}</sql>
+    </actual>
+  </assert>  
+   
+</scenario>
+

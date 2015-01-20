@@ -1,0 +1,65 @@
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+  <data id="a">${new('java.util.concurrent.atomic.AtomicInteger', 1)}</data>
+  <data id="b">2</data>
+  <!-- put a as object on system property -->
+  <groovy>  
+    System.getProperties().put("a",a);
+  </groovy>
+  
+  <!-- test files -->
+  <assertTrue><actual><ant file="src/test/resources/selftest/build.xml" /></actual></assertTrue>  
+  <assert expected="3" actual="${a.get()}" />
+  
+  <assertTrue><actual><ant file="classpath:selftest/build.xml" /></actual></assertTrue>    
+  <assert expected="5" actual="${a.get()}" />
+  
+  <!-- test dirs -->
+  <assertTrue><actual><ant dir="src/test/resources/selftest" /></actual></assertTrue>
+  <assert expected="7" actual="${a.get()}" />
+  
+  <assertTrue><actual><ant dir="classpath:selftest" /></actual></assertTrue>  
+  <assert expected="9" actual="${a.get()}" />
+      
+  <!-- test ant files -->
+  <assertTrue><actual><ant target="_test" dir="classpath:selftest/antTest" file="_build.xml" /></actual></assertTrue>  
+  <assert expected="11" actual="${a.get()}" />
+  
+  <!-- this one will fail because dir is not given -->
+  <assertFalse><actual><ant target="_test" file="classpath:selftest/antTest/_build.xml" failOnError="false" /></actual></assertFalse>  
+  <assert expected="11" actual="${a.get()}" />
+  
+  <!-- test if condition -->  
+  <assertTrue><actual><ant target="testIf" dir="classpath:selftest" /></actual></assertTrue>  
+  <assert expected="11" actual="${a.get()}" />
+  
+  <data id="testIfCondition">true</data>
+  <assertTrue><actual><ant target="testIf" dir="classpath:selftest" /></actual></assertTrue>  
+  <assert expected="13" actual="${a.get()}" />
+  
+  <!-- test depends -->
+  <assertTrue><actual><ant target="testDepends" dir="classpath:selftest" /></actual></assertTrue>  
+  <assert expected="15" actual="${a.get()}" />
+  
+  <!-- test multi targets -->
+  <assertTrue><actual><ant target="testDepends,test; testIf" dir="classpath:selftest" /></actual></assertTrue>  
+  <assert expected="21" actual="${a.get()}" />
+        
+</scenario>

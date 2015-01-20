@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    This file is part of PaxmlExample.
+
+    PaxmlExample is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlExample is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlExample.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  
+  <appender name="console" class="org.apache.log4j.ConsoleAppender">
+    <param name="Threshold" value="DEBUG" />
+    <layout class="org.paxml.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d [%-4t][%-5p][%P] %e - %m%n" />
+    </layout>
+  </appender>
+  <appender name="file" class="org.paxml.log4j.PerProcessFileAppender">
+    <param name="File" value="target/surefire-reports/paxml/logs/main.log" />
+    <param name="Threshold" value="DEBUG" />
+    <layout class="org.paxml.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d [%-5p][%P] %e %n %m%n" />
+    </layout>
+  </appender>
+  <!-- show sql with parameters -->
+  <category name="org.hibernate">  
+    <priority value="TRACE"/>  
+  </category> 
+  <category name="org.hibernate.SQL">  
+    <priority value="TRACE"/>  
+  </category>   
+  <category name="org.hibernate.jdbc">  
+    <priority value="TRACE"/>  
+  </category> 
+  <category name="org.hibernate.engine.query">  
+    <priority value="TRACE"/>  
+  </category>     
+  <category name="org.hibernate.type">  
+    <priority value="TRACE"/>  
+  </category>
+  
+  <category name="org.spring">
+    <priority value="TRACE"/>
+  </category>
+
+  <!-- Recommended, as these thirdparty classes log errors that might be handled somehow. -->
+  <logger name="org.hibernate.event.def.AbstractFlushingEventListener" additivity="false">
+    <level value="FATAL" />
+  </logger>
+  <logger name="org.apache.velocity.app.VelocityEngine" additivity="false">
+    <level value="FATAL" />
+  </logger>
+
+  <!-- Some third-party classes that cry wolf: -->
+  <logger name="org.apache.myfaces.shared_impl.config.MyfacesConfig" additivity="false">
+    <level value="FATAL" />
+  </logger>
+  <logger name="org.apache.myfaces.shared_tomahawk.config.MyfacesConfig" additivity="false">
+    <level value="FATAL" />
+  </logger>
+  <!-- "There should always be a submitted value for an input if it is rendered..." -->
+  <logger name="org.apache.myfaces.shared_impl.renderkit.html.HtmlRendererUtils" additivity="false">
+    <level value="ERROR" />
+  </logger>
+  <!--  "ALT attribute is missing for : ...." -->
+  <logger name="org.apache.myfaces.shared_impl.renderkit.html.HtmlImageRendererBase" additivity="false">
+    <level value="ERROR" />
+  </logger>
+
+  <!-- OracleDialect is deprecated, however, its replacements has issues - this one just logs warnings -->
+  <logger name="org.hibernate.dialect.Oracle9Dialect" additivity="false">
+    <level value="ERROR" />
+  </logger>
+  <logger name="org.hibernate.dialect.OracleDialect" additivity="false">
+    <level value="ERROR" />
+  </logger>
+  <logger name="org.hibernate" additivity="false">
+    <level value="DEBUG" />
+    <appender-ref ref="console" />
+  </logger>
+
+  <logger name="org.paxml" additivity="false">
+    <level value="DEBUG" />
+    <appender-ref ref="file" />
+  </logger>
+
+
+  <root>
+    <level value="INFO" />
+    <appender-ref ref="file" />
+  </root>
+
+</log4j:configuration>

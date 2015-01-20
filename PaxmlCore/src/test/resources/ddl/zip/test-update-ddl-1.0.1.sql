@@ -1,0 +1,1 @@
+insert into DDL_VERSION (VERSION_NUMBER, UPDATE_TYPE) values ('1.0.1','update-ddl');

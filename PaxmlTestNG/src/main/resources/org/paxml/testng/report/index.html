@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Index of test results</title>
+<link rel="stylesheet" href="style.css">
+<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="common.js"></script>
+<script type="text/javascript">
+<!--
+	var totalSucceeded=0;
+	var totalFailed=0;
+	var totalErrorType=0;
+	
+	var sequence=getUrlQueryMap(window.location.href)['sequence'];
+	$(document).ready(function(){
+		fetchJson('index', sequence, function(json){
+			
+			renderAll(json);
+			
+		});
+	});
+	function renderAll(json){
+		
+		var index=renderIndex(json);
+		var errorIndex=renderErrorIndex(json);
+		var performance=renderPerformanceIndex(json);
+		var group=renderGroupIndex(json);
+		var selector=renderViewSelector();
+		
+		var str=renderSummary(json);		
+		
+		str+=selector+index+errorIndex+group+performance;
+					
+		$('#loadingNoContent').hide();		
+		$('#reportIndex').html(str);
+		
+		// select the 1st option
+		var vs=$('#viewSelector');
+		vs.val($($('#viewSelector option').get(0)).val()).change();
+		
+	}
+	function viewSelectorChange(){
+		var v=$('#viewSelector').val();
+		$('#viewSelector option').each(function(index, opt){
+			opt=$(opt);
+			
+			if(v==opt.val()){
+				$('#'+opt.val()).show();
+			}else{
+				$('#'+opt.val()).hide();
+			}
+		});
+	}
+	function renderViewSelector(){
+		var str='<p><label for="viewSelector">Select Report:</label> <select id="viewSelector" value="" onchange="viewSelectorChange()">';
+		if(totalFailed>0){
+			str+='<option value="summaryErrorContainer">Error Report</option>';
+		}
+		str+='<option value="summaryListContainer">Scenario Report</option>';		
+		str+='<option value="summaryGroupContainer">Group Report</option>';
+		str+='<option value="summaryPerformanceContainer">Performance Report</option>';
+		str+='</select></p>';
+		return str;
+	}
+	function renderSummary(json){
+
+		var str='<p class="globalSummaryLabel">';
+		str+='Total Tests: '+json.summary.length+'</br>';
+		str+='Total Duration: '+getDuration(json.stop-json.start);
+		str+='</p>';
+		str+='<table class="globalSummary" width="100%" cellspacing="0" cellpadding="5px" border="1px">';
+		str+='<tr><td width="33%"><span class="succeededText">Succeeded</span></td><td width="33%"><span class="failedText">Failed</span></td><td><span class="failedText">Error Types</span></td></tr>';
+		str+='<tr><td><span class="succeededText">'+totalSucceeded+'</span></td><td><span class="failedText">'+totalFailed+'</span></td><td class="failedText">'+totalErrorType+'</td></tr>';
+		str+='</table>';
+		str+='<p><a target="_blank" href="../logs/main.log?'+json.start+'">View Plan File Log</a></p>';
+		return str;
+	}
+	function renderPerformanceIndex(json){
+		var str='<div id="summaryPerformanceContainer" style="display:none">';
+		
+		var map={10:[],5:[],2:[],1:[],0:[]};
+		for(var i in json.summary){
+			var s=json.summary[i];
+			var d=(s.stop-s.start)/60000.0;
+			s.duration=d;
+			if(d>10){
+				map[10].push(s);				
+			}else if(d<=10 && d>5){
+				map[5].push(s);
+			}else if(d<=5 && d>2){
+				map[2].push(s);
+			}else if(d<=2 && d>=1){
+				map[1].push(s);
+			}else{
+				map[0].push(s);
+			}
+		}
+		var array=[];
+		for(var i in map){
+			var a=map[i];
+			if(a.length<=0){
+				continue;
+			}
+			var pos=array.length;
+			for(var j=0;j<array.length;j++){
+				var existing=array[j];
+				if(parseInt(i)>existing.category){
+					pos=j;
+					break;
+				}
+			}
+			array.splice(pos,0,{category:i,summary:a});
+			
+			for(var x=0;x<a.length;x++){
+				for(var y=x+1;y<a.length;y++){
+					var ax=a[x];
+					var ay=a[y];
+					if(ax.duration<ay.duration){
+						a[x]=ay;
+						a[y]=ax;
+					}
+				}
+			}
+			
+		}
+		for(var x=0;x<array.length;x++){
+			var a=array[x].summary;
+			var i=array[x].category;
+			var title='('+a.length+') ';
+			if(i==10){
+				title+='More than 10 minutes';				
+			}else if(i==5){
+				title+='Between 10 minutes and 5 minutes';
+			}else if(i==2){
+				title+='Between 5 minutes and 2 minutes';
+			}else if(i==1){
+				title+='Between 2 minutes and 1 minute';
+			}else if(i==0){
+				title+='Less than 1 minute';
+			}else{
+				throw 'Unknown performance category: '+i;
+			}
+			var list='';
+			for(var j=0;j<a.length;j++){
+				list+=renderSummaryItem(a[j], true);
+			}
+			str+='<div class="summaryContainer">';
+			str+=renderToggleView(title,list,true);
+			str+='</div>';
+		}
+		str+='</div>';
+		return str;
+	}
+	function renderErrorIndex(json){
+		var map={};
+
+		for(var i in json.summary){
+			var s=json.summary[i];
+			
+			if(s.successful){
+				continue;
+			}
+			var existing=map[s.errorMessage];
+			
+			if(!existing){
+				existing=[];
+				map[s.errorMessage]=existing;				
+			}
+			
+			var pos=existing.length;
+			for(var j=0;i<existing.length;j++){
+				if(existing[j].entryName < s.entryName){
+					pos=j;
+					break;
+				} 
+			}
+			existing.splice(pos, 0, s);		
+				
+		}		
+		
+		var errors=[];
+		for(var em in map){
+			var list=map[em];
+			var pos=errors.length;
+			for(var i=0;i<errors.length;i++){
+				var error=errors[i];				
+				if(list.length > error.list.length){
+					pos=i;
+					break;	
+				}
+			}
+			errors.splice(pos,0,{
+				errorMessage:em,
+				list:list
+			});
+			
+		}
+		totalErrorType=errors.length;
+		// render
+		var str='<div id="summaryErrorContainer" style="display:none" >';
+		for(var i=0;i<errors.length;i++){
+			var error=errors[i];
+			var content='';
+			for(var j=0;j<error.list.length;j++){
+				content+=renderSummaryItem(error.list[j], true);
+			}
+			str+='<div class="summaryContainer">';
+			str+=renderToggleView('('+error.list.length+') '+error.errorMessage, content, true);
+			str+='</div>';
+		}
+		
+		str+='</div>';		
+		return str;
+	}
+	function renderIndex(json){
+		
+		var map={};		
+		
+		// find out the groups
+		
+		for(var sumIndex in json.summary){
+			var sum=json.summary[sumIndex];
+			var name = sum.entityName;
+			var group=map[name];
+			if(group==null){
+				group={
+					entityName: name,
+					succeeded: [],
+					failed:[],
+					total:0					
+				};
+				map[name]=group;
+			}
+			if(sum.successful){
+				group.succeeded.push(sum);		
+				totalSucceeded++;	
+			}else{
+				group.failed.push(sum);
+				totalFailed++;			
+			}
+			group.total++;
+		}
+		var sorted=[];
+		for(var key in map){
+			sorted.push(map[key]);
+		}
+		sorted.sort(function(a,b){
+			return a.entityName.localeCompare(b.entityName);
+		});
+		// compose dom tree		
+		var str='<div id="summaryListContainer" style="display:none">';
+		
+		for(var key in sorted){
+			var group=sorted[key];
+			
+			var titleClass='';
+			if(group.succeeded.length==group.total){
+				titleClass='succeeded';				
+			}else if(group.failed.length==group.total){
+				titleClass='failed';
+			}
+			var title='<span class="summaryTitle">'+group.entityName+'</span> (';
+			if(group.succeeded.length>0){
+				title+='<span class="succeededText">'+group.succeeded.length+'</span>/';
+			}	
+			if(group.failed.length>0){
+				title+='<span class="failedText">'+group.failed.length+'</span>/';
+			}
+			title+='<span class="totalText">'+group.total+'</span>)';
+			
+			var content='';
+			for(var i in group.failed){
+				content+=renderSummaryItem(group.failed[i]);
+			}
+			for(var i in group.succeeded){
+				content+=renderSummaryItem(group.succeeded[i]);
+			}
+			str+='<div class="summaryContainer '+titleClass+'">';
+			str+=renderToggleView(title, content, true);
+			str+='</div>';
+		}
+		str+='</div>';
+		return str;
+	}
+	function renderGroupIndex(json){
+		
+		var map={};		
+		
+		// find out the groups
+		var groupCount=0;
+		for(var sumIndex in json.summary){
+			var sum=json.summary[sumIndex];
+			var name = sum.group;
+			if(('undefined'==typeof name) || name==null || name==''){
+				name='[NON-GROUPED]';
+			}
+			var group=map[name];
+			if(group==null){
+				group={
+					name: name,
+					succeeded: [],
+					failed:[],
+					total:0,
+					index:groupCount++					
+				};
+				map[name]=group;
+			}
+			if(sum.successful){
+				group.succeeded.push(sum);						
+			}else{
+				group.failed.push(sum);				
+			}
+			group.total++;
+		}
+		// sort groups by occurency order
+		var groups=[];
+		for(var key in map){
+			groups.push(map[key]);
+		}
+		groups.sort(function(a,b){
+			return a.name.localeCompare(b.name);
+		});
+		// compose dom tree		
+		var str='<div id="summaryGroupContainer" style="display:none">';
+		
+		for(var key in groups){
+			var group=groups[key];
+			
+			var titleClass='';
+			if(group.succeeded.length==group.total){
+				titleClass='succeeded';				
+			}else if(group.failed.length==group.total){
+				titleClass='failed';
+			}
+			var title='<span class="summaryTitle">'+group.name+'</span> (';
+			if(group.succeeded.length>0){
+				title+='<span class="succeededText">'+group.succeeded.length+'</span>/';
+			}	
+			if(group.failed.length>0){
+				title+='<span class="failedText">'+group.failed.length+'</span>/';
+			}
+			title+='<span class="totalText">'+group.total+'</span>)';
+			
+			var content='';
+			for(var i in group.failed){
+				content+=renderSummaryItem(group.failed[i], true);
+			}
+			for(var i in group.succeeded){
+				content+=renderSummaryItem(group.succeeded[i], true);
+			}
+			str+='<div class="summaryContainer '+titleClass+'">';
+			str+=renderToggleView(title, content, true);
+			str+='</div>';
+		}
+		str+='</div>';
+		return str;
+	}
+	function renderSummaryItem(item, showName){
+		var str='<div processId="'+item.processId+'" class="summaryItemContainer '+(item.successful?'succeeded':'failed')+'">';
+		str+='<a class="summaryItemLink" href="detail.html?sequence='+sequence+'&pid='+item.processId+'" target="detail" >';
+		str+='<div class="summaryItem" onclick="summaryItemClick(this)" onmouseover="summaryItemMouseOver(this)" onmouseout="summaryItemMouseOut(this)" >';
+		str+='<div>PID: '+item.processId;
+		if(showName){
+			str+=', <b>'+item.entityName+'</b>';
+		}else{
+			str+=', Duration: '+getDuration(item.stop-item.start);
+		}
+		str+='</div>';
+		for(var i in item.initialProperties){
+			var p=item.initialProperties[i];
+			str+='<div>'+ p.name+'='+p.value+'</div>';
+		}	
+		str+='</div></a></div>';
+		return str;
+	}
+		
+	function summaryItemMouseOver(div){
+		$(div).parent().parent().addClass('hover');
+	}
+	function summaryItemMouseOut(div){
+		$(div).parent().parent().removeClass('hover');
+	}
+	function summaryItemClick(div){
+						
+		$('div.summaryItemContainer').removeClass('selected');
+		$(div).parent().parent().addClass('selected');
+		
+	}
+	function showFullList(){
+		$('#summaryPerformanceContainer').hide();
+		$('#summaryErrorContainer').hide();
+		$('#summaryListContainer').show();
+	}
+	function showErrorList(){
+		$('#summaryPerformanceContainer').hide();
+		$('#summaryListContainer').hide();
+		$('#summaryErrorContainer').show();
+	}
+	function showPerformanceList(){
+		$('#summaryListContainer').hide();
+		$('#summaryErrorContainer').hide();
+		$('#summaryPerformanceContainer').show();
+	}
+-->	
+</script>
+</head>
+<body>
+	<h1 id="loadingNoContent">Initializing report index ...</h1>
+
+	<div id="reportIndex"></div>
+
+</body>
+</html>

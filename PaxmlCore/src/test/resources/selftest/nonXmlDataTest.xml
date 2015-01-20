@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+  <data id="x1">
+    <!-- this should not be parsed -->
+    <a>
+      <literal>x<x />
+y </literal>1&lt;
+2<!-- this should not be parsed --><![CDATA[ 
+ <cd1 
+ ]]><literal><![CDATA[
+ cd2/> ]]></literal>
+    </a>
+    
+  </data>
+  
+  <assert expected="4" actual="${size(x1.a)}"/>
+  <assert expected="${'x&lt;x /&gt;'+util.makeString(10)+'y '}" actual="${x1.a.0}"/>
+  <assert expected="1&lt;${util.makeString(10)}2" actual="${x1.a.1}"/>
+  <assert expected=" ${util.makeString(10)} &lt;cd1 ${util.makeString(10)} " actual="${x1.a.2}"/>
+  <assert expected="${util.makeString(10)} cd2/&gt; " actual="${x1.a.3}"/>         
+</scenario>
+ 

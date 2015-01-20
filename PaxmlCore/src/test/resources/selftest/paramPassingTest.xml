@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+    
+    <echoEx id="r1" >
+      <one>
+        <a>a</a>
+        <b>b</b>
+      </one>      
+    </echoEx>
+    
+    <data id="r1_exp" attr1="attr1" attr2="attr2" attr3="attr3" >
+      <ref >
+        <a>a</a>
+        <b>b</b>
+      </ref>      
+    </data>
+    
+    <assert actual="${r1}" expected="${r1_exp}" strict="true"/>
+    
+    
+</scenario>
+ 

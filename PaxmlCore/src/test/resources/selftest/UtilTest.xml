@@ -1,0 +1,60 @@
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<?xpml version="1.0" encoding="UTF-8"?>
+<scenario>
+  <assertTrue actual="${util.isCallable('ODSs')}" />
+  <assertTrue actual="${util.isCallable('sqlTest')}" />
+  <assertFalse actual="${util.isCallable('dhsafkjsdf43sdfsdjbc')}" />
+  <assertFalse actual="${util.isCallable('true')}" />
+  <assertFalse actual="${util.isCallable('false')}" />
+  <assertFalse actual="${util.isCallable('111')}" />
+  
+  <data id="d1"></data>  
+  <assertTrue actual="${util.hasConst('d1',true)}"/>
+  
+  <data id="d2">${null}</data>  
+  <assertTrue actual="${util.hasConst('d2',true)}"/>
+  
+  <assertFalse actual="${util.hasConst('nonExistingConst1',true)}" />
+  <assertTrue actual="?{empty(nonExistingConst1)}" />     
+  <data id="d3">?{nonExistingConst1}</data>
+  <assertTrue actual="${util.hasConst('d3',true)}"/>
+  <assertNull actual="?{nonExistingConst1}" />
+  
+  <assertFalse actual="?{!empty(nonExistingConst1)}" />
+  <fail if="?{!empty(nonExistingConst1)}"/>
+  
+  <fail unless="?{empty(jhfkjfsdgfasuoy3jks)}" />
+  
+  <data id="ai">${new('java.util.concurrent.atomic.AtomicInteger',0)}</data>
+  
+  <!-- testing that empty() function does NOT throw exception -->
+  <fail if="?{empty(askhdjkasddw) and (ai.incrementAndGet() == 0)}" >Failing on empty() function 1, ai=${ai.intValue()}</fail>
+  
+  <!-- testing that empty() function does NOT throw exception -->
+  <fail if="?{empty(askh.djkas.asds.ddw) and (ai.incrementAndGet() == 0)}" >Failing on empty() function 2, ai=${ai.intValue()}</fail>
+  
+  <assert expected="2" actual="${ai.intValue()}"/>
+  
+  <!-- 
+  <UtilTestInvoked exist="?{nonExistingConst1}" expected="okokok" />
+  <UtilTestInvoked exist="${''}" expected="okokok" />
+   -->
+       
+</scenario>

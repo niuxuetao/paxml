@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Screenshots</title>
+<link rel="stylesheet" href="style.css">
+<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="jquery.scrollTo-1.4.3.1-min.js"></script>
+<script type="text/javascript" src="jquery.imagesloaded.min.js"></script>
+<script type="text/javascript" src="common.js"></script>
+<script type="text/javascript">
+<!--
+	var ERROR_MESSAGE;
+	var START_TIME;
+	$(document).ready(function(){
+		//$('#screenshots').imagesLoaded( function() {
+    		//$('#screenshotFileLoading').css('visibility','hidden');
+		//});
+		var map=getUrlQueryMap(window.location.href);
+		var pid=map['pid'];
+		document.title='Screenshots - '+pid;
+		fetchJson(pid, map['sequence'], function(json){
+			ERROR_MESSAGE=json.errorMessage;
+			START_TIME=json.start;
+			document.title='Screenshots - '+json.processId+':'+json.entityName;
+			populateScreenshots(json);
+	
+			$('#loadingNoContent').hide();
+			$('#screenshots').show();
+			
+		});
+		
+	});
+	function populateScreenshots(json){
+		
+		var str='';		
+		for(var i in json.screenshots){
+			var s=json.screenshots[i];
+			var text='';
+			for(var j in s.callStack){
+				var cs=s.callStack[j];
+				text=(cs.entityName?cs.entityName:'?')+'@'+cs.line +(j>0?' &gt; ':(' &gt; '+cs.tagName)) +text;
+			}
+			str+='<div file="'+s.fileName+'" class="'+(i==0?'selected':'')+'" onclick="screenshotLabelClick(this)" onmouseout="screenshotLabelMouseOut(this)" onmouseover="screenshotLabelMouseOver(this)">';
+			str+='<div class="screenshotLabel '+(json.errorScreenshotName==s.fileName?'failedText' : '')+'"><span>'+(parseInt(i)+1)+':</span> <span>'+text+'</span>';
+			if(json.errorScreenshotName==s.fileName && ERROR_MESSAGE){
+				str+='<br/><span><b>ERROR: '+escapeHtml(ERROR_MESSAGE)+'</b></span>';
+			}
+			str+='</div></div>';
+		}
+				
+		$('#screenshotsList').html(str);
+		showScreenshot();
+	}
+	function screenshotLabelClick(div){
+		$(div).siblings('div[file]').removeClass('selected');
+		$(div).addClass('selected');
+		showScreenshot();
+	}
+	function screenshotLabelMouseOver(div){
+		$(div).addClass('hover');
+	}
+	function screenshotLabelMouseOut(div){
+		$(div).removeClass('hover');
+	}
+	function nextScreenshot(diff){
+		var index=getCurrentScreenshotIndex()+diff;		
+		showScreenshot(index);	
+		
+	}
+
+	function getCurrentScreenshotIndex(){
+		return $('#screenshotsList > div.selected').index();		
+	}
+	
+	function showScreenshot(index){
+		var sel=$('#screenshotsList');
+		
+		if(typeof(index)!='undefined'){
+		
+			if(index<0 || index>=sel.find('div[file]').size()){
+				return;
+			}
+			var option=sel.find('div[file]').eq(index);
+			option.siblings('div[file]').removeClass('selected');
+			option.addClass('selected');
+			sel.scrollTo(option.get(0));
+			
+		}		
+		
+		var file=$('#screenshotsList > div.selected').attr('file');
+		var src='../screenshots/'+file+'?'+START_TIME;
+		
+		//$('#screenshotFile').text(file);
+		//$('#screenshotFileLoading').css('visibility','visible');
+		$('#screenshot').attr('src',src);
+	}
+-->
+</script>
+</head>
+<body>
+	<h1 id="loadingNoContent">Initializing Screenshots ...</h1>
+
+	<div id="screenshots" style="display:none;">
+		
+		<p id="screenshotsList" style="max-height:160px;overflow:auto;border:1px solid">	
+			
+		</p>		
+		
+		<center>
+			<p>
+				<button onclick="showScreenshot(0)">&lt;&lt; First</button>
+				&nbsp;
+				<button onclick="nextScreenshot(-1)">&lt; Previous</button>
+				&nbsp;
+				<button onclick="nextScreenshot(1)">Next &gt;</button>
+				&nbsp;
+				<button onclick="showScreenshot($('#screenshotsList div[file]').size()-1)">Last &gt;&gt;</button>
+			</p>
+			<hr/>
+			
+			<div style="max-height:800px;overflow:auto">
+				<img id="screenshot" src=""/>
+			</div>
+<!-- 			
+			<p>			
+				<span id="screenshotFile"></span>
+			</p>
+			 -->
+		</center>
+	</div>
+
+</body>
+</html>

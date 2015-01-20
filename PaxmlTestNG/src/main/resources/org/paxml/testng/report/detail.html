@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Test result detail</title>
+<link rel="stylesheet" href="style.css">
+<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="common.js"></script>
+<script type="text/javascript">
+<!--
+	var SEQUENCE;
+	var PID;
+	var VALUE_STRINGS=[];
+	$(document).ready(function(){
+		var map=getUrlQueryMap(window.location.href);
+		PID=map['pid'];
+		SEQUENCE=map['sequence'];			
+		fetchJson(PID, SEQUENCE, function(json){		
+			
+			var str=renderDetail(json);
+			$('#loadingNoContent').hide();
+			$('#reportDetail').html(str);
+		});
+	
+	});
+	
+	function renderDetail(json){
+		
+		var str='<h2>'+json.entityName+'</h2>';
+		str+='<table width="100%" border="1px solid" cellspacing="0" cellpadding="5px"><tr>';
+		str+='<td width="20%"><b>Status:</b> '+(json.successful?'Succeeded':'Failed')+'</td>';		
+		str+='<td width="20%"><b>Duration:</b> '+getDuration(json.stop-json.start)+'</td>';
+		str+='<td width="20%"><b>Process Id:</b> '+json.processId+'</td>';		
+		str+='<td width="20%"><b>Group:</b> '+(('undefined'!=typeof json.group) && json.group!=null && json.group!=''?json.group:'')+'</td>';				
+		str+='<td width="20%"><b>Thread Name:</b> '+json.threadName+'</td>';
+		str+='</tr></table>';
+		
+		str+='<p><a href="../logs/'+json.processId+'.'+json.threadName+'.log?'+json.start+'" target="_blank" >View Log</a>';
+		if(json.screenshots && json.screenshots.length>0) {
+			str+=' | <a href="screenshots.html?sequence='+SEQUENCE+'&pid='+PID+'&timestamp='+json.start+'" target="_blank">View All Screenshots</a>';	
+		}
+		if(json.errorScreenshotName){
+			str+=' | <a href="../screenshots/'+json.errorScreenshotName+'?'+json.start+'" target="_blank">View Error Screenshot</a>';
+		}
+		str+='</p>';
+		
+		if(!json.successful){
+			str+=renderToggleView('Error Message', '<p class="errorMessage">'+escapeHtml(json.errorMessage)+'</p>');
+			
+			// render the error stack
+			var content='<ol class="errorStack">';			
+			for(i in json.errorStack){
+				var stack=json.errorStack[i];				
+				content+='<li>&lt;'+stack.tagName+'&gt; at line '+stack.line+' of '+ (stack.entityName?stack.entityName+'.xml':'[Instant paxml]')+'</li>';				
+			}
+			content+'</ol>';
+			str+=renderToggleView('Error Stack', content);
+		}
+		
+		str+=renderContextDump(json.initialProperties, 'Factors');
+		
+		str+=renderContextDump(json.contextDump.contextValue, 'Context Dump');
+		
+		str+=renderContextDump(json.systemProperties, 'System Properties', true);
+		
+		return str;
+	}
+	function renderContextDump(vlist, title, closed){
+		if(!vlist || !vlist.length){
+			return '';
+		}
+		var str='<table width="100%" border="1px solid" cellspacing="0" cellpadding="5px" >';
+		str+='<tr><td width="1%"><b>Name</b></td><td><b>Value</b></td></tr>';
+		for(var i in vlist){
+			var v=vlist[i];
+			str+='<tr>';
+			str+='<td style="vertical-align:top">'+v.name+'</td>';			
+			str+='<td style="vertical-align:top">';
+			
+			if(v.value.length>100){
+				VALUE_STRINGS.push(v.value);
+				var index=VALUE_STRINGS.length-1;				
+				str+='<table width="100%" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;"><tr><td style="vertical-align:top;width:1px""><button valueIndex="'+index+'" expanded="false" onclick="togglePropertyValue(this)">+</button></td>';
+				str+='<td style="vertical-align:top;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"><div style="margin-left:30px">'+escapeHtml(v.value)+'</div></td></tr></table>';
+			}else{
+				str+='<div>'+escapeHtml(v.value)+'</div>';
+			}
+						
+			str+='</td>';
+			str+='</tr>';
+		}
+		str+='</table>';
+		return renderToggleView(title, str, closed);
+	}
+	function togglePropertyValue(btn){
+		btn=$(btn);
+		var index=parseInt(btn.attr('valueIndex'));		
+		if('true'==btn.attr('expanded')){
+			
+			btn.attr('expanded','false');
+			btn.text('+');
+			btn.closest('td').next('td').find('div').text(VALUE_STRINGS[index]);
+		}else{
+			
+			btn.attr('expanded','true');
+			btn.text('-');
+			btn.closest('td').next('td').find('div').html('<div style="padding:0 10px 0 0"><textarea style="width:100%;overflow: visible" readonly="readonly">'+VALUE_STRINGS[index]+'</textarea></div>');
+			var o=btn.closest('td').next('td').find('textarea').get(0);
+			o.style.height = "1px";
+    		o.style.height = (2+o.scrollHeight)+"px";
+		}
+	}
+-->
+</script>
+</head>
+<body>
+	<h1 id="loadingNoContent">Initializing test report ...</h1>
+
+	<div id="reportDetail"></div>
+
+</body>
+</html>

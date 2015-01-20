@@ -1,0 +1,184 @@
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<?xpml version="1.0" encoding="UTF-8"?>
+<scenario xmlns:f="http://paxml.org/file">
+            
+    <data id="class">org.paxml.test.UnitTestObject</data>
+
+    <log>Loading objects from class: ${class}</log>
+    
+    <springData includeType="${class}" />
+    <data id="alwaysList">false</data>
+    <data id="objects">
+        <iterate xpath="${class}">
+            <value>${var}</value>
+            <xx>
+            <!-- has to be enclosed, otherwise it will break the rules -->
+            <assert expected="${class}" actual="${var.class.name}"/>
+            <assert expected="${var}" >
+                <actual>
+                    <xpathSelect from="${var}">.</xpathSelect>
+                </actual>                
+            </assert>
+            
+            <assert expected="${var}">
+                <actual>
+                    <xpathSelect from="${var}">.[util:matchClass('${class}', true)]</xpathSelect>
+                </actual>
+            </assert>
+            <assert expected="${var.stringValue}" >
+                <actual>
+                    <xpathSelect from="${var}">stringValue[util:getClass(util:current())/name='java.lang.String']</xpathSelect>
+                </actual>
+            </assert>
+             </xx>
+        </iterate>
+    </data>
+    
+    <assertNotNull actual="${objects}"/>    
+    <assert expected="2" actual="${size(objects.value)}" />
+    
+    <iterate values="${objects.value}">
+        <!-- make sure it is a file tag -->
+        <f:springObjectAsserter bean="${var}"  />
+    </iterate>    
+    
+    <myData id="xp1">
+        <a>m1</a>
+        <a>m2</a>        
+    </myData>           
+    <log>xp1=${xp1}</log>
+    <assert expected="${xp1.a}">
+        <actual><xpathSelect>myData/a</xpathSelect></actual>
+    </assert>
+    
+    <herData id="xp2">
+        h1
+        h2        
+    </herData>
+    <log>xp2=${xp2}</log>
+    <assert expected="${xp2}">
+        <actual><xpathSelect>herData</xpathSelect></actual>
+    </assert>
+    
+    <myData id="xp3">
+        <a>m3</a>
+        <a>m4</a>        
+    </myData>
+    <log>xp3=${xp3}</log>
+    
+    <assert >
+        <expected>
+        	<flatten>
+            <expression>${xp1.a}</expression>
+            <expression>${xp3.a}</expression>
+            </flatten>
+        </expected>
+        <actual><xpathSelect alwaysList="true">myData/a</xpathSelect></actual>
+    </assert>    
+     
+    
+    <herData id="xp4">
+        <expression>h3</expression>
+        <expression>h4</expression>        
+    </herData>
+    <log>xp4=${xp4}</log>
+    
+    <assert >
+        <expected>
+            <expression>${xp2}</expression>
+            <expression>${xp4}</expression>
+        </expected>
+        <actual>
+            <xpathSelect>herData</xpathSelect>
+        </actual>
+    </assert>
+     
+    
+    <myData id="xp5">
+        <cond1>1</cond1>
+        <cond2>2</cond2>
+        <value>xp5v</value>
+        <x>x1</x>
+        <x>x2</x>
+    </myData>
+    <log>xp5=${xp5}</log>
+    
+    <assert expected="2">
+        <actual><xpathSelect from="${xp5}">cond2</xpathSelect></actual>        
+    </assert>
+    <assert expected="x1">
+        <actual><xpathSelect from="${xp5}">x[1]</xpathSelect></actual>        
+    </assert>
+        
+    <myData id="xp6">
+        <cond1>10</cond1>
+        <cond2>20</cond2>
+        <value>xp6v</value>
+        <x>
+            <y>1</y>
+        </x>
+        <x>
+            <y>2</y>
+            <z>100</z>
+        </x>
+        <c>
+            <y>
+                <m>888</m>
+                <n>999</n>
+            </y>
+        </c>
+    </myData>
+    <log>xp6=${xp6}</log>
+    
+    <assert expected="xp6v">
+        <actual><xpathSelect from="${xp6}">/value</xpathSelect></actual>        
+    </assert>
+    <assert expected="100">
+        <actual><xpathSelect from="${xp6}">x[y=2]/z</xpathSelect></actual>        
+    </assert>
+    <assert expected="${xp6.c}">
+        <actual><xpathSelect from="${xp6}">c[y/m=888]</xpathSelect></actual>        
+    </assert>
+    
+    <assert expected="${xp6}" actual="${util.xpathSelect('myData[cond1=10]')}" />
+	<assert>
+        <expected>
+            <expression>${xp5}</expression>
+            <expression>${xp6}</expression>
+        </expected>        
+        <actual>
+            <xpathSelect >myData[cond1=10 or cond2=2]</xpathSelect>
+        </actual>
+    </assert>
+    
+    <assertNull >
+      <actual><xpathSelect>id('xxxxx')</xpathSelect></actual>
+    </assertNull>
+    
+    <assert expected="${xp6}" >
+      <actual><xpathSelect>id('xp6')</xpathSelect></actual>
+    </assert>
+    <!-- the following will fail because we don't know how to implement IdentityManager -->
+    <!-- 
+    <assert expected="${xp6.cond1}" >
+      <actual><xpathSelect>id('xp6')/cond1</xpathSelect></actual>
+    </assert>
+     -->
+</scenario>

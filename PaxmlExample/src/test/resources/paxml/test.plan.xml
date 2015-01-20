@@ -1,0 +1,44 @@
+<!--
+
+    This file is part of PaxmlExample.
+
+    PaxmlExample is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlExample is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlExample.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<plan>
+    
+    <execution group="*" />
+    <!-- 
+    selenium.rc.host=localhost
+        selenium.rc.port=14444
+     -->
+    <properties>        
+        
+        selenium.browser=*firefox 
+        snapshotBeforePageLoad=true
+        selenium.snapshot.folder=${strings.replace(basedir,'\\','/')}/target/surefire-reports/paxml/screenshots           
+    </properties>
+    
+    <scenario name="Example*" group="example">
+        
+    </scenario>    
+    
+    <resource>    
+        <include>**/*.xml</include>
+    </resource>
+    
+    <library>org.paxml.selenium.rc.TagLibrary</library>
+    
+    
+</plan>

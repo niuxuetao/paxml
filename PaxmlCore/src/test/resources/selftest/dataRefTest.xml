@@ -1,0 +1,249 @@
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<?refml version="1.0" encoding="UTF-8"?>
+<scenario>
+
+  <data id="ref1">
+    <c>1</c>
+    <c>2</c>
+    <d>3</d>
+    <d>4</d>
+  </data>
+  <log>ref1=${ref1}</log>
+  <assert expected="${util.map('c',util.list(1,2), 'd',util.list(3,4))}"
+    actual="${ref1}" />
+
+  <assert expected="${ref1}">
+    <actual><findData byId="ref1" /></actual>
+  </assert>
+  <findData id="ref1_" byId="ref1" />
+  <assert expected="${ref1}" actual="${ref1_}" />
+  
+  <data id="ref2">
+    <iterate times="2">${index+1}</iterate>
+  </data>
+  <log>ref2=${ref2}</log>
+  <assert expected="${util.list(1,2)}" actual="${ref2}" />
+
+  <data id="ref3">
+    <x>${ref2}</x>
+    <x>333</x>
+    <x>${ref2}</x>
+  </data>
+  <print>ref3=${ref3}</print>
+  <!-- check that ref2 is not changed -->
+  <assert expected="${util.list(1,2)}" actual="${ref2}" />  
+  <assert expected="3" actual="${size(ref3.x)}" />
+  <assert expected="${ref2}" actual="${ref3.x.0}" />
+  <assert expected="333" actual="${ref3.x.1}" />
+  <assert expected="${ref2}" actual="${ref3.x.2}" />  
+  <assert expected="${util.list(1,2)}" actual="${ref2}" />
+  
+  <data id="ref3_1">
+    <x>x</x>
+    <y>y</y>
+  </data>
+  <assert expected="${util.map('x','x','y','y')}" actual="${ref3_1}" />
+  <!-- 
+  TODO: This case needs to be considered.
+  <data id="ref3_2">
+    <![CDATA[${ref3_1}]]>
+    <z>z</z>
+  </data>
+  <print>ref3_2=${ref3_2}</print>
+  <assert expected="${util.map('x','x','y','y')}" actual="${ref3_1}" />
+  <assert expected="${util.map('x','x','y','y','z','z')}" actual="${ref3_2}" />
+   -->
+   
+  <data id="ref4"><![CDATA[${ref2}]]><![CDATA[${ref2}]]></data>
+  <print>ref4=${ref4}(${ref4.class.name})</print>
+  <assert expected="12" actual="${size(ref4)}" />
+  <assert expected="java.lang.String" actual="${ref4.class.name}"/>
+
+  <data id="ref5">
+    <![CDATA[555]]>
+    <![CDATA[${ref2}]]>
+    <![CDATA[${ref2}]]>
+  </data>
+  <print>ref5=${ref5}</print>
+  <assert expected="33" actual="${size(ref5)}" />
+  <assert expected="java.lang.String" actual="${ref5.class.name}"/>
+  
+  <data id="ref6">
+    <x>666</x>
+    <x>${ref2}</x>
+    <x>${ref2}</x>
+    <x>111</x>
+    </data>
+  <log>ref6=${ref6}</log>
+  <assert expected="4" actual="${size(ref6.x)}" />
+  <assert expected="666" actual="${ref6.x.0}" />
+  <assert expected="${ref2}" actual="${ref6.x.1}" />
+  <assert expected="${ref2}" actual="${ref6.x.2}" />
+  <assert expected="111" actual="${ref6.x.3}" />
+
+  <data id="ref7">
+    <c>
+      <cc>111</cc>
+    </c>
+    <c>
+      <cc>222</cc>
+    </c>
+  </data>
+  <data id="ref7_backup">${ref7.copy()}</data>
+  <log>ref7=${ref7}</log>
+  <assert expected="1" actual="${size(ref7)}" />
+  <assert expected="2" actual="${size(ref7.c)}" />
+  <assert expected="111" actual="${ref7.c.0.cc}" />
+  <assert expected="222" actual="${ref7.c.1.cc}" />
+
+  <assert expected="${ref7}" actual="${ref7_backup}" />
+
+  <data id="ref8">
+    <s>${ref7.c}</s>
+  </data>
+  <assert expected="1" actual="${size(ref8)}" />
+  <assert expected="${ref7.c}" actual="${ref8.s}" />
+  <assert expected="${ref7}" actual="${ref7_backup}" />
+
+  <data id="ref9">
+    <![CDATA[10]]>
+    <![CDATA[20]]>
+    </data>
+  <log>ref9=${ref9}</log>
+
+
+  <!-- data referencing test -->
+
+  <data id="ref9_1">9_1</data>
+  <data id="ref9_2">${ref9_1}</data>
+  <log>ref9_2=${ref9_2}</log>
+  <assert expected="${ref9_1}" actual="${ref9_2}" />
+
+  <data id="ref9_3">
+    <c>${ref9_1}</c>
+  </data>
+  <assert expected="${ref9_1}" actual="${ref9_3.c}" />
+  <data id="ref9_4">
+    <c>${ref9_1}</c>
+    <c>${ref9_1}</c>
+  </data>
+  <assert expected="1" actual="${size(ref9_4)}" />
+  <assert expected="2" actual="${size(ref9_4.c)}" />
+  <assert expected="${ref9_1}" actual="${ref9_4.c.0}" />
+  <assert expected="${ref9_1}" actual="${ref9_4.c.1}" />
+
+  <data id="ref9_5">
+    <x>${ref9_1}</x>
+    <x>${ref9_2}</x>
+    </data>
+  <data id="ref9_5_backup">
+    <iterate values="${ref9_5}">${var}</iterate>
+  </data>
+  <log>ref9_5=${ref9_5}</log>
+  <assert expected="2" actual="${size(ref9_5.x)}" />
+  <assert expected="${ref9_1}" actual="${ref9_5.x.0}" />
+  <assert expected="${ref9_1}" actual="${ref9_5.x.1}" />
+  <log>ref9_5_backup=${ref9_5_backup}</log>
+  <assert expected="${ref9_5.x}" actual="${ref9_5_backup}" />
+
+  <data id="ref9_6">${ref9_5}</data>
+  <log>ref9_6=${ref9_6}</log>
+  <assert expected="${ref9_5}" actual="${ref9_6}" />
+
+  <data id="ref9_7">
+
+    <x>${ref9_5}</x>
+    <x>${ref9_5}</x>
+        
+  </data>
+  <log>ref9_7=${ref9_7}</log>
+  <assert expected="2" actual="${size(ref9_7.x)}" />
+  <assert expected="${ref9_5}" actual="${ref9_7.x.0}" />
+  <assert expected="${ref9_5}" actual="${ref9_7.x.1}" />
+
+  <log>After ref9_7, ref9_5=${ref9_5}</log>
+  <assert expected="${ref9_5.x}" actual="${ref9_5_backup}" />
+
+  <dataref id="ref9_8">
+
+    <c>basic</c>
+
+    <ref>111111</ref>
+    <x>200</x>
+    <c>${ref9_5}</c>
+
+  </dataref>
+  <log>ref9_8=${ref9_8}</log>
+
+  <assert
+    expected="${util.map('c',util.list('basic',ref9_5), 'ref',111111, 'x', 200)}"
+    actual="${ref9_8}" />
+
+
+  <data id="ref9_9">${ref9_8}</data>
+  <log>ref9_9=${ref9_9}</log>
+  <assert expected="${ref9_8}" actual="${ref9_9}" />
+
+  <data id="ref9_10">${ref9_9.0.c}</data>
+  <log>ref9_9=${ref9_9}</log>
+  <assert expected="${ref9_8.0.c}" actual="${ref9_10}" />
+
+  <data id="list1">
+    <x>1</x>
+    <x>2</x>
+  </data>
+  <data id="list2">
+    <x>${list1}</x>
+    <x>${list1}</x>
+    </data>
+  <assert
+    expected="${util.list(util.map('x',util.list(1,2)),util.map('x',util.list(1,2)))}"
+    actual="${list2.x}" />
+
+  <data id="list3">
+    <w>${list1.x}</w>
+    <w>${list1.x}</w>
+    </data>
+  <print>list3=${list3}</print>  
+  <assert expected="${util.list(util.list(1,2),util.list(1,2))}"
+    actual="${list3.w}" />
+
+  <data id="list4">
+    <iterate times="2">${var+1}</iterate>
+  </data>
+  <assert expected="${util.list(1,2)}" actual="${list4}" />
+  
+  <echo id="list5">
+    <value>${list4}</value>
+    <value>${list4}</value> 
+  </echo>
+  <print>list5=${list5}</print>
+  <assert expected="${util.list(util.list(1,2),util.list(1,2))}" actual="${list5}" />
+
+  <data id="list6">
+    <x>${list4}</x>
+    <x>3</x>
+  </data>
+  
+  <assert expected="${util.list(util.list(1,2),3)}" actual="${list6.x}" />
+
+</scenario>
+ 
+ 

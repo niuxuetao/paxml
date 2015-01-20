@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+	<data id="locale">nl</data>
+	
+    <bundle id="bundle" basename="selftest/dates" />
+    <log>bundle1=${bundle}</log>
+    <assert expected="${bundle}" actual="${test.context.currentEntityContext.getConst('bundle',false)}"/>
+    
+    <bundle basename="selftest/dates"/>
+    
+    <iterate values="${util.constIds}">
+        <log>${var} = ${bundle.get(var)}</log>
+        <assert if="${bundle.containsKey(var)}" 
+            expected="${bundle.get(var)}" 
+            actual="${test.context.currentEntityContext.getConst(var, false)}" />
+    </iterate>
+    
+    <properties id="props1" file="propertiesTest.properties" />
+    <log>props1=${props1}</log>
+    <assert expected="2" actual="${props1.size()}" />
+    <assert expected="1" actual="${props1.p1}" />
+    <assert expected="2" actual="${props1.p2}" />
+    
+    <properties id="props2" >
+        px=x
+        py=y
+    </properties>
+    <assert expected="2" actual="${props2.size()}" />
+    <assert expected="x" actual="${props2.px}" />
+    <assert expected="y" actual="${props2.py}" />
+    
+    <properties id="props3" file="propertiesTest.properties"  >
+        p2=20
+        p3=30 
+    </properties>
+    <assert expected="3" actual="${props3.size()}" />
+    <assert expected="1" actual="${props3.p1}" />
+    <assert expected="20" actual="${props3.p2}" />
+    <assert expected="30" actual="${props3.p3}" />
+        
+</scenario>
+

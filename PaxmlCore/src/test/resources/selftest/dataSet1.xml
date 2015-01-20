@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<dataSet>
+
+    <log>Putting ds1 to ${scope} scope with flag ${flag}.</log>
+ 
+    <data id="${scope}_ds1_1">${scope}_ds1_1_value_${flag}</data>
+    <data id="${scope}_ds1_2">${scope}_ds1_2_value_${flag}</data>
+    
+    <log>Consts from ds1 are: </log>
+    <iterate values="${util.constIds}">
+        <log>${var} = ${util.getConst(var,true)}</log>
+    </iterate>
+</dataSet>
+ 

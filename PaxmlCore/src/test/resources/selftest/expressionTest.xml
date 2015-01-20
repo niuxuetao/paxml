@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+
+  <data id="x">1</data>
+  
+  <assertNull actual="?{x_non}"/>
+  <assertFalse actual="${util.hasConst('x_non',true)}"/>
+  <fail if="?{x.xxx}"/>  
+  <fail unless="?{!x.xxx}"/>
+  
+  <assertNull actual="?{x.xxx}"/>
+  <fail if="?{x_non}"/>
+  
+  <fail unless="?{!x_non}"/>
+  
+  
+  <!-- 'blabla' is true -->
+  <data id="var_normal_1">blabla</data>
+  <fail unless="?{var_normal_1}" />
+  <fail unless="${var_normal_1}" />
+  <!-- string negation results always in true, except that string is 'true' or 'false' -->
+  <fail unless="?{!var_normal_1}" />
+  <fail unless="${!var_normal_1}" />
+  
+  <!-- null is same as false -->
+  <data id="var_null_1">${null}</data>
+  <fail if="?{var_null_1}" />
+  <fail if="${var_null_1}" />
+  <fail unless="?{!var_null_1}"/>
+  <!-- invalid jexl evaluation, jexl cannot avaluate !null 
+  <fail unless="${!var_null_1}"/>
+   -->
+   
+  <!-- 'null' is same as true -->
+  <data id="var_null_2">null</data>
+  <fail unless="?{var_null_2}" />
+  <fail unless="${var_null_2}" />
+  <!-- string negation results always in true, except that string is 'true' or 'false' -->
+  <fail unless="?{!var_null_2}" />  
+  <fail unless="${!var_null_2}"/>
+  
+  <!-- 'null' is same as true -->
+  <data id="var_null_3">${'null'}</data>
+  <fail unless="?{var_null_3}" />
+  <fail unless="${var_null_3}" />
+  <!-- string negation results always in true, except that string is 'true' or 'false' -->
+  <fail unless="?{!var_null_3}"/>
+  <fail unless="${!var_null_3}"/>
+  
+  <!-- empty is same as false -->
+  <data id="var_empty_1"></data>
+  <fail if="?{var_empty_1}" />
+  <fail if="${var_empty_1}" />
+  <!-- string negation results always in true, except that string is 'true' or 'false' -->
+  <fail unless="?{!var_empty_1}" />
+  <!-- invalid jexl evaluation, jexl cannot evaluate !null 
+  <fail unless="${!var_empty_1}" />
+   -->
+   
+  <!-- blank text in this case is null, so it is same as false -->
+  <data id="var_blank_1"> </data>  
+  <fail if="?{var_blank_1}" />
+  <fail if="${var_blank_1}" />
+  <fail unless="?{!var_blank_1}" />
+  <!-- invalid jexl evaluation, jexl cannot avaluate !null 
+  <fail unless="${!var_blank_1}" />
+  -->
+  
+  <!-- blank text is same as true -->
+  <data id="var_blank_2">${' '}</data>
+  <fail unless="?{var_blank_2}" />
+  <fail unless="${var_blank_2}" />
+  <!-- string negation results always in true, except that string is 'true' or 'false' -->
+  <fail unless="?{!var_blank_2}" />
+  <fail unless="${!var_blank_2}" />
+  
+  <!-- false is false -->
+  <data id="var_false_1">${false}</data>
+  <fail if="?{var_false_1}" />
+  <fail if="${var_false_1}" />
+  <fail unless="?{!var_false_1}" />
+  <fail unless="${!var_false_1}" />
+  
+  <!-- 'false' is false -->
+  <data id="var_false_2">false</data>
+  <fail if="?{var_false_2}" />
+  <fail if="${var_false_2}" />
+  <fail unless="?{!var_false_2}" />
+  <fail unless="${!var_false_2}" />
+  
+  <!-- 'false' is false -->
+  <data id="var_false_3">${'false'}</data>
+  <fail if="?{var_false_3}" />
+  <fail if="${var_false_3}" />
+  <!-- string negation results always in true, except that string is 'true' or 'false' -->
+  <fail unless="?{!var_false_3}" />
+  <fail unless="${!var_false_3}" />
+  
+  <!-- true is true -->
+  <data id="var_true_1">${true}</data>
+  <fail unless="?{var_true_1}" />
+  <fail unless="${var_true_1}" />
+  <fail if="?{!var_true_1}" />
+  <fail if="${!var_true_1}" />
+  
+  <!-- 'true' is true -->
+  <data id="var_true_2">${true}</data>
+  <fail unless="?{var_true_2}" />
+  <fail unless="${var_true_2}" />
+  <fail if="?{!var_true_2}" />
+  <fail if="${!var_true_2}" />
+  
+  <!-- 'true' is true -->
+  <data id="var_true_3">${'true'}</data>
+  <fail unless="?{var_true_3}" />
+  <fail unless="${var_true_3}" />
+  <fail if="?{!var_true_3}" />
+  <fail if="${!var_true_3}" />
+  
+  <!-- non existing var is false -->
+  <fail if="?{fhskfhskf4sd_sq30sdfh11nz}" />
+  <fail unless="?{!fhskfhskf4sd_sq30sdfh11nz}" />
+    
+  <data id="nullVar11111">${null}</data>
+  <!-- check that unknown var doesn't get evaluated if not necessary -->
+  <fail if="${false and nullVar11111.blabla}" />
+  <fail unless="${true or !nullVar11111.blabla}" />
+    
+  <!-- test escapers -->
+  
+  <assert expected="${'$'+'{x'+util.makeString(125)}" actual="$${x}"/>
+  <assert expected="${'?'+'{x'+util.makeString(125)}" actual="$?{x}"/>
+  <assert expected="${'$'+'{x'+util.makeString(125)+' abc'}" actual="$${x} abc"/>
+  <assert expected="${'$'+'{x'+util.makeString(125)} ${'$'+'{yyy'+util.makeString(125)}" actual="$${x} $${yyy}"/>
+  
+  <assert expected="1 ${'$'+'{yyy'+util.makeString(125)}" actual="${x} $${yyy}"/>
+  
+  <assert expected="${'$'+'{x'+util.makeString(125)} 1" actual="$${x} ${x}"/>
+  
+  <!-- check the escaping of quoter chars -->
+  <assert actual="${'1&quot;2'}">
+    <expected>1"2</expected>
+  </assert>
+  <assert actual="${&quot;1'2&quot;}">
+    <expected>1'2</expected>
+  </assert>
+
+  <!-- check the and / or boolean -->
+  <assertTrue actual="${'true' and 1!=2}"/>
+  <assertTrue actual="${true and 1!=2}"/>  
+  <assertFalse actual="${'blabla'==true}"/>
+  <assertFalse actual="${'blabla' and 1!=2}"/>
+  <assertTrue actual="${true=='true'}"/>
+  <assertTrue actual="${false=='blabla'}"/>
+  <assertFalse actual="?{false==null}"/>
+  <assertFalse actual="${false==null}"/>
+  <assertTrue actual="${false==''}"/>
+  <assertTrue actual="${false==' '}"/>
+  <assertFalse actual="${true==' '}"/>
+  
+  <assertFalse actual="${null==''}"/>
+  <assertTrue actual="${null!=''}"/>
+  <assertTrue actual="${empty(null)}"/>
+  <assertTrue actual="?{empty(nonExisting_var897kjsdhfksdfs48s)}"/>
+  <assertTrue actual="${empty('')}"/>
+  <assertFalse actual="${empty(' ')}"/>
+  
+  <assertFalse actual="${empty(false)}"/>
+  <assertFalse actual="${empty(true)}"/>
+  <assertFalse actual="${empty(0)}"/>
+  <assertFalse actual="${empty('blabla')}"/>
+  <assertFalse actual="${empty(util.list(1,2))}"/>
+  <assertTrue actual="${empty(util.list())}"/>
+  
+  <!-- test const name with dots -->
+  <data id="ghsdashdgasd.sdiufasdasa">x</data>  
+  <assert expected="x" actual="${ghsdashdgasd.sdiufasdasa}"/>
+  <data id="asdasddbiasriasldpasd2" x="100" />
+  <assert expected="100" actual="${asdasddbiasriasldpasd2[ghsdashdgasd.sdiufasdasa]}" />
+</scenario>
+

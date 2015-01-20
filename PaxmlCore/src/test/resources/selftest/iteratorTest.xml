@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario xmlns:f="http://paxml.org/file">
+    
+  <data id="x1">${util.list(1,2,3)}</data>
+
+  <data id="x11">
+    <iterate values="${x1}">${var}</iterate>
+  </data>
+
+  <assert expected="${x1}" actual="${x11}" />
+
+  <!-- test a single value iteration will happen once -->
+  <data id="x2">xxx</data>  
+  <data id="x21">
+    <iterate values="${x2}">${var}</iterate>
+  </data>
+  <assert expected="${x2}" actual="${x21}" />
+  
+  <data id="a1">
+    <iterate times="2">${index}</iterate>
+  </data>
+  <assert expected="${util.list(0,1)}" actual="${a1}"/>
+  <data id="a2">
+    <iterate times="2">${var}</iterate>
+  </data>
+  <assert expected="${util.list(0,1)}" actual="${a2}"/>
+  
+  <data id="a3">    
+    <iterate times="2">x${index}</iterate>
+  </data>
+  <assert expected="${util.list('x0','x1')}" actual="${a3}"/>
+  
+  <data id="a4">init<iterate times="2">x${index}</iterate>final</data>
+  <assert expected="${util.list('init','x0','x1','final')}" actual="${a4}"/>
+      
+  <data id="a5">init<x>
+    <iterate times="2">${var}</iterate>
+    </x>final</data>  
+  <assert expected="3" actual="${size(a5)}"/>
+  <assert expected="${util.map('x',util.list(0,1))}" actual="${a5.1}"/>
+  <assert expected="init" actual="${a5.0}"/>
+  <assert expected="final" actual="${a5.2}"/>
+  
+  <data id="a6">init<iterate times="2">
+      <x>${var}</x>
+    </iterate>final</data>
+  <assert expected="${util.list('init',util.map('x',0),util.map('x',1),'final')}" actual="${a6}"/>
+  <data id="a7">init<x>0</x>
+    <x>1</x>final</data>  
+  <assert expected="${a7}" actual="${a6}"/>
+  
+  <!-- assert the iteration on one value -->  
+  <iterate values="xx">
+    <assert expected="xx" actual="${var}"/>
+    <data id="xx_1">${index}</data>
+  </iterate>
+  <assert expected="0" actual="${xx_1}"/>
+  
+  <data id="xxx">
+    <y>yyy</y>
+  </data>
+  <iterate values="${xxx.y}">
+    <assert expected="yyy" actual="${var}"/>
+    <data id="xxx_1">${index}</data>
+  </iterate>
+  <assert expected="0" actual="${xxx_1}"/>
+  
+  <iterate values ="${xxx}">
+    <assert expected="y" actual="${name}"/>
+    <assert expected="yyy" actual="${var}" />
+    <data id="xxx_2">${index}</data>
+  </iterate>
+  <assert expected="0" actual="${xxx_2}"/>
+ 
+  <!-- test that the $var of the outer loop won't be overwritten by inner loop -->
+  <data id="list">${util.list()}</data>
+  <data id="innerList">${util.list()}</data> 
+  <iterate times="2">
+    <expression>${innerList.clear()}</expression>    
+    <iterate times="3">
+      <assert expected="${index}" actual="${var}" />
+      <expression>${innerList.add(var)}</expression>
+      <log>${innerList[index]}</log>
+    </iterate>
+    <assert expected="${util.list(0,1,2)}" actual="${innerList}"/>  
+    
+    <assert expected="${index}" actual="${var}" />    
+    <expression>${list.add(var)}</expression>
+  </iterate> 
+  <assert expected="${util.list(0,1)}" actual="${list}"/>
+  <assert expected="${util.list(0,1,2)}" actual="${innerList}"/>
+</scenario>
+ 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of PaxmlCore.
+
+    PaxmlCore is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PaxmlCore is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+    
+    <assert expected="20/12/2011" >
+        <actual>
+            <date toFormat="dd/MM/yyyy" >2011-12-20</date>    
+        </actual>
+    </assert>
+    
+    <assert expected="20/01/2022" >
+        <actual>
+            <date toFormat="dd/MM/yyyy" addYear="10" addMonth="1" >2011-12-20</date>    
+        </actual>
+    </assert>
+    <assert expected="20/01/2002" >
+        <actual>
+            <date toFormat="dd/MM/yyyy" addYear="-10" addMonth="1" >2011-12-20</date>    
+        </actual>
+    </assert>
+    <assert expected="29/02/2000" >
+        <actual>
+            <date toFormat="dd/MM/yyyy" addMonth="1" >2000-01-31</date>    
+        </actual>
+    </assert>
+    <assert expected="28/02/2001" >
+        <actual>
+            <date toFormat="dd/MM/yyyy" addMonth="1" addYear="1" >2000-01-31</date>    
+        </actual>
+    </assert>
+</scenario>
+

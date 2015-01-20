@@ -1,0 +1,58 @@
+Copyright 2015, Xuetao Niu.
+This project includes software developed by Xuetao Niu.
+http://paxml.org/
+
+Licensed under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at:
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on
+an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+
+This project includes:
+  Activation 1.1 under The Apache Software License, Version 2.0
+  Apache Ant + Commons Net under The Apache Software License, Version 2.0
+  Apache Ant Core under The Apache Software License, Version 2.0
+  Apache Ant Launcher under The Apache Software License, Version 2.0
+  Apache Commons DbUtils under The Apache Software License, Version 2.0
+  Apache JAMES Mime4j (Core) under The Apache Software License, Version 2.0
+  Apache POI under The Apache Software License, Version 2.0
+  asm under Apache License, Version 2.0
+  Axiom API under The Apache Software License, Version 2.0
+  Axiom Impl under The Apache Software License, Version 2.0
+  cglib under Apache License, Version 2.0
+  Codec under Apache License, Version 2.0
+  Collections under The Apache Software License, Version 2.0
+  Commons DBCP under The Apache Software License, Version 2.0
+  Commons JEXL under The Apache Software License, Version 2.0
+  Commons JXPath under The Apache Software License, Version 2.0
+  Commons Lang under The Apache Software License, Version 2.0
+  Commons Logging under The Apache Software License, Version 2.0
+  Commons Pool under The Apache Software License, Version 2.0
+  commons-beanutils under Apache License, Version 2.0
+  Groovy under The Apache Software License, Version 2.0
+  H2 Database Engine under The H2 License, Version 1.0
+  Hamcrest Core under BSD style
+  HttpClient under Apache License
+  HyperSQL Database under HSQLDB License, a BSD open source license
+  IO under The Apache Software License, Version 2.0
+  Jakarta Commons Net under The Apache Software License, Version 2.0
+  JavaMail 1.4 under The Apache Software License, Version 2.0
+  Jaxen is a universal Java XPath engine. under The Werken Company License
+  JSch under Revised BSD
+  JUnit under Common Public License Version 1.0
+  Log4j under The Apache Software License, Version 2.0
+  oro under Apache License, Version 2.0
+  PaxmlCore under GNU Affero General Public License, Version 3.0
+  Spring Framework under The Apache Software License, Version 2.0
+  StAX API under The Apache Software License, Version 2.0
+  Streaming API for XML (STAX API 1.0) under The Apache Software License, Version 2.0
+  Woodstox under The Apache Software License, Version 2.0
+  XmlBeans under The Apache Software License, Version 2.0
+
