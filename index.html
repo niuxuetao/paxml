@@ -50,30 +50,15 @@
 
 <pre><code>&lt;scenario&gt;
 
-  &lt;!-- open an excel file called "MyExcel.xls" and name it as excel --&gt;
   &lt;readExcel id="excel" file="MyExcel.xls" range="A1:"/&gt;
-
-  &lt;!-- iterate through all rows of the excel, 
-    and for each row, repeat a sequence of actions --&gt;
   &lt;iterate values="${excel}"&gt;
-    &lt;!-- open browser to access google transalte page --&gt;
     &lt;url&gt;https://translate.google.com/#en/de&lt;/url&gt;
-
-    &lt;!-- type the text of current row's A column 
-      into the google translate page --&gt;
-    &lt;type locator="source"&gt;${var.A}&lt;/type&gt;    
-
-    &lt;!-- click on the "translate" button --&gt;
-    &lt;click locator="gt-lang-submit"/&gt;            
-
-    &lt;!-- pick the translated German text from the browser and write back to 
-        the B column of the corresponding row of MyExcel.xls --&gt;
+    &lt;type locator="source"&gt;${var.A}&lt;/type&gt;
+    &lt;click locator="gt-lang-submit"/&gt;
     &lt;writeExcel file="MyExcel.xls" row="${index+1}" column="B" &gt;    
       &lt;pick locator="result_box" timeout="5000"/&gt;
     &lt;/writeExcel&gt;
   &lt;/iterate&gt;
-
-  &lt;!-- Voila, we are done!! --&gt;
 
 &lt;/scenario&gt;
 </code></pre>
