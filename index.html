@@ -48,7 +48,7 @@
 <h3>
 <a id="taste-it-a-bit" class="anchor" href="#taste-it-a-bit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Taste it a bit</h3>
 
-<p>Here is a simple example. Suppose you have an excel file which contains 1000 rows of English terms in column A that you want to let Google translate into German and save the translation back to column B. You can simply use the XML below to have the job done for you, iterating through all those 1000 rows and for each term open web browser to let Google translate do the work:</p>
+<p>Here is a simple example. Suppose you have an Excel file which contains 1000 rows of English terms in column A that you want to let Google translate into German and save the translation back to column B. You can simply use the XML below to have the job done for you, iterating through all those 1000 rows and for each term open web browser to let Google translate do the work:</p>
 
 <div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">scenario</span>&gt;
   &lt;<span class="pl-ent">readExcel</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>excel<span class="pl-pds">"</span></span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>MyExcel.xls<span class="pl-pds">"</span></span> /&gt;
@@ -71,7 +71,7 @@
 <h3>
 <a id="what-about-software-tester" class="anchor" href="#what-about-software-tester" aria-hidden="true"><span class="octicon octicon-link"></span></a>What about software tester?</h3>
 
-<p>Suppose you are a tester hired by Google to test their translation website, and you use the same excel file to store your test data where column C stores the correct German translation. You need to verify for all those 1000 translations by comparing each row's column B and column C. Then you just need to create a new XML file like below, to first call the above XML file to acquire the translations, then compare column B and C for each row:</p>
+<p>Suppose you are a tester hired by Google to test their translation website, and you use the same Excel file to store your test data where column C stores the correct German translation. You need to verify for all those 1000 translations by comparing each row's column B and column C. Then you just need to create a new XML file like below, to first call the above XML file to acquire the translations, then compare column B and C for each row:</p>
 
 <div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">scenario</span>&gt;
   &lt;<span class="pl-ent">TranslateExcel</span>/&gt;
