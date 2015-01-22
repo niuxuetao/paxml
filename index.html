@@ -48,27 +48,49 @@
 <h3>
 <a id="taste-it-a-bit" class="anchor" href="#taste-it-a-bit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Taste it a bit</h3>
 
-<p>Here is a simple example. Suppose you have an excel file which contains 1000 rows of English terms in column A that you want to let Google translate into German and save the translation back to column B. You can simply use the XML below to have the job done for you, iterating through all these 1000 rows and for each term open web browser to let Google translate do the work:</p>
+<p>Here is a simple example. Suppose you have an excel file which contains 1000 rows of English terms in column A that you want to let Google translate into German and save the translation back to column B. You can simply use the XML below to have the job done for you, iterating through all those 1000 rows and for each term open web browser to let Google translate do the work:</p>
 
-<pre><code>&lt;scenario&gt;
-  &lt;readExcel id="excel" file="MyExcel.xls" /&gt;
-  &lt;iterate values="${excel}"&gt;
-    &lt;url&gt;https://translate.google.com/#en/de&lt;/url&gt;
-    &lt;type locator="source"&gt;${var.A}&lt;/type&gt;
-    &lt;click locator="gt-lang-submit"/&gt;
-    &lt;writeExcel file="${excel}" row="${index+1}" column="B" &gt;    
-      &lt;pick locator="result_box" timeout="5000"/&gt;
-    &lt;/writeExcel&gt;
-  &lt;/iterate&gt;
-&lt;/scenario&gt;
+<div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">scenario</span>&gt;
+  &lt;<span class="pl-ent">readExcel</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>excel<span class="pl-pds">"</span></span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>MyExcel.xls<span class="pl-pds">"</span></span> /&gt;
+  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">values</span>=<span class="pl-s1"><span class="pl-pds">"</span>${excel}<span class="pl-pds">"</span></span>&gt;
+    &lt;<span class="pl-ent">url</span>&gt;https://translate.google.com/#en/de&lt;/<span class="pl-ent">url</span>&gt;
+    &lt;<span class="pl-ent">type</span> <span class="pl-e">locator</span>=<span class="pl-s1"><span class="pl-pds">"</span>source<span class="pl-pds">"</span></span>&gt;${var.A}&lt;/<span class="pl-ent">type</span>&gt;
+    &lt;<span class="pl-ent">click</span> <span class="pl-e">locator</span>=<span class="pl-s1"><span class="pl-pds">"</span>gt-lang-submit<span class="pl-pds">"</span></span>/&gt;
+    &lt;<span class="pl-ent">writeExcel</span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>${excel}<span class="pl-pds">"</span></span> <span class="pl-e">row</span>=<span class="pl-s1"><span class="pl-pds">"</span>${index+1}<span class="pl-pds">"</span></span> <span class="pl-e">column</span>=<span class="pl-s1"><span class="pl-pds">"</span>B<span class="pl-pds">"</span></span> &gt;    
+      &lt;<span class="pl-ent">pick</span> <span class="pl-e">locator</span>=<span class="pl-s1"><span class="pl-pds">"</span>result_box<span class="pl-pds">"</span></span> <span class="pl-e">timeout</span>=<span class="pl-s1"><span class="pl-pds">"</span>5000<span class="pl-pds">"</span></span>/&gt;
+    &lt;/<span class="pl-ent">writeExcel</span>&gt;
+  &lt;/<span class="pl-ent">iterate</span>&gt;
+&lt;/<span class="pl-ent">scenario</span>&gt;</pre></div>
+
+<p>Save the above XML as file named TranslateExcel.xml then run this command to let it run:</p>
+
+<pre><code>paxml TranslateExcel.xml
 </code></pre>
 
-<p>Save the above XML as file named TranslateExcel.xml then run this command to let it run <code>paxml TranslateExcel.xml</code>.</p>
+<p>Now you can start using column B which contains 1000 rows of German translation!</p>
+
+<h3>
+<a id="what-about-software-tester" class="anchor" href="#what-about-software-tester" aria-hidden="true"><span class="octicon octicon-link"></span></a>What about software tester?</h3>
+
+<p>Suppose you are a tester hired by Google to test their translation website, and you use the same excel file to store your test data where column C stores the correct German translation. You need to verify for all those 1000 translations by comparing each row's column B and column C. Then you just need to create a new XML file like below, to first call the above XML file to acquire the translations, then compare column B and C for each row:</p>
+
+<div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">scenario</span>&gt;
+  &lt;<span class="pl-ent">TranslateExcel</span>/&gt;
+  &lt;<span class="pl-ent">readExcel</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>excel<span class="pl-pds">"</span></span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>MyExcel.xls<span class="pl-pds">"</span></span>/&gt;
+  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">values</span>=<span class="pl-s1"><span class="pl-pds">"</span>${excel}<span class="pl-pds">"</span></span> &gt;
+    &lt;<span class="pl-ent">assert</span> <span class="pl-e">expected</span>=<span class="pl-s1"><span class="pl-pds">"</span>${var.C}<span class="pl-pds">"</span></span> <span class="pl-e">actual</span>=<span class="pl-s1"><span class="pl-pds">"</span>${var.B}<span class="pl-pds">"</span></span> /&gt;
+  &lt;/<span class="pl-ent">iterate</span>&gt;
+&lt;/<span class="pl-ent">scenario</span>&gt;</pre></div>
+
+<p>And save this file as TestTranslate.xml then run this command to run the test:</p>
+
+<pre><code>paxml TestTranslate.xml
+</code></pre>
 
 <h3>
 <a id="interested" class="anchor" href="#interested" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interested?</h3>
 
-<p>Please check the <a href="https://github.com/niuxuetao/paxml/wiki">wiki pages</a> for more examples and details.</p>
+<p>Please check the <a href="https://github.com/niuxuetao/paxml/wiki">wiki pages</a> for more examples and How-tos.</p>
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
