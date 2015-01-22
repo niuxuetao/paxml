@@ -39,14 +39,14 @@
           <h3>
 <a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
-<p>Paxml is an XML-based scripting language, providing simple yet powerful syntax to automate your business operations that you would otherwise have to manually perform. For instance, accessing database and files, driving browsers, calling web APIs and glue all these together into your operational work flow, and most importantly automating the repetitive part for you, leaving you more time for creative work.</p>
+<p>Paxml is an XML-based scripting language, providing simple yet powerful syntax to automate your business operations that you would otherwise have to manually perform. For instance, accessing database and files, driving browsers, calling web APIs and glue all these together into your operational work flow. Most importantly it automates the repetitive part for you, drastically increasing the efficiency of the work and liberating you to do more creative work.</p>
 
 <p>Therefore, Paxml is suitable for operational staff to automate business processes and for software testers to automate test executions.</p>
 
 <p>Paxml is also an open source software released under Affero General Public License Version 3.0.</p>
 
 <h3>
-<a id="taste-a-bit" class="anchor" href="#taste-a-bit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Taste a bit</h3>
+<a id="taste-it-a-bit" class="anchor" href="#taste-it-a-bit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Taste it a bit</h3>
 
 <p>Here is a simple example. Suppose you have an excel file which contains 1000 rows of English terms in column A that you want to let Google translate into German and save the translation back to column B. You can simply use the XML below to have the job done for you, iterating through all these 1000 rows and for each term open web browser to let Google translate do the work:</p>
 
@@ -56,7 +56,7 @@
     &lt;url&gt;https://translate.google.com/#en/de&lt;/url&gt;
     &lt;type locator="source"&gt;${var.A}&lt;/type&gt;
     &lt;click locator="gt-lang-submit"/&gt;
-    &lt;writeExcel file="MyExcel.xls" row="${index+1}" column="B" &gt;    
+    &lt;writeExcel file="${excel}" row="${index+1}" column="B" &gt;    
       &lt;pick locator="result_box" timeout="5000"/&gt;
     &lt;/writeExcel&gt;
   &lt;/iterate&gt;
