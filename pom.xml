@@ -13,8 +13,8 @@
 		<module>PaxmlTestNG</module>
 		<module>PaxmlSelenium</module>	
 		<module>PaxmlAll</module>
+		<module>PaxmlExecutable</module>
 		<module>PaxmlExample</module>
-
 	</modules>
 
 	<inceptionYear>2015</inceptionYear>
@@ -93,7 +93,7 @@
 								<id>check-license</id>
 								<phase>initialize</phase>
 								<goals>
-									<goal>remove</goal>
+									<goal>format</goal>
 								</goals>
 							</execution>
 						</executions>
