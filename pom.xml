@@ -93,7 +93,7 @@
 								<id>check-license</id>
 								<phase>initialize</phase>
 								<goals>
-									<goal>format</goal>
+									<goal>remove</goal>
 								</goals>
 							</execution>
 						</executions>
