@@ -270,7 +270,8 @@ public class Paxml {
     public Paxml addTagLibrary(Class<? extends ITagLibrary>... classes) {
         for (Class<? extends ITagLibrary> clazz : classes) {
             ITagLibrary lib = ReflectUtils.createObject(clazz);
-            parser.addTagLibrary(lib, true);
+            // let later libs overwrite earlier ones, the system default lib is the earliest one
+            parser.addTagLibrary(lib, false);
         }
         return this;
     }
