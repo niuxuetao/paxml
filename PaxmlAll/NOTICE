@@ -55,7 +55,7 @@ This project includes:
   Java Native Access under LGPL, version 2.1
   Java Native Access Platform under LGPL, version 2.1
   JavaMail 1.4 under The Apache Software License, Version 2.0
-  Jaxen is a universal Java XPath engine. under The Werken Company License
+  jaxen under Apache style license
   Jetty :: Http Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   Jetty :: IO Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   Jetty :: Utilities under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
@@ -97,6 +97,7 @@ This project includes:
   Spring Transaction under The Apache Software License, Version 2.0
   Spring Web under The Apache Software License, Version 2.0
   StAX API under The Apache Software License, Version 2.0
+  Stax2 API under The BSD License
   Streaming API for XML (STAX API 1.0) under The Apache Software License, Version 2.0
   TestNG under Apache License, Version 2.0
   The Netty Project under Apache License, Version 2.0
