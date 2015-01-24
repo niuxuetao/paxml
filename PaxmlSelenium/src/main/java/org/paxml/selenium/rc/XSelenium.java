@@ -54,7 +54,7 @@ import com.thoughtworks.selenium.DefaultSelenium;
  */
 public class XSelenium {
 	private final DefaultSelenium selenium;
-	private static SeleniumServer seleniumServer;
+	private static volatile SeleniumServer seleniumServer;
 
 	/**
 	 * Different browser start command supported by Selenium RC Server.
@@ -248,10 +248,10 @@ public class XSelenium {
 
 			synchronized (XSelenium.class) {
 				if (seleniumServer == null) {
-					seleniumServer = startServer(serverPort);					
+					seleniumServer = startServer(serverPort);
 				}
 				serverPort = seleniumServer.getPort();
-			}			
+			}
 
 		}
 		if (StringUtils.isBlank(serverHost)) {
@@ -398,14 +398,23 @@ public class XSelenium {
 		try {
 			selenium.close();
 		} catch (Exception e) {
-			log.error("Error closing selenium", e);
+			log.warn("Error closing selenium", e);
 		} finally {
 			try {
 				selenium.stop();
 			} catch (Exception e) {
-				log.error("Error stopping selenium", e);
+				log.warn("Error stopping selenium", e);
+			} finally {
+				try {
+					if (seleniumServer != null && seleniumServer.getServer().isStarted()) {
+						seleniumServer.stop();
+					}
+				} catch (Exception e) {
+					log.warn("Error stopping selenium server", e);
+				}
 			}
 		}
+
 		terminated = true;
 		if (log.isInfoEnabled()) {
 			log.info("Selenium session terminated: " + this);

@@ -1,0 +1,1 @@
+java -classpath "%PAXML_HOME%;%PAXML_HOME%\lib\*" org.paxml.Application %*

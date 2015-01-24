@@ -33,7 +33,7 @@
   <literal id="x2"><data id="xxx" attr="yyy"/></literal>
   
   <assert actual="${x2}"
-    expected="&lt;data id=&quot;xxx&quot; attr=&quot;yyy&quot; /&gt;" />
+    expected="&lt;data id=&quot;xxx&quot; attr=&quot;yyy&quot;/&gt;" />
     
   <!-- make sure the literal's inner content isn't parsed as paxml -->
   <assertFalse actual="${util.hasConst('xxx', true)}" />

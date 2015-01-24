@@ -21,7 +21,7 @@
   <data id="x1">
     <!-- this should not be parsed -->
     <a>
-      <literal>x<x />
+      <literal>x<x/>
 y </literal>1&lt;
 2<!-- this should not be parsed --><![CDATA[ 
  <cd1 
@@ -32,7 +32,7 @@ y </literal>1&lt;
   </data>
   
   <assert expected="4" actual="${size(x1.a)}"/>
-  <assert expected="${'x&lt;x /&gt;'+util.makeString(10)+'y '}" actual="${x1.a.0}"/>
+  <assert expected="${'x&lt;x/&gt;'+util.makeString(10)+'y '}" actual="${x1.a.0}"/>
   <assert expected="1&lt;${util.makeString(10)}2" actual="${x1.a.1}"/>
   <assert expected=" ${util.makeString(10)} &lt;cd1 ${util.makeString(10)} " actual="${x1.a.2}"/>
   <assert expected="${util.makeString(10)} cd2/&gt; " actual="${x1.a.3}"/>         

@@ -1,0 +1,56 @@
+<project basedir="." default="buildArchives">
+
+
+	<property name="destDir" value="${basedir}/bin" />
+	<property name="destFileName" value="${destDir}/Paxml-${project.version}" />
+	<property name="stagingDir" value="${destDir}/staging" />
+
+	<target name="buildArchives">
+		<delete dir="${destDir}" quiet="true" />
+		<mkdir dir="${destDir}" />
+
+		<antcall target="stageFiles" />
+		<antcall target="zipFiles" />
+		<antcall target="tarFiles" />
+		<antcall target="gzipFile" />
+	</target>
+
+	<target name="stageFiles">
+
+		<delete dir="${stagingDir}" quiet="true" />
+		<mkdir dir="${stagingDir}" />
+
+		<!-- copy all resources -->
+		<copy todir="${stagingDir}">
+			<fileset dir="${basedir}/src/main/resources">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<!-- copy all dependencies -->
+		<copy todir="${stagingDir}/lib">
+			<fileset dir="${project.build.directory}/dependency">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+
+		<!-- copy the jar file -->
+		<copy todir="${stagingDir}/lib" file="${project.build.directory}/${finalName}.${project.packaging}" />
+
+		<!-- copy the license files -->
+		<copy todir="${stagingDir}" file="${basedir}/NOTICE" />
+		<copy todir="${stagingDir}" file="${basedir}/LICENSE" />
+	</target>
+
+	<target name="zipFiles">
+		<zip destfile="${destFileName}.zip" basedir="${stagingDir}" compress="true" level="9" keepcompression="true" />
+	</target>
+	<target name="tarFiles">
+		<tar destfile="${destFileName}.tar" basedir="${stagingDir}" />
+	</target>
+	<target name="gzipFile">
+		<gzip destfile="${destFileName}.tar.gz" src="${destFileName}.tar" />
+	</target>
+
+
+
+</project>
