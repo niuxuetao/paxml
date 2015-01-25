@@ -71,7 +71,7 @@
 <h3>
 <a id="how-about-software-testers" class="anchor" href="#how-about-software-testers" aria-hidden="true"><span class="octicon octicon-link"></span></a>How about software testers?</h3>
 
-<p>Suppose you are a tester hired by Google to test their translation website, and you use the same Excel file to store your test data where column C holds the correct German translations. You need to verify for all those 1000 translations by comparing column B and column C of every row. Then you just need to create a new XML file like below, to first call the above XML file to acquire the translations, then compare column B and C for each row:</p>
+<p>Suppose you are a tester hired by Google to test their translation website, and you use the same Excel file to store your test data where column C holds the correct German translations. You need to verify for all those 1000 translations by comparing column B and column C of every row. Then you just need to create a new XML file like below, to first call the above XML file to acquire the translations, then check if column B holds the same value as column C:</p>
 
 <div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">scenario</span>&gt;
   &lt;<span class="pl-ent">TranslateExcel</span>/&gt;
