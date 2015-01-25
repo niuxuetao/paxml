@@ -191,7 +191,8 @@
 								<latestYearOfContribution>${currentYearDynamic}</latestYearOfContribution>
 							</properties>
 							<includes>
-								<include>src/**/*.*</include>
+								<include>src/**/*.java</include>
+								<include>src/**/*.xml</include>
 							</includes>
 						</configuration>
 						<executions>

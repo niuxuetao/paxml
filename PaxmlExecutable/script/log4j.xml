@@ -1,22 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--
-
-    This file is part of PaxmlTestNG.
-
-    PaxmlTestNG is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    PaxmlTestNG is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with PaxmlTestNG.  If not, see <http://www.gnu.org/licenses/>.
-
--->
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
@@ -86,20 +68,16 @@
   <logger name="org.hibernate.dialect.OracleDialect" additivity="false">
     <level value="ERROR" />
   </logger>
-  <logger name="org.hibernate" additivity="false">
-    <level value="DEBUG" />
-    <appender-ref ref="console" />
-  </logger>
 
   <logger name="org.paxml" additivity="false">
     <level value="DEBUG" />
     <appender-ref ref="file" />
   </logger>
 
-
   <root>
     <level value="INFO" />
     <appender-ref ref="file" />
+    <appender-ref ref="console" />
   </root>
 
 </log4j:configuration>
