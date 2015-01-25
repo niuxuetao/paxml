@@ -39,37 +39,37 @@ import org.springframework.core.io.Resource;
  * 
  */
 public class LaunchModel {
-    /**
-     * Ever increasing process id generator, starting from 1.
-     */
-    private static final AtomicLong PID = new AtomicLong(1);
+	/**
+	 * Ever increasing process id generator, starting from 1.
+	 */
+	private static final AtomicLong PID = new AtomicLong(1);
 
-    private final StaticConfig config = new StaticConfig();
-    private volatile Resource resource;
-    private volatile String name;
-    private final Map<String, Group> groups = Collections.synchronizedMap(new LinkedHashMap<String, Group>());
-    private final Settings globalSettings = new Settings(null);
-    private volatile List<LaunchPoint> launchPoints;
-    private volatile int concurrency;
-    private Plan planEntity;
+	private final StaticConfig config = new StaticConfig();
+	private volatile Resource resource;
+	private volatile String name;
+	private final Map<String, Group> groups = Collections.synchronizedMap(new LinkedHashMap<String, Group>());
+	private final Settings globalSettings = new Settings(null);
+	private volatile List<LaunchPoint> launchPoints;
+	private volatile int concurrency;
+	private Plan planEntity;
 
-    public Settings getGlobalSettings() {
-        return globalSettings;
-    }
+	public Settings getGlobalSettings() {
+		return globalSettings;
+	}
 
-    public Map<String, Group> getGroups() {
-        return groups;
-    }
+	public Map<String, Group> getGroups() {
+		return groups;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public int getConcurrency() {
+	public int getConcurrency() {
 		return concurrency;
 	}
 
@@ -78,218 +78,241 @@ public class LaunchModel {
 	}
 
 	/**
-     * Get the selected groups to run.
-     * 
-     * @return the selected
-     */
-    private Set<Group> getSelectedGroups() {
-        Set<Group> set = new LinkedHashSet<Group>();
-        for (Matcher groupMatcher : globalSettings.getMatchers()) {
-            for (Map.Entry<String, Group> groupEntry : groups.entrySet()) {
-                if (groupMatcher.match(groupEntry.getKey())) {
-                    set.add(groupEntry.getValue());
-                }
-            }
-        }
-        return set;
-    }
+	 * Get the selected groups to run.
+	 * 
+	 * @return the selected
+	 */
+	private Set<Group> getSelectedGroups() {
+		Set<Group> set = new LinkedHashSet<Group>();
+		for (Matcher groupMatcher : globalSettings.getGroupMatchers()) {
+			for (Map.Entry<String, Group> groupEntry : groups.entrySet()) {
+				if (groupMatcher.match(groupEntry.getKey())) {
+					set.add(groupEntry.getValue());
+				}
+			}
+		}
+		return set;
+	}
 
-    /**
-     * Get launch points, where each point has a unique process id counting from
-     * 1. The process id reflects the order of the point to be submitted into
-     * the execution thread pool.
-     * 
-     * @param forceRefresh
-     *            false to use cached points if there are, true to always
-     *            reparse the points which is expensive.
-     * @return the launch points, never null
-     */
-    public synchronized List<LaunchPoint> getLaunchPoints(boolean forceRefresh) {
-        if (forceRefresh || launchPoints == null) {
-            List<Map<PaxmlResource, List<Settings>>> points = findLaunchPoints();
+	/**
+	 * Get launch points, where each point has a unique process id counting from
+	 * 1. The process id reflects the order of the point to be submitted into
+	 * the execution thread pool.
+	 * 
+	 * @param forceRefresh
+	 *            false to use cached points if there are, true to always
+	 *            reparse the points which is expensive.
+	 * @return the launch points, never null
+	 */
+	public synchronized List<LaunchPoint> getLaunchPoints(boolean forceRefresh) {
+		if (forceRefresh || launchPoints == null) {
+			List<Map<PaxmlResource, List<Settings>>> points = findLaunchPoints();
 
-            launchPoints = new Vector<LaunchPoint>();
-            for (Map<PaxmlResource, List<Settings>> map : points) {
-                for (Map.Entry<PaxmlResource, List<Settings>> entry : map.entrySet()) {
-                    for (Settings s : entry.getValue()) {
-                        List<Properties> explodedFactors = explodeFactors(s);
-                        if (explodedFactors == null || explodedFactors.size() <= 0) {
-                            launchPoints.add(createLaunchPoint(entry.getKey(), s, null, PID.getAndIncrement()));
-                        } else {
-                            for (Properties factors : explodedFactors) {
-                                launchPoints.add(createLaunchPoint(entry.getKey(), s, factors, PID.getAndIncrement()));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return launchPoints;
-    }
+			launchPoints = new Vector<LaunchPoint>();
+			for (Map<PaxmlResource, List<Settings>> map : points) {
+				for (Map.Entry<PaxmlResource, List<Settings>> entry : map.entrySet()) {
+					for (Settings s : entry.getValue()) {
+						List<Properties> explodedFactors = explodeFactors(s);
+						if (explodedFactors == null || explodedFactors.size() <= 0) {
+							launchPoints.add(createLaunchPoint(entry.getKey(), s, null, PID.getAndIncrement()));
+						} else {
+							for (Properties factors : explodedFactors) {
+								launchPoints.add(createLaunchPoint(entry.getKey(), s, factors, PID.getAndIncrement()));
+							}
+						}
+					}
+				}
+			}
+		}
+		return launchPoints;
+	}
 
-    private LaunchPoint createLaunchPoint(PaxmlResource res, Settings settings, Properties factors, long processId) {
-        Properties props = new Properties();
+	private LaunchPoint createLaunchPoint(PaxmlResource res, Settings settings, Properties factors, long processId) {
+		Properties props = new Properties();
 
-        if (settings != null) {
-            for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet()) {
-                String key = entry.getKey().toString();
-                String value = entry.getValue().toString();
-                if (settings == globalSettings || !value.equals(globalSettings.getProperties().get(key))) {
-                    props.put(key, value);
-                }
-            }
-        }
+		if (settings != null) {
+			for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet()) {
+				String key = entry.getKey().toString();
+				String value = entry.getValue().toString();
+				if (settings == globalSettings || !value.equals(globalSettings.getProperties().get(key))) {
+					props.put(key, value);
+				}
+			}
+		}
 
-        return new LaunchPoint(this, res, settings.getGroup(), getGlobalSettings().getProperties(), props, factors, processId);
-    }
+		return new LaunchPoint(this, res, settings.getGroup(), getGlobalSettings().getProperties(), props, factors, processId);
+	}
 
-    /**
-     * Execute a launch point.
-     * 
-     * @param point
-     *            the launch point
-     * @return the resource execution result
-     */
-    public Object execute(LaunchPoint point) {
-        Paxml paxml = new Paxml(point.getProcessId());
-        paxml.addStaticConfig(config);
-        return paxml.execute(point.getResource().getName(), System.getProperties(), point.getEffectiveProperties(false));
-    }
+	/**
+	 * Execute a launch point.
+	 * 
+	 * @param point
+	 *            the launch point
+	 * @return the resource execution result
+	 */
+	public Object execute(LaunchPoint point) {
+		Paxml paxml = new Paxml(point.getProcessId());
+		paxml.addStaticConfig(config);
+		return paxml.execute(point.getResource().getName(), System.getProperties(), point.getEffectiveProperties(false));
+	}
 
-    /**
-     * Execute a collection of launch points.
-     * 
-     * @param points
-     *            the points
-     * @return the list of results corresponding to each launch point.
-     */
-    public List<Object> execute(Collection<LaunchPoint> points) {
-        List<Object> results = new ArrayList<Object>(points.size());
-        for (LaunchPoint point : points) {
-            results.add(execute(point));
-        }
-        return results;
-    }
+	/**
+	 * Execute a collection of launch points.
+	 * 
+	 * @param points
+	 *            the points
+	 * @return the list of results corresponding to each launch point.
+	 */
+	public List<Object> execute(Collection<LaunchPoint> points) {
+		List<Object> results = new ArrayList<Object>(points.size());
+		for (LaunchPoint point : points) {
+			results.add(execute(point));
+		}
+		return results;
+	}
 
-    private List<Map<PaxmlResource, List<Settings>>> findLaunchPoints() {
-        List<Map<PaxmlResource, List<Settings>>> res = new ArrayList<Map<PaxmlResource, List<Settings>>>();
-        Set<Group> selectedGroups = getSelectedGroups();
-        for (Group group : selectedGroups) {
-            Map<PaxmlResource, List<Settings>> map = new LinkedHashMap<PaxmlResource, List<Settings>>();
-            res.add(map);
-            for (PaxmlResource selectedResource : config.getResources()) {
+	private void populateResourceMap(Map<PaxmlResource, List<Settings>> map, PaxmlResource res, Group group) {
+		Settings settings = new Settings(group == null ? "" : group.getId());
+		Properties properties = settings.getProperties();
+		properties.putAll(getGlobalSettings().getProperties());
+		if (group != null) {
+			properties.putAll(group.getSettings().getProperties());
+		}
+		Map<String, Factor> factorMap = settings.getFactors();
 
-                if (group.matchPath(selectedResource.getPath()) || group.matchName(selectedResource.getName())) {
-                    Settings settings = new Settings(group.getId());
-                    Properties properties = settings.getProperties();
-                    properties.putAll(getGlobalSettings().getProperties());
-                    properties.putAll(group.getSettings().getProperties());
+		// merge the global factors
+		for (Map.Entry<String, Factor> globalFactorEntry : getGlobalSettings().getFactors().entrySet()) {
+			final String key = globalFactorEntry.getKey();
+			Factor factor = factorMap.get(key);
+			if (factor == null) {
+				factor = new Factor();
+				factor.setName(key);
+				factorMap.put(key, factor);
+			}
+			factor.getValues().addAll(globalFactorEntry.getValue().getValues());
+		}
+		// copy my own factors
+		if (group != null) {
+			factorMap.putAll(group.getSettings().getFactors());
+		}
+		List<Settings> list = map.get(res);
+		if (list == null) {
+			list = new Vector<Settings>();
+			map.put(res, list);
+		}
+		list.add(settings);
+	}
 
-                    Map<String, Factor> factorMap = settings.getFactors();
+	private List<Map<PaxmlResource, List<Settings>>> findLaunchPoints() {
+		List<Map<PaxmlResource, List<Settings>>> result = new ArrayList<Map<PaxmlResource, List<Settings>>>();
+		// first check all scenarios
+		Map<PaxmlResource, List<Settings>> singleMap = new LinkedHashMap<PaxmlResource, List<Settings>>();
 
-                    // merge the gobal factors
-                    for (Map.Entry<String, Factor> globalFactorEntry : getGlobalSettings().getFactors().entrySet()) {
-                        final String key = globalFactorEntry.getKey();
-                        Factor factor = factorMap.get(key);
-                        if (factor == null) {
-                            factor = new Factor();
-                            factor.setName(key);
-                            factorMap.put(key, factor);
-                        }
-                        factor.getValues().addAll(globalFactorEntry.getValue().getValues());
-                    }
-                    // copy my own factors
-                    factorMap.putAll(group.getSettings().getFactors());
-                    List<Settings> list = map.get(selectedResource);
-                    if (list == null) {
-                        list = new Vector<Settings>();
-                        map.put(selectedResource, list);
-                    }
-                    list.add(settings);
-                }
-            }
-        }
-        return res;
-    }
+		for (Matcher matcher : globalSettings.getSingleMatchers()) {
+			for (PaxmlResource selectedResource : config.getResources()) {
+				if ((matcher.isMatchPath() && matcher.match(selectedResource.getPath()) || (!matcher.isMatchPath() && matcher.match(selectedResource.getName())))) {
+					populateResourceMap(singleMap, selectedResource, null);
+				}
+			}
+		}
+		if (!singleMap.isEmpty()) {
+			result.add(singleMap);
+		}
+		// then check all groups
+		Set<Group> selectedGroups = getSelectedGroups();
+		for (Group group : selectedGroups) {
+			Map<PaxmlResource, List<Settings>> map = new LinkedHashMap<PaxmlResource, List<Settings>>();
+			for (PaxmlResource selectedResource : config.getResources()) {
 
-    private static List<Properties> explodeFactors(Settings settings) {
+				if (group.matchPath(selectedResource.getPath()) || group.matchName(selectedResource.getName())) {
+					populateResourceMap(map, selectedResource, group);
+				}
+			}
+			if (!map.isEmpty()) {
+				result.add(map);
+			}
+		}
+		return result;
+	}
 
-        List<String> factorNames = new ArrayList<String>();
+	private static List<Properties> explodeFactors(Settings settings) {
 
-        List<List<Object>> factors = new ArrayList<List<Object>>();
-        for (Map.Entry<String, Factor> entry : settings.getFactors().entrySet()) {
-            factors.add(new ArrayList<Object>(entry.getValue().getValues()));
-            factorNames.add(entry.getKey());
-        }
+		List<String> factorNames = new ArrayList<String>();
 
-        if (factorNames.size() < 1) {
-            return null;
-        } else {
-            List<List<Object>> exploded = new ArrayList<List<Object>>();
-            for (Object factor : factors.get(0)) {
-                List<Object> item = new ArrayList<Object>();
-                item.add(factor);
-                exploded.add(item);
-            }
-            // make more combinations
-            for (int i = 1; i < factors.size(); i++) {
-                List<Object> more = factors.get(i);
-                exploded = combineMoreFactors(exploded, more);
-            }
+		List<List<Object>> factors = new ArrayList<List<Object>>();
+		for (Map.Entry<String, Factor> entry : settings.getFactors().entrySet()) {
+			factors.add(new ArrayList<Object>(entry.getValue().getValues()));
+			factorNames.add(entry.getKey());
+		}
 
-            List<Properties> result = new ArrayList<Properties>();
+		if (factorNames.size() < 1) {
+			return null;
+		} else {
+			List<List<Object>> exploded = new ArrayList<List<Object>>();
+			for (Object factor : factors.get(0)) {
+				List<Object> item = new ArrayList<Object>();
+				item.add(factor);
+				exploded.add(item);
+			}
+			// make more combinations
+			for (int i = 1; i < factors.size(); i++) {
+				List<Object> more = factors.get(i);
+				exploded = combineMoreFactors(exploded, more);
+			}
 
-            for (int i = 0; i < exploded.size(); i++) {
-                List<Object> combination = exploded.get(i);
-                Properties map = new Properties();
-                for (int j = 0; j < factorNames.size(); j++) {
-                    map.put(factorNames.get(j), combination.get(j));
-                }
-                result.add(map);
-            }
+			List<Properties> result = new ArrayList<Properties>();
 
-            return result;
-        }
-    }
+			for (int i = 0; i < exploded.size(); i++) {
+				List<Object> combination = exploded.get(i);
+				Properties map = new Properties();
+				for (int j = 0; j < factorNames.size(); j++) {
+					map.put(factorNames.get(j), combination.get(j));
+				}
+				result.add(map);
+			}
 
-    private static List<List<Object>> combineMoreFactors(List<List<Object>> list, List<Object> more) {
-        if (more.size() <= 0) {
-            return list;
-        }
-        List<List<Object>> result = new ArrayList<List<Object>>(0);
+			return result;
+		}
+	}
 
-        for (int i = 0; i < more.size(); i++) {
-            Object m = more.get(i);
-            for (int j = 0; j < list.size(); j++) {
-                List<Object> base = list.get(j);
-                List<Object> newList = new ArrayList<Object>(base);
-                newList.add(m);
-                result.add(newList);
-            }
+	private static List<List<Object>> combineMoreFactors(List<List<Object>> list, List<Object> more) {
+		if (more.size() <= 0) {
+			return list;
+		}
+		List<List<Object>> result = new ArrayList<List<Object>>(0);
 
-        }
-        return result;
+		for (int i = 0; i < more.size(); i++) {
+			Object m = more.get(i);
+			for (int j = 0; j < list.size(); j++) {
+				List<Object> base = list.get(j);
+				List<Object> newList = new ArrayList<Object>(base);
+				newList.add(m);
+				result.add(newList);
+			}
 
-    }
+		}
+		return result;
 
-    public Resource getResource() {
-        return resource;
-    }
+	}
 
-    public void setResource(Resource resource) {
-        this.resource = resource;
-    }
+	public Resource getResource() {
+		return resource;
+	}
 
-    public StaticConfig getConfig() {
-        return config;
-    }
+	public void setResource(Resource resource) {
+		this.resource = resource;
+	}
 
-    public Plan getPlanEntity() {
-        return planEntity;
-    }
+	public StaticConfig getConfig() {
+		return config;
+	}
 
-    public void setPlanEntity(Plan planEntity) {
-        this.planEntity = planEntity;
-    }
+	public Plan getPlanEntity() {
+		return planEntity;
+	}
+
+	public void setPlanEntity(Plan planEntity) {
+		this.planEntity = planEntity;
+	}
 
 }

@@ -80,7 +80,7 @@ public class ScenarioTag extends BeanTag {
             Matcher m = new Matcher();
             m.setPattern(pattern.trim());
             m.setMatchPath(false);
-            s.getMatchers().add(m);
+            s.getGroupMatchers().add(m);
 
         }
         for (String pattern : AbstractTag.parseDelimitedString(path, null)) {
@@ -88,7 +88,7 @@ public class ScenarioTag extends BeanTag {
             Matcher m = new Matcher();
             m.setPattern(pattern.trim());
             m.setMatchPath(true);
-            s.getMatchers().add(m);
+            s.getGroupMatchers().add(m);
 
         }
 

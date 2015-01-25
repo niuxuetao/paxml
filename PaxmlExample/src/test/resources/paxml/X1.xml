@@ -16,23 +16,8 @@
     along with PaxmlExample.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<plan>
+<scenario>
     
-    <execution group="examples" />
+    <print>x1</print>
     
-    <properties>                
-        selenium.browser=*firefox 
-        snapshotBeforePageLoad=true
-        selenium.snapshot.folder=${strings.replace(user.dir,'\\','/')}/target/surefire-reports/paxml/screenshots           
-    </properties>
-    
-    <scenario name="Example*" group="examples">
-        
-    </scenario>    
-    
-    <iterate list="${['X1','X2']}">
-        <execution scenario="${var}" />
-    </iterate>
-   
-    
-</plan>
+</scenario>

@@ -33,7 +33,8 @@ public class Settings {
     private final String group;
     private final Map<String, Factor> factors = Collections.synchronizedMap(new LinkedHashMap<String, Factor>());
     private final Properties properties = new Properties();
-    private final Set<Matcher> matchers = Collections.synchronizedSet(new LinkedHashSet<Matcher>());
+    private final Set<Matcher> groupMatchers = Collections.synchronizedSet(new LinkedHashSet<Matcher>());
+    private final Set<Matcher> singleMatchers = Collections.synchronizedSet(new LinkedHashSet<Matcher>());
     public Settings(String group){
         this.group=group;
     }
@@ -45,10 +46,14 @@ public class Settings {
         return properties;
     }
 
-    public Set<Matcher> getMatchers() {
-        return matchers;
+    public Set<Matcher> getGroupMatchers() {
+        return groupMatchers;
     }
-    public String getGroup() {
+    
+    public Set<Matcher> getSingleMatchers() {
+		return singleMatchers;
+	}
+	public String getGroup() {
         return group;
     }
 
