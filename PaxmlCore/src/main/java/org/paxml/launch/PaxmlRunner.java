@@ -32,10 +32,24 @@ import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.tag.plan.PlanEntityFactory.Plan;
 import org.paxml.tag.plan.PlanTagLibrary;
 
+/**
+ * This is a convenience tool for running paxml stuff.
+ * 
+ * @author Xuetao Niu
+ * 
+ */
 public class PaxmlRunner {
 
 	private static final Log log = LogFactory.getLog(PaxmlRunner.class);
 
+	/**
+	 * Run either a plan file or a paxml file from the given resource set.
+	 * 
+	 * @param paxmlOrPlanFileName
+	 *            resource name with file extension to run
+	 * @param config
+	 *            the config containing resource set
+	 */
 	public static void run(String paxmlOrPlanFileName, StaticConfig config) {
 
 		Context.cleanCurrentThreadContext();
@@ -65,7 +79,7 @@ public class PaxmlRunner {
 			if (log.isInfoEnabled()) {
 				log.info("Starting plan file execution: " + entity.getResource().getPath());
 			}
-			LaunchModel model = new LaunchModel();			
+			LaunchModel model = new LaunchModel();
 			model.getConfig().add(config);
 
 			model.setName(((Plan) entity).getTagName());
@@ -98,6 +112,13 @@ public class PaxmlRunner {
 
 	}
 
+	/**
+	 * Run the computed launch model with thread pool. It will run with default
+	 * 4 threads if not specifically specified in the launch model.
+	 * 
+	 * @param model
+	 *            the model containing the launch points
+	 */
 	public static void run(LaunchModel model) {
 
 		List<LaunchPoint> points = model.getLaunchPoints(false);
@@ -143,7 +164,7 @@ public class PaxmlRunner {
 
 		} catch (InterruptedException e) {
 			throw new PaxmlRuntimeException("Cannot wait for all executors to finish", e);
-		} finally{
+		} finally {
 			pool.shutdownNow();
 		}
 
