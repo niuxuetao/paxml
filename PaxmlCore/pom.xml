@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>Paxml</artifactId>
+		<artifactId>paxml-root</artifactId>
 		<groupId>org.paxml</groupId>
 		<version>1.1-SNAPSHOT</version>
 	</parent>
@@ -15,7 +15,7 @@
 	</properties>
 
 	<name>PaxmlCore</name>
-	<artifactId>PaxmlCore</artifactId>
+	<artifactId>paxml-core</artifactId>
 	<groupId>org.paxml</groupId>
 	<dependencies>
 		<dependency>

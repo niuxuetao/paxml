@@ -6,29 +6,29 @@
   
 
   <parent>
-	<artifactId>Paxml</artifactId>
+	<artifactId>paxml-root</artifactId>
 	<groupId>org.paxml</groupId>
 	<version>1.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <name>PaxmlAll</name>
-  <artifactId>PaxmlAll</artifactId>
+  <artifactId>paxml-all</artifactId>
   <groupId>org.paxml</groupId>  
   <dependencies>
     <dependency>
       <groupId>org.paxml</groupId>
-      <artifactId>PaxmlCore</artifactId>
+      <artifactId>paxml-core</artifactId>
       <version>${project.version}</version>      
     </dependency>
 	<dependency>
       <groupId>org.paxml</groupId>
-      <artifactId>PaxmlSelenium</artifactId>
+      <artifactId>paxml-selenium</artifactId>
       <version>${project.version}</version>      
     </dependency>
 	<dependency>
       <groupId>org.paxml</groupId>
-      <artifactId>PaxmlTestNG</artifactId>
+      <artifactId>paxml-testng</artifactId>
       <version>${project.version}</version>      
     </dependency>
   </dependencies>

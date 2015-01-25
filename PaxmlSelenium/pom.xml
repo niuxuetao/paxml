@@ -5,13 +5,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>Paxml</artifactId>
+		<artifactId>paxml-root</artifactId>
 		<groupId>org.paxml</groupId>
 		<version>1.1-SNAPSHOT</version>
 	</parent>
 
 	<name>PaxmlSelenium</name>
-	<artifactId>PaxmlSelenium</artifactId>
+	<artifactId>paxml-selenium</artifactId>
 	<groupId>org.paxml</groupId>
 	<properties>
 		<testng.version>5.10</testng.version>
@@ -20,6 +20,11 @@
 		<languages>en</languages>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.paxml</groupId>
+			<artifactId>paxml-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -36,12 +41,12 @@
 					<artifactId>servlet-api-2.5</artifactId>
 				</exclusion>
 				<exclusion>
-				    <groupId>mx4j</groupId>
-                    <artifactId>mx4j-tools</artifactId>
+					<groupId>mx4j</groupId>
+					<artifactId>mx4j-tools</artifactId>
 				</exclusion>
 				<exclusion>
-				    <groupId>net.jcip</groupId>
-                    <artifactId>jcip-annotations</artifactId>
+					<groupId>net.jcip</groupId>
+					<artifactId>jcip-annotations</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -57,11 +62,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.paxml</groupId>
-			<artifactId>PaxmlCore</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

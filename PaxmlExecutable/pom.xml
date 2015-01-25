@@ -4,14 +4,14 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
 	<parent>
-		<artifactId>Paxml</artifactId>
+		<artifactId>paxml-root</artifactId>
 		<groupId>org.paxml</groupId>
 		<version>1.1-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<name>PaxmlExecutable</name>
-	<artifactId>PaxmlExecutable</artifactId>
+	<artifactId>paxml-executable</artifactId>
 	<groupId>org.paxml</groupId>
 	<properties>
 		<spring.boot.version>1.2.0.RELEASE</spring.boot.version>
@@ -66,7 +66,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.paxml</groupId>
-			<artifactId>PaxmlAll</artifactId>
+			<artifactId>paxml-all</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
