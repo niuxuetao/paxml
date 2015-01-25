@@ -182,11 +182,48 @@ public class PlanFileTest {
         assertPoint(p, points.get(i++));
         
     }
+    @Test
+    public void test5(){
+        LaunchModel model = Paxml.executePlanFile("plan/5.xml", System.getProperties());
+        Assert.assertEquals(0, model.getGroups().size());
+        List<LaunchPoint> points = model.getLaunchPoints(false);
+        Assert.assertEquals(4, points.size());
+        
+        Properties fs=new Properties();
+                
+        Properties ps=new Properties();
+        ps.put("gp1", "1");
+        ps.put("gp2", "2");
+        
+        LaunchPoint p = new LaunchPoint(null, PaxmlResource.createFromPath("classpath:plan/Generic.xml"), null, System.getProperties(), ps, fs, 0);
+        
+        int i=0;
+        
+        fs.clear();        
+        fs.setProperty("f1", "11");
+        fs.setProperty("f2", "x2");        
+        assertPoint2(p, points.get(i++));    
+        
+        fs.setProperty("f1", "12");
+        assertPoint2(p, points.get(i++));
+        
+        p= new LaunchPoint(null, PaxmlResource.createFromPath("classpath:plan/Another.xml"), null, System.getProperties(), ps, fs, 0);
+        fs.setProperty("f1", "11");
+        assertPoint2(p, points.get(i++));
+        
+        /// skip checking the rest
+        
+    }
     private void assertPoint(LaunchPoint ep, LaunchPoint ap){
         Assert.assertEquals(ep.getResource().getName(), ap.getResource().getName());
         Assert.assertEquals(ep.getFactors(), ap.getFactors());
         Assert.assertEquals(ep.getProperties(), ap.getProperties());
-        
-        
+                
+    }
+    private void assertPoint2(LaunchPoint ep, LaunchPoint ap){
+        Assert.assertEquals(ep.getResource().getName(), ap.getResource().getName());
+        Assert.assertEquals(ep.getFactors(), ap.getFactors());
+        Assert.assertEquals(ep.getEffectiveProperties(true), ap.getEffectiveProperties(true));
+                
     }
 }

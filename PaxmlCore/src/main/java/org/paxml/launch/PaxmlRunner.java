@@ -42,6 +42,8 @@ public class PaxmlRunner {
 
 	private static final Log log = LogFactory.getLog(PaxmlRunner.class);
 
+	public static final int DEFAULT_CONCURRENCY = 4;
+
 	/**
 	 * Run either a plan file or a paxml file from the given resource set.
 	 * 
@@ -125,16 +127,16 @@ public class PaxmlRunner {
 		if (log.isInfoEnabled()) {
 			log.info("Found " + points.size() + " Paxml files to execute based on plan file: " + model.getPlanEntity().getResource().getPath());
 		}
-		final int poolSize = model.getConcurrency() <= 0 ? Math.min(4, points.size()) : model.getConcurrency();
+		if (points.isEmpty()) {
+			return;
+		}
+		final int poolSize = model.getConcurrency() <= 0 ? Math.min(DEFAULT_CONCURRENCY, points.size()) : model.getConcurrency();
 		ExecutorService pool = Executors.newFixedThreadPool(poolSize);
 		for (final LaunchPoint point : points) {
 			pool.execute(new Runnable() {
 
 				@Override
 				public void run() {
-					// this will only run for scenario, never for the plan file.
-					// the plan file's execution will be done in the test case
-					// factory.
 					try {
 						Context.cleanCurrentThreadContext();
 
@@ -155,7 +157,7 @@ public class PaxmlRunner {
 
 		try {
 			pool.shutdown();
-			// wait for ever in a loop
+			// wait forever in a loop
 			while (!pool.awaitTermination(1, TimeUnit.MINUTES)) {
 				if (log.isDebugEnabled()) {
 					log.debug("Waiting for all executors to finish...");
