@@ -22,7 +22,7 @@
 
 		<!-- copy all resources -->
 		<copy todir="${stagingDir}">
-			<fileset dir="${basedir}/src/main/resources">
+			<fileset dir="${basedir}/script">
 				<include name="**/*.*" />
 			</fileset>
 		</copy>

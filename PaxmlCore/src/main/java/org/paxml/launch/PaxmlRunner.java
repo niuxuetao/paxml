@@ -16,33 +16,144 @@
  */
 package org.paxml.launch;
 
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.core.Context;
 import org.paxml.core.IEntity;
-import org.paxml.core.InMemoryResource;
-import org.paxml.tag.plan.ScenarioTag;
+import org.paxml.core.PaxmlResource;
+import org.paxml.core.PaxmlRuntimeException;
+import org.paxml.tag.plan.PlanEntityFactory.Plan;
+import org.paxml.tag.plan.PlanTagLibrary;
 
 public class PaxmlRunner {
 
 	private static final Log log = LogFactory.getLog(PaxmlRunner.class);
-	
-	public static void run(String paxmlFileName, StaticConfig config) throws Exception {
-		
+
+	public static void run(String paxmlOrPlanFileName, StaticConfig config) {
+
+		Context.cleanCurrentThreadContext();
+
+		PaxmlResource r = null;
+		for (PaxmlResource res : config.getResources()) {
+			if (paxmlOrPlanFileName.equals(res.getName())) {
+				r = res;
+				break;
+			}
+		}
+		if (r == null) {
+			throw new PaxmlRuntimeException("Paxml file not found: " + paxmlOrPlanFileName);
+		}
+
 		Properties properties = new Properties();
 		properties.putAll(System.getProperties());
 		Paxml paxml = new Paxml(0);
 		paxml.addStaticConfig(config);
+		paxml.getParser().addTagLibrary(new PlanTagLibrary(), false);
+
 		Context context = new Context(new Context(properties, paxml.getProcessId()));
 
-		String xml = "<" + ScenarioTag.TAG_NAME + "><" + paxmlFileName + "/></" + ScenarioTag.TAG_NAME + ">";
+		IEntity entity = paxml.getParser().parse(r, true, null);
+		if (entity instanceof Plan) {
+			// a plan file
+			if (log.isInfoEnabled()) {
+				log.info("Starting plan file execution: " + entity.getResource().getPath());
+			}
+			LaunchModel model = new LaunchModel();			
+			model.getConfig().add(config);
 
-		IEntity entity = paxml.getParser().parse(new InMemoryResource(xml), true, null);
-		paxml.execute(entity, context, true, true);
-		
-		
+			model.setName(((Plan) entity).getTagName());
+			model.setPlanEntity((Plan) entity);
+			model.setResource(r.getSpringResource());
+
+			Properties props = new Properties();
+			props.put(LaunchModel.class, model);
+			paxml.execute(entity, System.getProperties(), props);
+			run(model);
+			if (log.isInfoEnabled()) {
+				log.info("Finished executing plan file: " + entity.getResource().getPath());
+			}
+		} else {
+			// a paxml file
+			logExecution(r, true);
+			try {
+				paxml.execute(entity, context, true, true);
+			} finally {
+				logExecution(r, false);
+			}
+		}
+
 	}
 
+	private final static void logExecution(PaxmlResource res, boolean trueStartFalseEnd) {
+		if (log.isInfoEnabled()) {
+			log.info((trueStartFalseEnd ? "Starting" : "Finished") + " Paxml execution: " + res.getPath());
+		}
+
+	}
+
+	public static void run(LaunchModel model) {
+
+		List<LaunchPoint> points = model.getLaunchPoints(false);
+		if (log.isInfoEnabled()) {
+			log.info("Found " + points.size() + " Paxml files to execute based on plan file: " + model.getPlanEntity().getResource().getPath());
+		}
+		final int poolSize = model.getConcurrency() <= 0 ? Math.min(4, points.size()) : model.getConcurrency();
+		ExecutorService pool = Executors.newFixedThreadPool(poolSize);
+		for (final LaunchPoint point : points) {
+			pool.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					// this will only run for scenario, never for the plan file.
+					// the plan file's execution will be done in the test case
+					// factory.
+					try {
+						Context.cleanCurrentThreadContext();
+
+						logExecution(point.getResource(), true);
+
+						point.execute();
+					} catch (Throwable t) {
+						if (log.isErrorEnabled()) {
+							log.error(findMessage(t), t);
+						}
+					} finally {
+						logExecution(point.getResource(), false);
+					}
+				}
+
+			});
+		}
+
+		try {
+			pool.shutdown();
+			// wait for ever in a loop
+			while (!pool.awaitTermination(1, TimeUnit.MINUTES)) {
+				if (log.isDebugEnabled()) {
+					log.debug("Waiting for all executors to finish...");
+				}
+			}
+
+		} catch (InterruptedException e) {
+			throw new PaxmlRuntimeException("Cannot wait for all executors to finish", e);
+		} finally{
+			pool.shutdownNow();
+		}
+
+	}
+
+	private static String findMessage(Throwable t) {
+		String msg = t.getMessage();
+		for (; t != null && StringUtils.isBlank(msg); t = t.getCause()) {
+
+		}
+		return msg;
+	}
 }

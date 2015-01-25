@@ -50,6 +50,7 @@ public class LaunchModel {
     private final Map<String, Group> groups = Collections.synchronizedMap(new LinkedHashMap<String, Group>());
     private final Settings globalSettings = new Settings(null);
     private volatile List<LaunchPoint> launchPoints;
+    private volatile int concurrency;
     private Plan planEntity;
 
     public Settings getGlobalSettings() {
@@ -68,7 +69,15 @@ public class LaunchModel {
         this.name = name;
     }
 
-    /**
+    public int getConcurrency() {
+		return concurrency;
+	}
+
+	public void setConcurrency(int concurrency) {
+		this.concurrency = concurrency;
+	}
+
+	/**
      * Get the selected groups to run.
      * 
      * @return the selected

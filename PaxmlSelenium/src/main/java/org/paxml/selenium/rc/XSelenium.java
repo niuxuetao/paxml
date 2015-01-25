@@ -54,7 +54,7 @@ import com.thoughtworks.selenium.DefaultSelenium;
  */
 public class XSelenium {
 	private final DefaultSelenium selenium;
-	private static volatile SeleniumServer seleniumServer;
+	private volatile SeleniumServer seleniumServer;
 
 	/**
 	 * Different browser start command supported by Selenium RC Server.

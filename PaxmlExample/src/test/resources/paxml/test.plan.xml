@@ -19,26 +19,16 @@
 <plan>
     
     <execution group="*" />
-    <!-- 
-    selenium.rc.host=localhost
-        selenium.rc.port=14444
-     -->
-    <properties>        
-        
+    
+    <properties>                
         selenium.browser=*firefox 
         snapshotBeforePageLoad=true
-        selenium.snapshot.folder=${strings.replace(basedir,'\\','/')}/target/surefire-reports/paxml/screenshots           
+        selenium.snapshot.folder=${strings.replace(user.dir,'\\','/')}/target/surefire-reports/paxml/screenshots           
     </properties>
     
-    <scenario name="Example*" group="example">
+    <scenario name="Example*" group="examples">
         
     </scenario>    
-    
-    <resource>    
-        <include>**/*.xml</include>
-    </resource>
-    
-    <library>org.paxml.selenium.rc.TagLibrary</library>
-    
+   
     
 </plan>

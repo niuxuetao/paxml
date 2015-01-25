@@ -17,27 +17,27 @@
 package org.paxml;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxml.core.PaxmlResource;
 import org.paxml.launch.LaunchModelBuilder;
 import org.paxml.launch.PaxmlRunner;
 import org.paxml.launch.StaticConfig;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
+/**
+ * The command line application.
+ * 
+ * @author Xuetao Niu
+ *
+ */
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan
 public class Application {
-	public static final String BASE_DIR = "paxml.basedir";
+	public static final String BASE_DIR = "paxml.dir";
 	private static final Log log = LogFactory.getLog(Application.class);
 
 	public static void main(String[] args) throws Exception {
@@ -45,35 +45,24 @@ public class Application {
 			log.error("No Paxml file name is given.");
 			return;
 		}
-		String fn = args[0];
-		File file = new File(fn);
-		if (file.isFile()) {
-			fn = FilenameUtils.getBaseName(fn);
-		}
+		final String fn = args[0];
+		
 		String baseDir = System.getProperty(BASE_DIR);
 		if (StringUtils.isBlank(baseDir)) {
 			baseDir = new File("").getAbsolutePath();
 		}
 
 		if (log.isInfoEnabled()) {
-			log.info("Launching Paxml " + fn + " from base dir: " + baseDir);
+			log.info("Searching for Paxml " + fn + " from dir: " + baseDir);
 		}
 		StaticConfig config = new StaticConfig();
 		// add additional projects tag libs
 		config.getTagLibs().add(org.paxml.selenium.rc.TagLibrary.class);
 		// find resources
-		Set<String> includes = new HashSet<String>(1);
-		includes.add("**/*.*");
-		String fakeFile = new File(baseDir, "fake.file").getAbsolutePath();
-		Set<PaxmlResource> res = LaunchModelBuilder.findResources(fakeFile, includes, Collections.EMPTY_SET);
-
-		config.getResources().addAll(res);
+		config.getResources().addAll(LaunchModelBuilder.findResources(baseDir, null, null));
 
 		PaxmlRunner.run(fn, config);
 
-		if (log.isInfoEnabled()) {
-			log.info("Paxml execution finished: " + fn);
-		}
 	}
 
 }

@@ -19,6 +19,8 @@ package org.paxml.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -96,7 +98,7 @@ public class LaunchModelBuilder {
 
 			OMElement root = AxiomUtils.getRootElement(in);
 
-			// build the premitive parts
+			// build the primitive parts
 			buildLibraries(root, true);
 			buildListeners(root, true);
 			buildResources(root, true);
@@ -179,9 +181,23 @@ public class LaunchModelBuilder {
 		}
 
 	}
-	
+
 	public static Set<PaxmlResource> findResources(String base, Set<String> includes, Set<String> excludes) {
-		Resource baseRes = new FileSystemResource(new File(base)).getSpringResource();
+		if (includes == null) {
+			includes = new HashSet<String>(1);
+			includes.add("**/*.*");
+		}
+		if (excludes == null) {
+			excludes = Collections.EMPTY_SET;
+		}
+		if (base == null) {
+			base = ""; // the current working dir
+		}
+		File f = new File(base);
+		if (f.isDirectory()) {
+			f = new File(f, "fake.file");
+		}
+		Resource baseRes = new FileSystemResource(f).getSpringResource();
 		Set<PaxmlResource> include = new LinkedHashSet<PaxmlResource>(0);
 		Set<PaxmlResource> exclude = new LinkedHashSet<PaxmlResource>(0);
 		ResourceMatcher matcher = new ResourceMatcher(includes, excludes);

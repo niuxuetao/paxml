@@ -27,36 +27,45 @@ import org.paxml.core.IExecutionListener;
 import org.paxml.core.ITagExecutionListener;
 import org.paxml.core.PaxmlResource;
 import org.paxml.tag.ITagLibrary;
+
 /**
  * Static paxml config that can be shared between threads.
+ * 
  * @author Xuetao Niu
- *
+ * 
  */
 public class StaticConfig {
-    private final Set<PaxmlResource> resources = Collections.synchronizedSet(new LinkedHashSet<PaxmlResource>());
-    private final List<Class<? extends ITagLibrary>> tagLibs = new Vector<Class<? extends ITagLibrary>>(0);
-    private final List<Class<? extends IExecutionListener>> executionListeners = 
-        new Vector<Class<? extends IExecutionListener>>(0);
-    private final List<Class<? extends IEntityExecutionListener>> entityListeners = 
-        new Vector<Class<? extends IEntityExecutionListener>>(0);
-    private final List<Class<? extends ITagExecutionListener>> tagListeners = 
-        new Vector<Class<? extends ITagExecutionListener>>(0);
-    
-    public List<Class<? extends ITagLibrary>> getTagLibs() {
-        return tagLibs;
-    }
-    public List<Class<? extends IExecutionListener>> getExecutionListeners() {
-        return executionListeners;
-    }
-    public List<Class<? extends IEntityExecutionListener>> getEntityListeners() {
-        return entityListeners;
-    }
-    public List<Class<? extends ITagExecutionListener>> getTagListeners() {
-        return tagListeners;
-    }
-    public Set<PaxmlResource> getResources() {
-        return resources;
-    }
-    
-    
+	private final Set<PaxmlResource> resources = Collections.synchronizedSet(new LinkedHashSet<PaxmlResource>());
+	private final List<Class<? extends ITagLibrary>> tagLibs = new Vector<Class<? extends ITagLibrary>>(0);
+	private final List<Class<? extends IExecutionListener>> executionListeners = new Vector<Class<? extends IExecutionListener>>(0);
+	private final List<Class<? extends IEntityExecutionListener>> entityListeners = new Vector<Class<? extends IEntityExecutionListener>>(0);
+	private final List<Class<? extends ITagExecutionListener>> tagListeners = new Vector<Class<? extends ITagExecutionListener>>(0);
+
+	public List<Class<? extends ITagLibrary>> getTagLibs() {
+		return tagLibs;
+	}
+
+	public List<Class<? extends IExecutionListener>> getExecutionListeners() {
+		return executionListeners;
+	}
+
+	public List<Class<? extends IEntityExecutionListener>> getEntityListeners() {
+		return entityListeners;
+	}
+
+	public List<Class<? extends ITagExecutionListener>> getTagListeners() {
+		return tagListeners;
+	}
+
+	public Set<PaxmlResource> getResources() {
+		return resources;
+	}
+
+	public void add(StaticConfig fromAnother) {
+		resources.addAll(fromAnother.getResources());
+		tagLibs.addAll(fromAnother.getTagLibs());
+		executionListeners.addAll(fromAnother.getExecutionListeners());
+		entityListeners.addAll(fromAnother.getEntityListeners());
+		tagListeners.addAll(fromAnother.getTagListeners());
+	}
 }

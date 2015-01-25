@@ -39,78 +39,82 @@ import org.paxml.tag.ScenarioEntityFactory.Scenario;
  */
 @RootTag(PlanEntityFactory.TAG_NAME)
 public class PlanEntityFactory extends AbstractPaxmlEntityFactory {
-    /**
-     * The root tag name.
-     */
-    public static final String TAG_NAME = "plan";
 
-    /**
-     * The plan tag.
-     * 
-     * @author Xuetao Niu
-     * 
-     */
-    public static class Plan extends Scenario {
-        
-        /**
-         * Get the launch model from context's global internal object map.
-         * 
-         * @param context
-         *            the context
-         * @return the launch model, or null if not found.
-         */
-        public static LaunchModel getLaunchModel(Context context) {
-            return (LaunchModel) context.getInternalObject(LaunchModel.class, true);
-        }
+	/**
+	 * The root tag name.
+	 */
+	public static final String TAG_NAME = "plan";
+	public static final String CONCURRENCY_CONST = "paxml.plan.concurrency";
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Object execute(Context context) {
-            Object result = super.execute(context);
-            finishUpLaunchModel(context);
-            return result;
-        }
+	/**
+	 * The plan tag.
+	 * 
+	 * @author Xuetao Niu
+	 * 
+	 */
+	public static class Plan extends Scenario {
 
-        private void finishUpLaunchModel(Context context) {
-            LaunchModel model = getLaunchModel(context);
-            // put the global properties
-            Properties globalProps = model.getGlobalSettings().getProperties();
-            final Set<String> propIds = context.getPropertyConstIds(false);
-            for (Map.Entry<String, Object> entry : context.getIdMap(false, true).entrySet()) {
-                String key = entry.getKey();                
-                Object value = entry.getValue();
-                if (value == null || key == null || !propIds.contains(key)) {                
-                    continue;
-                }
-                globalProps.put(key, value);
-            }
-            globalProps.remove(LaunchModel.class);
-            System.getProperties().remove(LaunchModel.class);
-            // merge local factors with global ones if needed
-            final Map<String, Factor> globalFactors = model.getGlobalSettings().getFactors();
-            for (Group group : model.getGroups().values()) {
-                for (Factor factor : group.getSettings().getFactors().values()) {
-                    if (factor.isMergeGlobal()) {
-                        Factor globalFactor = globalFactors.get(factor.getName());
-                        if (globalFactor != null) {
-                            factor.getValues().addAll(globalFactor.getValues());
-                        }
-                    }
-                }
-            }
-        }
-        
-    }
+		/**
+		 * Get the launch model from context's global internal object map.
+		 * 
+		 * @param context
+		 *            the context
+		 * @return the launch model, or null if not found.
+		 */
+		public static LaunchModel getLaunchModel(Context context) {
+			return (LaunchModel) context.getInternalObject(LaunchModel.class, true);
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected AbstractPaxmlEntity doCreate(OMElement root, IParserContext context) {
-        Plan plan = new Plan();
-        return plan;
-    }
-    
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Object execute(Context context) {
+			Object result = super.execute(context);
+			finishUpLaunchModel(context);
+			return result;
+		}
+
+		private void finishUpLaunchModel(Context context) {
+			LaunchModel model = getLaunchModel(context);
+			Integer concurrency = context.getConst(CONCURRENCY_CONST, true, Integer.class);
+			model.setConcurrency(concurrency == null ? 0 : concurrency);
+			// put the global properties
+			Properties globalProps = model.getGlobalSettings().getProperties();
+			final Set<String> propIds = context.getPropertyConstIds(false);
+			for (Map.Entry<String, Object> entry : context.getIdMap(false, true).entrySet()) {
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				if (value == null || key == null || !propIds.contains(key)) {
+					continue;
+				}
+				globalProps.put(key, value);
+			}
+			globalProps.remove(LaunchModel.class);
+			System.getProperties().remove(LaunchModel.class);
+			// merge local factors with global ones if needed
+			final Map<String, Factor> globalFactors = model.getGlobalSettings().getFactors();
+			for (Group group : model.getGroups().values()) {
+				for (Factor factor : group.getSettings().getFactors().values()) {
+					if (factor.isMergeGlobal()) {
+						Factor globalFactor = globalFactors.get(factor.getName());
+						if (globalFactor != null) {
+							factor.getValues().addAll(globalFactor.getValues());
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected AbstractPaxmlEntity doCreate(OMElement root, IParserContext context) {
+		Plan plan = new Plan();
+		return plan;
+	}
+
 }
