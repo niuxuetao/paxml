@@ -62,8 +62,9 @@
   &lt;/<span class="pl-ent">iterate</span>&gt;
 &lt;/<span class="pl-ent">scenario</span>&gt;</pre></div>
 
-<p>Save the above XML as file named TranslateExcel.xml then run this command to let it run:
-<strong><code>paxml TranslateExcel</code></strong></p>
+<p>Save the above XML as file named TranslateExcel.xml then run this command to let it run:</p>
+
+<p><strong><code>paxml TranslateExcel</code></strong></p>
 
 <p>Now you can start using column B which contains 1000 rows of German translation!</p>
 
@@ -80,15 +81,16 @@
   &lt;/<span class="pl-ent">iterate</span>&gt;
 &lt;/<span class="pl-ent">scenario</span>&gt;</pre></div>
 
-<p>And save this file as TestTranslate.xml then run this command to launch the test:
-<strong><code>paxml TestTranslate</code></strong></p>
+<p>And save the above XML as TestTranslate.xml then run this command to launch the test:</p>
+
+<p><strong><code>paxml TestTranslate</code></strong></p>
 
 <h3>
 <a id="manage-multiple-paxml-files" class="anchor" href="#manage-multiple-paxml-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Manage multiple Paxml files</h3>
 
 <p>Moreover, you can manage multiple Paxml files with a plan file so that you can repeat the executions of multiple Paxml files in one centralized place. The centralized management even supports dynamic inputs.</p>
 
-<p>Suppose you have an Excel file Tests.xls that stores all your test case names (in column A) that you would like to repeat, and you have already created multiple Paxml files each corresponding to a test case name. Then you can make a plan file taking such Excel as input, so that you just need to maintain the Excel file to determine what tests are to run.</p>
+<p>Suppose you have an Excel file Tests.xls that stores all your test case names (in column A) that you would like to repeat, and you have already created multiple Paxml files each corresponding to a test case name. Then you can make a plan file taking such Excel as input, so that you just need to maintain the Excel file to dictate what tests are to run.</p>
 
 <div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">plan</span>&gt;
   &lt;<span class="pl-ent">readExcel</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>excel<span class="pl-pds">"</span></span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>Tests.xls<span class="pl-pds">"</span></span>/&gt;
@@ -97,8 +99,9 @@
   &lt;/<span class="pl-ent">iterate</span>&gt;
 &lt;/<span class="pl-ent">plan</span>&gt;</pre></div>
 
-<p>Save the above XML as file MyPlan.xml then run such command to trigger all tests in parallel:
-<strong><code>paxml MyPlan</code></strong></p>
+<p>Save the above XML as file MyPlan.xml then run such command to trigger all tests in parallel:</p>
+
+<p><strong><code>paxml MyPlan</code></strong></p>
 
 <h3>
 <a id="interested" class="anchor" href="#interested" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interested?</h3>
