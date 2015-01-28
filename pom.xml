@@ -5,7 +5,7 @@
 	<artifactId>paxml-root</artifactId>
 	<groupId>org.paxml</groupId>
 	<name>Paxml</name>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2</version>
 	<packaging>pom</packaging>
 
 	<description>Paxml - Process Automation eXtensible Markup Language</description>

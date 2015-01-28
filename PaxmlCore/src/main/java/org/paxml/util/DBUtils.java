@@ -38,11 +38,10 @@ public class DBUtils {
 	public static final String H2_DRIVER_CLASS = "org.h2.Driver";
 	public static final String H2_USER = "sa";
 	public static final String H2_PASSWORD = "";
-	public static final String H2_URL;
-	static {
+	
+	public static String getDefaultH2Url(){
 		String file = PaxmlUtils.getPaxmlFile("/data/h2").getAbsolutePath();
-		H2_URL = "jdbc:h2:" + file;
-		//initDatabase(getPooledDataSource());
+		return "jdbc:h2:" + file;
 	}
 
 	public static void initDatabase(DataSource ds) {
@@ -57,7 +56,7 @@ public class DBUtils {
 	}
 
 	public static DataSource getPooledDataSource() {
-		return getPooledDataSource(H2_URL);
+		return getPooledDataSource(getDefaultH2Url());
 	}
 
 	public static DataSource getPooledDataSource(String url) {

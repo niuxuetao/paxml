@@ -34,9 +34,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class PaxmlUtils {
 	public static final String PAXML_HOME_ENV_KEY = "PAXML_HOME";
-	private static final File PAXML_HOME;
 
-	static {
+	public static File getPaxmlHome() {
 		String paxmlHome = System.getenv(PAXML_HOME_ENV_KEY);
 		if (paxmlHome == null) {
 			paxmlHome = System.getProperty(PAXML_HOME_ENV_KEY);
@@ -44,15 +43,11 @@ public class PaxmlUtils {
 		if (paxmlHome == null) {
 			throw new PaxmlRuntimeException("System environment 'PAXML_HOME' not set!");
 		}
-		PAXML_HOME = new File(paxmlHome);
-	}
-
-	public static File getPaxmlHome() {
-		return PAXML_HOME;
+		return new File(paxmlHome);
 	}
 
 	public static File getPaxmlFile(String file) {
-		return new File(PAXML_HOME, file);
+		return new File(getPaxmlHome(), file);
 	}
 
 	public static long getNextSessionId() {
