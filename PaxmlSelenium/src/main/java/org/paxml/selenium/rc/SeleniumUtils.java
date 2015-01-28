@@ -558,7 +558,19 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (locator == null) {
 			return null;
 		}
-		if (locator.startsWith("jq=")) {
+		if (locator.startsWith("cssid:") || locator.startsWith("cssid=")) {
+            String tmp = locator.substring(6);
+            int s = tmp.indexOf("[");
+            int e = tmp.indexOf("]");
+            if (s == -1 || e == -1 || s > e) {
+                throw new IllegalArgumentException("Unable to parse a cssid: locator.");
+            }
+            String htmlElement = tmp.substring(0, s);
+            String id = tmp.substring(s + 1, e);
+            String rest = tmp.substring(e + 1);
+            return new StringBuilder("css=").append(htmlElement).append("[id=\"").append(id).append("\"]").append(rest)
+                    .toString();
+        }else if (locator.startsWith("jq=")) {
 			// compose a js expression using jquery
 			return "dom=var jq=window.jQuery(\"" + locator.substring(3) + "\"); return jq.size()==1?jq.get(0):(jq.size() ==0 ? null: jq.toArray());";
 		} else if (locator.startsWith("text=")) {
