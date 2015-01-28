@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -42,7 +41,7 @@ import org.paxml.core.PaxmlRuntimeException;
 @Tag(name = "http")
 public class HttpTag extends BeanTag {
 
-    public static final int DEFAULT_MAX_RETRY = 5;
+	public static final int DEFAULT_MAX_RETRY = 5;
     public static final String ENTITY_NAME = "name";
     public static final String ENTITY_VALUE = "value";
     private String url;
@@ -59,8 +58,8 @@ public class HttpTag extends BeanTag {
      */
     @Override
     protected Object doInvoke(Context context) throws Exception {
-
-        if (!url.startsWith("http://")) {
+        String lowUrl = url.toLowerCase();
+        if (!lowUrl.startsWith("http://") && !lowUrl.startsWith("https://")) {
             url = "http://" + url;
         }
         HttpClient client = new HttpClient();
@@ -81,20 +80,19 @@ public class HttpTag extends BeanTag {
         // method.setr
         try {
             // Execute the method.
+
             final int statusCode = client.executeMethod(m);
 
-            if (statusCode != HttpStatus.SC_OK) {
-                Object result = onResponseError(statusCode, m.getStatusText());
-                if (result != null) {
-                    return result;
-                }
-            }
             if (responseless) {
-                return null;
+                return statusCode;
             }
 
             // Read the response body.
-            return processResponse(m.getResponseBody());
+            Map<String, Object> result = new HashMap<String, Object>();
+            result.put("code", statusCode);
+            result.put("body", m.getResponseBodyAsString());
+            result.put("all", m);
+            return result;
 
         } finally {
             // Release the connection.
@@ -104,14 +102,6 @@ public class HttpTag extends BeanTag {
 
     protected void onBeforeSend(HttpMethodBase m) {
         // do nothing here, let subclasses do stuff
-    }
-
-    protected Object onResponseError(int status, String statusString) throws Exception {
-        return status;
-    }
-
-    protected Object processResponse(byte[] body) throws Exception {
-        return new String(body, "UTF-8");
     }
 
     private Map<String, List<String>> getNameValuePairs(Object object, String propertyName) {
