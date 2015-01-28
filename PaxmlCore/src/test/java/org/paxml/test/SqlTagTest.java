@@ -23,7 +23,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
-import org.paxml.tag.sql.SqlTag;
+import org.paxml.util.DBUtils;
 
 public class SqlTagTest {
     @Test
@@ -41,7 +41,7 @@ public class SqlTagTest {
                 " update xxx ;--what is that;",                
                 "");
             
-        List<String> broken = SqlTag.breakSql(StringUtils.join(lines, '\n'));
+        List<String> broken = DBUtils.breakSql(StringUtils.join(lines, '\n'));
         
         Assert.assertEquals(Arrays.asList(
                 "create table1()",

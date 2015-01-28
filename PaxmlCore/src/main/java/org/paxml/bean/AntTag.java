@@ -127,7 +127,7 @@ public class AntTag extends BeanTag {
                 p.executeTarget(t);
             }
             p.fireBuildFinished(null);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             p.fireBuildFinished(e);
             if (failOnError) {
                 throw new PaxmlRuntimeException(e);

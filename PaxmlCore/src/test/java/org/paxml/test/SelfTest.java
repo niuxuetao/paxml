@@ -51,7 +51,7 @@ public class SelfTest {
     @Test
     public void testInvalid() {
         LaunchModel model = Paxml.executePlanFile("selftestInvalid/test.plan.xml", System.getProperties());
-        for (LaunchPoint lp : model.getLaunchPoints(false)) {
+        for (LaunchPoint lp : model.getLaunchPoints(false, -1)) {
             try {
 
                 model.execute(lp);
@@ -68,12 +68,12 @@ public class SelfTest {
     public void testValid() {
 
         LaunchModel model = Paxml.executePlanFile("selftest/test.plan.xml", System.getProperties());
-        model.execute(model.getLaunchPoints(false));
+        model.execute(model.getLaunchPoints(false, -1));
     }
     
     @Test
     public void testReturnTag() {
-        Paxml paxml = new Paxml(0);
+        Paxml paxml = new Paxml(0, -1);
 
         paxml.addTagLibrary(MyTagLibrary.class);
         paxml.addResources(paxml.getResourceLocator().findResources("classpath:selftest/**/*.xml", null));

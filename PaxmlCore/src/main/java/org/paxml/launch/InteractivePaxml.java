@@ -34,170 +34,171 @@ import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.tag.plan.ScenarioTag;
 
 public class InteractivePaxml {
-    private static final Log log = LogFactory.getLog(InteractivePaxml.class);
+	private static final Log log = LogFactory.getLog(InteractivePaxml.class);
 
-    public static final String ARG_PLANFILE = "paxml.planfile";
+	public static final String ARG_PLANFILE = "paxml.planfile";
 
-    public static final String CMD_HELP = "help";
-    public static final String CMD_RESET = "reset";
-    public static final String CMD_QUIT = "quit";
+	public static final String CMD_HELP = "help";
+	public static final String CMD_RESET = "reset";
+	public static final String CMD_QUIT = "quit";
 
-    public static interface IStreamFactory {
-        InputStream getInputStream();
+	public static interface IStreamFactory {
+		InputStream getInputStream();
 
-        OutputStream getOutputStream(boolean error);
-    }
+		OutputStream getOutputStream(boolean error);
+	}
 
-    public static class SystemStreamFactory implements IStreamFactory {
+	public static class SystemStreamFactory implements IStreamFactory {
 
-        @Override
-        public InputStream getInputStream() {
-            return System.in;
-        }
+		@Override
+		public InputStream getInputStream() {
+			return System.in;
+		}
 
-        @Override
-        public OutputStream getOutputStream(boolean error) {
-            return error ? System.err : System.out;
-        }
+		@Override
+		public OutputStream getOutputStream(boolean error) {
+			return error ? System.err : System.out;
+		}
 
-    }
+	}
 
-    public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
-        InteractivePaxml ipaxml = new InteractivePaxml(new SystemStreamFactory());
+		InteractivePaxml ipaxml = new InteractivePaxml(new SystemStreamFactory());
 
-        ipaxml.run(System.getProperty(ARG_PLANFILE));
-    }
+		ipaxml.run(System.getProperty(ARG_PLANFILE));
+	}
 
-    private final IStreamFactory streams;
-    private final Paxml paxml = new Paxml(0);
-    private final Properties properties = new Properties();
-    private boolean entryCalled = false;
+	private final IStreamFactory streams;
+	private final Paxml paxml = new Paxml(0, -1);
+	private final Properties properties = new Properties();
+	private boolean entryCalled = false;
 
-    public InteractivePaxml(IStreamFactory streamFactory) {
-        streams = streamFactory;
-        properties.putAll(System.getProperties());
-    }
+	public InteractivePaxml(IStreamFactory streamFactory) {
+		streams = streamFactory;
+		properties.putAll(System.getProperties());
+	}
 
-    public Paxml getPaxml() {
-        return paxml;
-    }
-    private Context makeNewContext(){
-        return new Context(new Context(properties, paxml.getProcessId()));
-    }
-    public void run(String planFile) {
+	public Paxml getPaxml() {
+		return paxml;
+	}
 
-        printHelp();
+	private Context makeNewContext() {
+		return new Context(new Context(properties, paxml.getProcessId()));
+	}
 
-        println("paxml interactive mode started. Please type paxml tags to execute:");
+	public void run(String planFile) {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(streams.getInputStream()));
-        String line;
-        StringBuilder sb = null;
+		printHelp();
 
-        if (StringUtils.isNotBlank(planFile)) {
-            if(log.isInfoEnabled()){
-                log.info("Running with planfile: "+planFile);
-            }
-            try {
-                LaunchModel model = paxml.executePlanFile(planFile, System.getProperties());
-                paxml.addStaticConfig(model.getConfig());
-                properties.putAll(model.getGlobalSettings().getProperties());
-            } catch (Exception e) {
+		println("paxml interactive mode started. Please type paxml tags to execute:");
 
-                e.printStackTrace(new PrintStream(streams.getOutputStream(true)));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(streams.getInputStream()));
+		String line;
+		StringBuilder sb = null;
 
-            }
-        } else {
-            if(log.isInfoEnabled()){
-                log.info("Running without plan file");
-            }
-        }
+		if (StringUtils.isNotBlank(planFile)) {
+			if (log.isInfoEnabled()) {
+				log.info("Running with planfile: " + planFile);
+			}
+			try {
+				LaunchModel model = paxml.executePlanFile(planFile, System.getProperties());
+				paxml.addStaticConfig(model.getConfig());
+				properties.putAll(model.getGlobalSettings().getProperties());
+			} catch (Exception e) {
 
-        Context context = makeNewContext();
+				e.printStackTrace(new PrintStream(streams.getOutputStream(true)));
 
-        while ((line = readLine(reader)) != null) {
-            if (line.equals(CMD_HELP)) {
-                printHelp();
-            } else if (line.equals("reset")) {
-                paxml.callEntityExitListener(context);
-                context = makeNewContext();
-                sb = null;
-                println("Context reset");
-            } else if (line.equals(CMD_QUIT)) {
-                println("Goodbye");
-                break;
-            } else if (line.endsWith("\\")) {
-                sb = new StringBuilder();
-                sb.append(line.substring(0, line.length() - 1)).append("\r\n");
-            } else if (sb == null) {
-                // execute the line
-                execute(line, context);
-            } else {
-                // execute multiple lines
-                execute(sb.toString(), context);
-                sb = null;
-            }
-        }
-        
-    }
+			}
+		} else {
+			if (log.isInfoEnabled()) {
+				log.info("Running without plan file");
+			}
+		}
 
-    public void execute(String paxml, Context context) {
-        paxml = "<" + ScenarioTag.TAG_NAME + ">" + paxml + "</" + ScenarioTag.TAG_NAME + ">";
+		Context context = makeNewContext();
 
-        try {
-            IEntity entity = this.paxml.getParser().parse(new InMemoryResource(paxml), true, null);
+		while ((line = readLine(reader)) != null) {
+			if (line.equals(CMD_HELP)) {
+				printHelp();
+			} else if (line.equals("reset")) {
+				paxml.callEntityExitListener(context);
+				context = makeNewContext();
+				sb = null;
+				println("Context reset");
+			} else if (line.equals(CMD_QUIT)) {
+				println("Goodbye");
+				break;
+			} else if (line.endsWith("\\")) {
+				sb = new StringBuilder();
+				sb.append(line.substring(0, line.length() - 1)).append("\r\n");
+			} else if (sb == null) {
+				// execute the line
+				execute(line, context);
+			} else {
+				// execute multiple lines
+				execute(sb.toString(), context);
+				sb = null;
+			}
+		}
 
-            this.paxml.execute(entity, context, !entryCalled, false);
+	}
 
-            entryCalled = true;
+	public void execute(String paxml, Context context) {
+		paxml = "<" + ScenarioTag.TAG_NAME + ">" + paxml + "</" + ScenarioTag.TAG_NAME + ">";
 
-        } catch (Throwable e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
-            println(Paxml.getCause(e));
+		try {
+			IEntity entity = this.paxml.getParser().parse(new InMemoryResource(paxml), true, null);
 
-        }
+			this.paxml.execute(entity, context, !entryCalled, false);
 
-    }
+			entryCalled = true;
 
-    private String readLine(BufferedReader reader) {
-        try {
-            return reader.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		} catch (Throwable e) {
+			if (log.isErrorEnabled()) {
+				log.error(e.getMessage(), e);
+			}
+			println(Paxml.getCause(e));
 
-    private void printHelp() {
-        println("");
-        println("************************************************************************");
-        System.out
-                .println("Execute paxml tags as you type. You can add/edit other paxml files before you call them. The change will be automatically picked up.");
-        println("A few commands to assist typing the paxml tags:");
-        println("    a back slash \\ in the end of a line combines its next line to execute together.");
-        println("    " + CMD_RESET + " : start a new context all over, clearing all defined data");
-        println("    " + CMD_QUIT + " : quit this program");
-        println("    " + CMD_HELP + " : show this help");
-        println("");
-        println("System properties as launch arguments:");
-        println("    "
-                + ARG_PLANFILE
-                + " : spring resource path pointing to a planfile that specifies the tag libraries, resources, listeners, and global properties. Leaving this argument will use the bare minual settings.");
+		}
 
-        println("************************************************************************");
-        println("");
-    }
+	}
 
-    private void println(String line) {
-        OutputStream out = streams.getOutputStream(false);
-        try {
-            out.write(line.getBytes("UTF-8"));
-            out.write("\r\n".getBytes("UTF-8"));
-            out.flush();
-        } catch (IOException e) {
-            throw new PaxmlRuntimeException(e.getMessage());
-        }
-    }
+	private String readLine(BufferedReader reader) {
+		try {
+			return reader.readLine();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void printHelp() {
+		println("");
+		println("************************************************************************");
+		System.out.println("Execute paxml tags as you type. You can add/edit other paxml files before you call them. The change will be automatically picked up.");
+		println("A few commands to assist typing the paxml tags:");
+		println("    a back slash \\ in the end of a line combines its next line to execute together.");
+		println("    " + CMD_RESET + " : start a new context all over, clearing all defined data");
+		println("    " + CMD_QUIT + " : quit this program");
+		println("    " + CMD_HELP + " : show this help");
+		println("");
+		println("System properties as launch arguments:");
+		println("    "
+				+ ARG_PLANFILE
+				+ " : spring resource path pointing to a planfile that specifies the tag libraries, resources, listeners, and global properties. Leaving this argument will use the bare minual settings.");
+
+		println("************************************************************************");
+		println("");
+	}
+
+	private void println(String line) {
+		OutputStream out = streams.getOutputStream(false);
+		try {
+			out.write(line.getBytes("UTF-8"));
+			out.write("\r\n".getBytes("UTF-8"));
+			out.flush();
+		} catch (IOException e) {
+			throw new PaxmlRuntimeException(e.getMessage());
+		}
+	}
 }

@@ -138,7 +138,7 @@ public class PaxmlTestCaseFactory {
 
         LaunchModel model = Paxml.executePlanFile(planFile, null);
 
-        List<LaunchPoint> points = model.getLaunchPoints(false);
+        List<LaunchPoint> points = model.getLaunchPoints(false, -1);
 
         List<Object> result = new LinkedList<Object>();
         for (LaunchPoint p : points) {

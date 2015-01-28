@@ -20,10 +20,10 @@
 	<target name="test">
 		<echo>a=${a}, b=${b}</echo>
 		<script language="groovy">  		
-  		int b = Integer.parseInt(self.getProject().getProperty("b")+"");
-  		print b;
-  		System.getProperties().get("a").getAndAdd(b);
-  	</script>
+		    int b = Integer.parseInt(self.getProject().getProperty("b")+"");
+		    print b;
+		    System.getProperties().get("a").getAndAdd(b);
+		</script>		
 	</target>
 
 	<target name="failMe">
@@ -31,7 +31,7 @@
 	</target>
 
 	<target name="testIf" if="${testIfCondition}">
-		<antcall target="test"/>
+		<antcall target="test" />
 	</target>
 
 	<target name="testDepends" depends="test">

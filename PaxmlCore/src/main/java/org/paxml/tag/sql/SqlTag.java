@@ -16,15 +16,12 @@
  */
 package org.paxml.tag.sql;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +38,7 @@ import org.paxml.core.Parser;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.tag.sql.SqlQueryTag.ClosableResultSetIterable;
 import org.paxml.tag.sql.SqlQueryTag.ResultSetsHolder;
+import org.paxml.util.DBUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -236,46 +234,7 @@ public class SqlTag extends BeanTag {
 
     }
 
-    public static List<String> breakSql(String sql) {
-        List<String> ret = new ArrayList<String>();
-
-        List<String> lines;
-        try {
-            lines = IOUtils.readLines(new ByteArrayInputStream(sql.getBytes("UTF-8")));
-        } catch (IOException e) {
-            throw new PaxmlRuntimeException(e);
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            line = line.trim();
-            if (line.length() <= 0 || line.startsWith("--")) {
-                continue;
-            }
-
-            if (line.charAt(line.length() - 1) == ';') {
-                line = line.substring(0, line.length() - 1).trim();
-                if (line.length() > 0) {
-                    sb.append(line);
-                    ret.add(sb.toString());
-                    sb.setLength(0);
-                }
-            } else {
-                sb.append(line).append(' ');
-            }
-        }
-        if (sb.length() > 0) {
-            String remainder = sb.toString();
-            if (remainder.charAt(remainder.length() - 1) == ';') {
-                remainder = remainder.substring(0, remainder.length() - 1);
-                if (remainder.length() > 0) {
-                    ret.add(remainder);
-                }
-            } else {
-                ret.add(remainder);
-            }
-        }
-        return ret;
-    }
+    
 
     private Object executeSql(String sql, ISqlExecutor exe) {
 
@@ -284,7 +243,7 @@ public class SqlTag extends BeanTag {
         if (singleStatement) {
             sqlList = Arrays.asList(sql);
         } else {
-            sqlList = breakSql(sql);
+            sqlList = DBUtils.breakSql(sql);
         }
 
         final int maxIndex = sqlList.size() - 1;

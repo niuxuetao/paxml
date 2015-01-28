@@ -25,7 +25,7 @@ import org.paxml.selenium.rc.TagLibrary;
 public class SeleniumTagRunner {
     public static void main(String[] args) throws Exception {
             
-        Paxml paxml = new Paxml(0);
+        Paxml paxml = new Paxml(0, -1);
 
         paxml.addTagLibrary(TagLibrary.class);
         paxml.addResources(paxml.getResourceLocator().findResources("classpath*:paxml/**/*.xml", null));

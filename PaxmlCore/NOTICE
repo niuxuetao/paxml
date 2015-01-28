@@ -22,7 +22,7 @@ This software is built on and attributes to third-party libraries with the follo
   Commons Pool under The Apache Software License, Version 2.0
   commons-beanutils under Apache License, Version 2.0
   Groovy under The Apache Software License, Version 2.0
-  H2 Database Engine under The H2 License, Version 1.0
+  H2 Database Engine under MPL 2.0, and EPL 1.0
   Hamcrest Core under BSD style
   HttpClient under Apache License
   HyperSQL Database under HSQLDB License, a BSD open source license

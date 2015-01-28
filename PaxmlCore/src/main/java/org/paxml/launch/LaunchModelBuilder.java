@@ -42,6 +42,7 @@ import org.paxml.tag.plan.PlanEntityFactory.Plan;
 import org.paxml.tag.plan.PlanTagLibrary;
 import org.paxml.util.AxiomUtils;
 import org.paxml.util.Elements;
+import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
 import org.springframework.core.io.Resource;
 
@@ -120,7 +121,7 @@ public class LaunchModelBuilder {
 	}
 
 	private Plan processPlan(OMElement root, Properties props) {
-		final Paxml paxml = new Paxml(0);
+		final Paxml paxml = new Paxml(0, PaxmlUtils.getNextSessionId());
 		paxml.addStaticConfig(model.getConfig());
 
 		// add the plan tag lib temporarily

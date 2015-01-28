@@ -42,8 +42,8 @@
   <assertTrue><actual><ant target="_test" dir="classpath:selftest/antTest" file="_build.xml" /></actual></assertTrue>  
   <assert expected="11" actual="${a.get()}" />
   
-  <!-- this one will fail because dir is not given -->
-  <assertFalse><actual><ant target="_test" file="classpath:selftest/antTest/_build.xml" failOnError="false" /></actual></assertFalse>  
+  <!-- this one will fail because dir is given wrong -->
+  <assertFalse><actual><ant target="_test" dir="src" file="classpath:selftest/antTest/_build.xml" failOnError="false" /></actual></assertFalse>  
   <assert expected="11" actual="${a.get()}" />
   
   <!-- test if condition -->  

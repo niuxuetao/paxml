@@ -25,10 +25,12 @@ This software is built on and attributes to third-party libraries with the follo
   ClassMate under The Apache Software License, Version 2.0
   Codec under Apache License, Version 2.0
   Collections under The Apache Software License, Version 2.0
+  Commons DBCP under The Apache Software License, Version 2.0
   Commons Exec under The Apache Software License, Version 2.0
   Commons JEXL under The Apache Software License, Version 2.0
   Commons JXPath under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
+  Commons Pool under The Apache Software License, Version 2.0
   commons-beanutils under Apache License, Version 2.0
   Core Hibernate O/RM functionality under GNU Lesser General Public License
   CSS Parser under GNU Lesser General Public License
@@ -36,6 +38,7 @@ This software is built on and attributes to third-party libraries with the follo
   Groovy under The Apache Software License, Version 2.0
   Gson under The Apache Software License, Version 2.0
   Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
+  H2 Database Engine under MPL 2.0, and EPL 1.0
   Hibernate Commons Annotations under GNU Lesser General Public License
   Hibernate JPA Support under GNU Lesser General Public License
   Hibernate Validator Engine under Apache License, Version 2.0

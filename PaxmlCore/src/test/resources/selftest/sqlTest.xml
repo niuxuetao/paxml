@@ -19,7 +19,7 @@
 -->
 <scenario>
 	<!-- make the db in target dir in order to let it be cleanable, see more options here: http://www.h2database.com/html/cheatSheet.html -->
-    <sqlDataSource username="sa" password="sa" driver="org.h2.Driver" url="jdbc:h2:target/test" />
+    <sqlDataSource username="sa" password="sa" driver="org.h2.Driver" url="jdbc:h2:~/target/test" />
 	<sql>
 	DROP TABLE IF EXISTS TEST;
 	CREATE TABLE TEST (ID INT PRIMARY KEY, NAME VARCHAR(255));
