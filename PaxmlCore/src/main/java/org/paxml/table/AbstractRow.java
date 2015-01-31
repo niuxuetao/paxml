@@ -16,13 +16,71 @@
  */
 package org.paxml.table;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.paxml.util.RangedIterator;
 
-public abstract class AbstractRow<T extends ITable> implements IRow {
+public abstract class AbstractRow<T extends ITable> extends AbstractMap<String, Object> implements IRow {
 	private T table;
+
+	@Override
+	public Object getCellValue(String name) {
+		ICell cell = getCell(name);
+		return cell == null ? null : cell.getValue();
+	}
+
+	@Override
+	public Object getCellValue(int index) {
+		ICell cell = getCell(index);
+		return cell == null ? null : cell.getValue();
+	}
+
+	@Override
+	public Object put(String key, Object value) {
+		IColumn col = table.getColumn(key);
+		if (col == null) {
+			col = table.addColumn(key);
+		}
+		int index = col.getIndex();
+		Object existing = getCellValue(index);
+		setCellValue(index, value);
+		return existing;
+	}
+
+	@Override
+	public Set<Map.Entry<String, Object>> entrySet() {
+		Set<Map.Entry<String, Object>> set = new LinkedHashSet<Map.Entry<String, Object>>();
+
+		for (final IColumn col : table.getColumns()) {
+			set.add(new Map.Entry<String, Object>() {
+
+				@Override
+				public String getKey() {
+					return col.getName();
+				}
+
+				@Override
+				public Object getValue() {
+					return getCellValue(col.getIndex());
+				}
+
+				@Override
+				public Object setValue(Object value) {
+					Object existing = getValue();
+					setCellValue(col.getIndex(), value);
+					return existing;
+				}
+
+			});
+		}
+		return set;
+	}
 
 	@Override
 	public Iterator<ICell> iterator() {
@@ -77,10 +135,43 @@ public abstract class AbstractRow<T extends ITable> implements IRow {
 	}
 
 	@Override
-	public IRowDiff compare(IRow against, ITableTransformer tran) {
-		
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public List<CellDiff> compare(List<IColumn> myColumns, IRow against, List<IColumn> theirColumns, ICellComparator comp) {
 
+		if (myColumns == null) {
+			myColumns = getTable().getColumns();
+		}
+		if (theirColumns == null) {
+			theirColumns = against.getTable().getColumns();
+		}
+		if (comp == null) {
+			comp = new DefaultCellComparator();
+		}
+
+		List<CellDiff> diffs = new ArrayList<CellDiff>(0);
+
+		final int overlappedCols = Math.min(myColumns.size(), theirColumns.size());
+
+		for (int i = 0; i < overlappedCols; i++) {
+
+			ICell left = getCell(i);
+			ICell right = against.getCell(i);
+			CellDiffType d = comp.compare(left, right);
+			if (d != null) {
+				CellDiff cd = new CellDiff();
+				IColumn cLeft = myColumns.get(i);
+				IColumn cRight = theirColumns.get(i);
+				cd.setLeftColumnIndex(cLeft.getIndex());
+				cd.setLeftColumnName(cLeft.getName());
+				cd.setLeftValue(left == null ? null : left.getValue());
+				cd.setRightColumnIndex(cRight.getIndex());
+				cd.setRightColumnName(cRight.getName());
+				cd.setRightValue(right == null ? null : right.getValue());
+				cd.setType(d);
+				diffs.add(cd);
+			}
+
+		}
+
+		return diffs.isEmpty() ? null : diffs;
+	}
 }

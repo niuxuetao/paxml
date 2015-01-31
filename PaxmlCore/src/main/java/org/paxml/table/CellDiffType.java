@@ -16,23 +16,6 @@
  */
 package org.paxml.table;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-public interface IRow extends Iterable<ICell>, Map<String, Object> {
-	int getIndex();
-	Iterator<ICell> getCells();
-	ICell getCell(String name);
-	ICell getCell(int index);
-	Object getCellValue(String name);
-	Object getCellValue(int index);
-	void setCellValue(int index,  Object value);
-	void setCellValue(String name, Object value);
-	void setCellValues(int from, int to, Iterator<Object> values);
-	void setCellValues(Map<String,Object> values);
-	
-	ITable getTable();
-	
-	List<CellDiff> compare(List<IColumn> myColumns, IRow against, List<IColumn> theirColumns, ICellComparator comp);
+public enum CellDiffType {
+	LEFT_NULL, RIGHT_NULL, LEFT_SMALLER, RIGHT_SMALLER
 }

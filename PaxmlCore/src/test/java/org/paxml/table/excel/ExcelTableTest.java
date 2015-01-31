@@ -14,25 +14,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.paxml.table;
+package org.paxml.table.excel;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
 
-public interface IRow extends Iterable<ICell>, Map<String, Object> {
-	int getIndex();
-	Iterator<ICell> getCells();
-	ICell getCell(String name);
-	ICell getCell(int index);
-	Object getCellValue(String name);
-	Object getCellValue(int index);
-	void setCellValue(int index,  Object value);
-	void setCellValue(String name, Object value);
-	void setCellValues(int from, int to, Iterator<Object> values);
-	void setCellValues(Map<String,Object> values);
-	
-	ITable getTable();
-	
-	List<CellDiff> compare(List<IColumn> myColumns, IRow against, List<IColumn> theirColumns, ICellComparator comp);
+import org.junit.Test;
+import org.paxml.table.IRow;
+
+public class ExcelTableTest {
+	@Test
+	public void testRange() {
+		ExcelTable table = new ExcelTable(new File("excel.xls"), null, "A1:B999", true, false);
+		for(IRow row:table){
+			
+		}
+		
+	}
 }

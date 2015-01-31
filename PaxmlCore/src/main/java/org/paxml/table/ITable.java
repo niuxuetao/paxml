@@ -41,6 +41,10 @@ public interface ITable extends Iterable<IRow> {
 	IColumn getColumn(String name);
 
 	IColumn getColumn(int index);
+	
+	IColumn addColumn(String name);
+	
+	IColumn addColumn(String name, int index);
 
 	Map<String, IColumn> getColumnsMap();
 
@@ -56,5 +60,5 @@ public interface ITable extends Iterable<IRow> {
 	
 	ITableRange getRange();
 	
-	ITableDiff compare(ITable against, ITableTransformer tran);
+	List<RowDiff> compare(List<IColumn> myColumns, ITable against, List<IColumn> theirColumns, ICellComparator comp);
 }

@@ -41,7 +41,7 @@ public class DBUtils {
 	
 	public static String getDefaultH2Url(){
 		String file = PaxmlUtils.getPaxmlFile("/data/h2").getAbsolutePath();
-		return "jdbc:h2:" + file;
+		return "jdbc:h2:" + file +";AUTO_SERVER=TRUE";
 	}
 
 	public static void initDatabase(DataSource ds) {

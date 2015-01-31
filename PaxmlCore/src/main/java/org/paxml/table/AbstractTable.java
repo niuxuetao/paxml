@@ -16,8 +16,10 @@
  */
 package org.paxml.table;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.paxml.core.PaxmlRuntimeException;
@@ -105,16 +107,31 @@ public abstract class AbstractTable implements ITable {
 	}
 
 	@Override
-	public ITableDiff compare(ITable against, ITableTransformer tran) {
-
+	public List<RowDiff> compare(List<IColumn> myColumns, ITable against, List<IColumn> theirColumns, ICellComparator comp) {
+		if (myColumns == null) {
+			myColumns = getColumns();
+		}
+		if (theirColumns == null) {
+			theirColumns = against.getColumns();
+		}
+		if (comp == null) {
+			comp = new DefaultCellComparator();
+		}
 		Iterator<IRow> it1 = getRows();
 		Iterator<IRow> it2 = against.getRows();
+		List<RowDiff> rows = new ArrayList<RowDiff>(0);
 		int index = 0;
+		final int overlappedCols = Math.min(myColumns.size(), theirColumns.size());
 		while (it1.hasNext() && it2.hasNext()) {
 			IRow row1 = it1.next();
 			IRow row2 = it2.next();
-			Map<String, Object> map1 = getTransformedCellValues(row1, tran);
-			
+			RowDiff row = null;
+			List<CellDiff> diffs = row1.compare(myColumns, row2, theirColumns, comp);
+			if (diffs != null && !diffs.isEmpty()) {
+				row = new RowDiff();
+				row.setRowNumber(index);
+				row.setCells(diffs);
+			}
 			index++;
 		}
 

@@ -26,7 +26,7 @@
             <log>${name}=${var}</log>
         </iterate>
     </data>
-    <log>All properties of the ${index}' ${bean.class}: ${beanProperties}</log>
+    <log>All properties of the ${index}-th ${bean.class}: ${beanProperties}</log>
     
     <assert expected="2" actual="${size(beanProperties)}" />
     <assert expected="intValue=${index+1}" actual="${beanProperties.0}" />

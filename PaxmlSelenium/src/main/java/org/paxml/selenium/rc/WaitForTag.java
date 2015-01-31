@@ -42,7 +42,6 @@ public class WaitForTag extends LocatorTag {
      */
     @Override
     protected Object onCommand(Context context) {
-
         if (js != null) {
             return getSeleniumUtils(context).waitForCondition(js, getTimeout(), hard);
         } else {
@@ -53,6 +52,7 @@ public class WaitForTag extends LocatorTag {
             }
             
         }
+        
         return true;
     }
 

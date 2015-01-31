@@ -31,8 +31,16 @@ import org.paxml.core.Context;
 import org.paxml.core.IEntity;
 import org.paxml.core.InMemoryResource;
 import org.paxml.core.PaxmlRuntimeException;
+import org.paxml.tag.ITagLibrary;
 import org.paxml.tag.plan.ScenarioTag;
+import org.paxml.util.ReflectUtils;
 
+/**
+ * Interactivly run Paxml. Convenient for tag lib developers.
+ * 
+ * @author Xuetao Niu
+ * 
+ */
 public class InteractivePaxml {
 	private static final Log log = LogFactory.getLog(InteractivePaxml.class);
 
@@ -41,6 +49,7 @@ public class InteractivePaxml {
 	public static final String CMD_HELP = "help";
 	public static final String CMD_RESET = "reset";
 	public static final String CMD_QUIT = "quit";
+	public static final String CMD_ADD_TAG_LIBRARY = "addTagLibrary";
 
 	public static interface IStreamFactory {
 		InputStream getInputStream();
@@ -121,11 +130,15 @@ public class InteractivePaxml {
 		while ((line = readLine(reader)) != null) {
 			if (line.equals(CMD_HELP)) {
 				printHelp();
-			} else if (line.equals("reset")) {
+			} else if (line.equals(CMD_RESET)) {
 				paxml.callEntityExitListener(context);
 				context = makeNewContext();
 				sb = null;
 				println("Context reset");
+			} else if (line.startsWith(CMD_ADD_TAG_LIBRARY)) {
+				String cls = StringUtils.substringAfter(line, " ").trim();
+				paxml.getParser().addTagLibrary((ITagLibrary) ReflectUtils.createObject(cls, null), false);
+				println("Tag library added: " + cls);
 			} else if (line.equals(CMD_QUIT)) {
 				println("Goodbye");
 				break;
@@ -179,6 +192,7 @@ public class InteractivePaxml {
 		println("A few commands to assist typing the paxml tags:");
 		println("    a back slash \\ in the end of a line combines its next line to execute together.");
 		println("    " + CMD_RESET + " : start a new context all over, clearing all defined data");
+		println("    " + CMD_ADD_TAG_LIBRARY + " : add a new tag library, e.g. addTagLibrary org.paxml.selenium.rc.TagLibrary");
 		println("    " + CMD_QUIT + " : quit this program");
 		println("    " + CMD_HELP + " : show this help");
 		println("");

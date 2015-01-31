@@ -13,7 +13,6 @@ This software is built on and attributes to third-party libraries with the follo
   Apache HttpCore under Apache License, Version 2.0
   Apache JAMES Mime4j (Core) under The Apache Software License, Version 2.0
   Apache POI under The Apache Software License, Version 2.0
-  asm under Apache License, Version 2.0
   Axiom API under The Apache Software License, Version 2.0
   Axiom Impl under The Apache Software License, Version 2.0
   Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs under Bouncy Castle Licence

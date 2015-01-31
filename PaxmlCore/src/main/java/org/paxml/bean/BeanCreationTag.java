@@ -23,6 +23,7 @@ import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.util.ReflectUtils;
+import org.paxml.util.ReflectUtils.PropertyDescriptorType;
 
 /**
  * Tag to create a java object, non conditional!
@@ -59,13 +60,15 @@ public class BeanCreationTag extends BeanTag {
         } else {
             obj = ReflectUtils.createObject(type.trim(), null, ReflectUtils.getList(value).toArray());
         }
-
+                
         // process the properties
-        for (PropertyDescriptor pd : net.sf.cglib.core.ReflectUtils.getBeanSetters(obj.getClass())) {
+        for (PropertyDescriptor pd : ReflectUtils.getPropertyDescriptors(obj.getClass(), PropertyDescriptorType.SETTER)) {
+        	
             String pname = pd.getName();
             if (!CLASS.equals(pname)) {
                 Object pvalue = context.getConst(pname, false);
                 if (pvalue != null) {
+                	
                     ReflectUtils.callSetter(obj, pd, pvalue);
                 }
             }

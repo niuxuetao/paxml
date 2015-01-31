@@ -28,13 +28,13 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.paxml.core.Context;
 import org.paxml.core.Namespaces;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.tag.IdExpression;
 import org.paxml.tag.invoker.AbstractInvokerTag;
 import org.paxml.util.ReflectUtils;
+import org.paxml.util.ReflectUtils.PropertyDescriptorType;
 
 /**
  * Base tag impl for a bean tag whose properties are settable directly from xml.
@@ -45,182 +45,182 @@ import org.paxml.util.ReflectUtils;
  * 
  */
 public abstract class BeanTag extends AbstractInvokerTag {
-    /**
-     * Property value visitor.
-     * 
-     * @author Xuetao Niu
-     * 
-     */
-    private interface IPropertyValueReader {
-        Object getValue(String name);
-    }
+	/**
+	 * Property value visitor.
+	 * 
+	 * @author Xuetao Niu
+	 * 
+	 */
+	private interface IPropertyValueReader {
+		Object getValue(String name);
+	}
 
-    private final List<PropertyDescriptor> settableProperties = findSettableProperties(getClass());
+	private final List<PropertyDescriptor> settableProperties = findSettableProperties(getClass());
 
-    private Object value;
+	private Object value;
 
-    static List<PropertyDescriptor> findSettableProperties(Class<? extends BeanTag> clazz) {
-        List<PropertyDescriptor> list = new ArrayList<PropertyDescriptor>(0);
-        for (PropertyDescriptor pd : net.sf.cglib.core.ReflectUtils.getBeanSetters(clazz)) {
-            Method setter = pd.getWriteMethod();
-            Class<?> ownerClass = setter.getDeclaringClass();
-            if (BeanTag.class.equals(ownerClass) || ReflectUtils.isSubClass(ownerClass, BeanTag.class, true)) {
-                list.add(pd);
-            }
-        }
-        return list;
-    }
+	static List<PropertyDescriptor> findSettableProperties(Class<? extends BeanTag> clazz) {
+		List<PropertyDescriptor> list = new ArrayList<PropertyDescriptor>(0);
+		for (PropertyDescriptor pd : ReflectUtils.getPropertyDescriptors(clazz, PropertyDescriptorType.SETTER)) {
 
-    public Object getValue() {
-        return value;
-    }
+			Class<?> ownerClass = pd.getWriteMethod().getDeclaringClass();
+			if (BeanTag.class.equals(ownerClass) || ReflectUtils.isSubClass(ownerClass, BeanTag.class, true)) {
+				list.add(pd);
+			}
+		}
+		return list;
+	}
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
+	public Object getValue() {
+		return value;
+	}
 
-    /**
-     * Actually do the invocation.
-     * 
-     * @param context
-     *            the execution context
-     * @return the invocation result
-     * @throws Exception
-     *             any exception
-     */
-    protected abstract Object doInvoke(Context context) throws Exception;
+	public void setValue(Object value) {
+		this.value = value;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected final Object invoke(final Context context) throws Exception {
-        // cache the initial properties
-        final Map<String, Object> initialProperties = new HashMap<String, Object>(settableProperties.size());
-        for (PropertyDescriptor pd : settableProperties) {
-            initialProperties.put(pd.getName(), getPropertyValue(pd.getName()));
-        }
-        if (strictOnPropertyNames(context)) {
-            assertNoExcessiveParameters(initialProperties.keySet(), context);
-        }
-        preValueInjection();
+	/**
+	 * Actually do the invocation.
+	 * 
+	 * @param context
+	 *            the execution context
+	 * @return the invocation result
+	 * @throws Exception
+	 *             any exception
+	 */
+	protected abstract Object doInvoke(Context context) throws Exception;
 
-        // put the properties from context
-        populateProperties(false, new IPropertyValueReader() {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected final Object invoke(final Context context) throws Exception {
+		// cache the initial properties
+		final Map<String, Object> initialProperties = new HashMap<String, Object>(settableProperties.size());
+		for (PropertyDescriptor pd : settableProperties) {
+			initialProperties.put(pd.getName(), getPropertyValue(pd.getName()));
+		}
+		if (strictOnPropertyNames(context)) {
+			assertNoExcessiveParameters(initialProperties.keySet(), context);
+		}
+		preValueInjection();
 
-            public Object getValue(String name) {
-                Object obj = context.getConst(name, true);
-                return obj;
-            }
+		// put the properties from context
+		populateProperties(false, new IPropertyValueReader() {
 
-        });
+			public Object getValue(String name) {
+				Object obj = context.getConst(name, true);
+				return obj;
+			}
 
-        afterPropertiesInjection(context);
+		});
 
-        Object result = doInvoke(context);
+		afterPropertiesInjection(context);
 
-        // restore the properties
-        populateProperties(true, new IPropertyValueReader() {
+		Object result = doInvoke(context);
 
-            public Object getValue(String name) {
-                return initialProperties.get(name);
-            }
-        });
+		// restore the properties
+		populateProperties(true, new IPropertyValueReader() {
 
-        return result;
-    }
+			public Object getValue(String name) {
+				return initialProperties.get(name);
+			}
+		});
 
-    /**
-     * Flag if the given params must match the property names.
-     * 
-     * @param context
-     *            the context
-     * @return true means must match, false means doesn't have to match.
-     */
-    protected boolean strictOnPropertyNames(Context context) {
-        return true;
-    }
+		return result;
+	}
 
-    private void assertNoExcessiveParameters(Set<String> settablePropNames, Context context) {
+	/**
+	 * Flag if the given params must match the property names.
+	 * 
+	 * @param context
+	 *            the context
+	 * @return true means must match, false means doesn't have to match.
+	 */
+	protected boolean strictOnPropertyNames(Context context) {
+		return true;
+	}
 
-        Set<String> ids = new HashSet<String>(context.getConstIds());
-        ids.removeAll(settablePropNames);
-        IdExpression idExp = getIdExpression();
-        if (idExp != null) {
-            // only remove the id if given with default namespace
-            QName qn = idExp.getAttribute();
-            if (!Namespaces.ROOT.equals(qn.getNamespaceURI())) {
-                ids.remove(qn.getLocalPart());
-            }
-        }
-        if (ids.size() > 0) {
-            throw new PaxmlRuntimeException("Unsupported parameter(s) passed: " + ids + ", the acceptable parameters are: "
-                    + settablePropNames);
-        }
-    }
+	private void assertNoExcessiveParameters(Set<String> settablePropNames, Context context) {
 
-    private void populateProperties(boolean force, IPropertyValueReader reader) {
-        for (PropertyDescriptor pd : settableProperties) {
+		Set<String> ids = new HashSet<String>(context.getConstIds());
+		ids.removeAll(settablePropNames);
+		IdExpression idExp = getIdExpression();
+		if (idExp != null) {
+			// only remove the id if given with default namespace
+			QName qn = idExp.getAttribute();
+			if (!Namespaces.ROOT.equals(qn.getNamespaceURI())) {
+				ids.remove(qn.getLocalPart());
+			}
+		}
+		if (ids.size() > 0) {
+			throw new PaxmlRuntimeException("Unsupported parameter(s) passed: " + ids + ", the acceptable parameters are: " + settablePropNames);
+		}
+	}
 
-            Method setter = pd.getWriteMethod();
-            Class<?> argType = setter.getParameterTypes()[0];
+	private void populateProperties(boolean force, IPropertyValueReader reader) {
+		for (PropertyDescriptor pd : settableProperties) {
 
-            final Object pvalue = reader.getValue(pd.getName());
-            boolean doIt = true;
-            Object targetValue = null;
-            if (pvalue == null) {
-                if (argType.isPrimitive()) {
-                    doIt = false;
-                } else {
-                    doIt = force;
-                }
-            } else {
-                targetValue = pvalue;
-            }
-            if (doIt) {
-                ReflectUtils.callSetter(this, pd, targetValue);
-            }
-        }
-    }
+			Method setter = pd.getWriteMethod();
+			Class<?> argType = setter.getParameterTypes()[0];
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Map<String, Object> inspectAttributes() {
-        Map<String, Object> map = super.inspectAttributes();
-        if (map == null) {
-            map = new LinkedHashMap<String, Object>();
-        }
-        for (PropertyDescriptor pd : settableProperties) {
-            map.put(pd.getName(), getPropertyValue(pd.getName()));
-        }
-        return map;
-    }
+			final Object pvalue = reader.getValue(pd.getName());
+			boolean doIt = true;
+			Object targetValue = null;
+			if (pvalue == null) {
+				if (argType.isPrimitive()) {
+					doIt = false;
+				} else {
+					doIt = force;
+				}
+			} else {
+				targetValue = pvalue;
+			}
+			if (doIt) {
+				ReflectUtils.callSetter(this, pd, targetValue);
+			}
+		}
+	}
 
-    private Object getPropertyValue(String pname) {
-        try {
-            return BeanUtils.getProperty(this, pname);
-        } catch (NoSuchMethodException e) {
-            throw new PaxmlRuntimeException("Propery '" + pname + "' has no getter in class: " + getClass().getName(), e);
-        } catch (Exception e) {
-            throw new PaxmlRuntimeException("Cannot get value for property '" + pname + "' from class: "
-                    + getClass().getName(), e);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Map<String, Object> inspectAttributes() {
+		Map<String, Object> map = super.inspectAttributes();
+		if (map == null) {
+			map = new LinkedHashMap<String, Object>();
+		}
+		for (PropertyDescriptor pd : settableProperties) {
+			map.put(pd.getName(), getPropertyValue(pd.getName()));
+		}
+		return map;
+	}
 
-    /**
-     * Handler called before all value injections occur.
-     */
-    protected void preValueInjection() {
-        // do nothing here
-    }
+	private Object getPropertyValue(String pname) {
+		try {
+			return org.apache.commons.beanutils.BeanUtils.getProperty(this, pname);
+		} catch (NoSuchMethodException e) {
+			throw new PaxmlRuntimeException("Propery '" + pname + "' has no getter in class: " + getClass().getName(), e);
+		} catch (Exception e) {
+			throw new PaxmlRuntimeException("Cannot get value for property '" + pname + "' from class: " + getClass().getName(), e);
+		}
+	}
 
-    /**
-     * Handler called after all value injections occur.
-     * @param Context the context
-     */
-    protected void afterPropertiesInjection(Context context) {
-        // do nothing here
-    }
+	/**
+	 * Handler called before all value injections occur.
+	 */
+	protected void preValueInjection() {
+		// do nothing here
+	}
+
+	/**
+	 * Handler called after all value injections occur.
+	 * 
+	 * @param Context
+	 *            the context
+	 */
+	protected void afterPropertiesInjection(Context context) {
+		// do nothing here
+	}
 }

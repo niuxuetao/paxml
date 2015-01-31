@@ -35,6 +35,7 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang.StringUtils;
 import org.paxml.core.PaxmlRuntimeException;
+import org.springframework.beans.BeanUtils;
 
 /**
  * Utility for reflection.
@@ -43,10 +44,6 @@ import org.paxml.core.PaxmlRuntimeException;
  * 
  */
 public final class ReflectUtils {
-
-	private ReflectUtils() {
-
-	}
 
 	/**
 	 * Class visitor.
@@ -240,7 +237,7 @@ public final class ReflectUtils {
 	 *            class loader.
 	 * @return the loaded class, or null if class not found.
 	 */
-	public static Class<?> loadClass(String clazz, ClassLoader cl) {
+	public static Class loadClass(String clazz, ClassLoader cl) {
 		cl = cl == null ? Thread.currentThread().getContextClassLoader() : cl;
 		try {
 			return cl.loadClass(clazz);
@@ -377,16 +374,16 @@ public final class ReflectUtils {
 			List list = new ArrayList();
 			collect(from, list, true);
 			targetValue = list.iterator();
-		} else if(isImplementingClass(expectedType, Coerceable.class, false)){
-			
+		} else if (isImplementingClass(expectedType, Coerceable.class, false)) {
+
 			try {
 				Constructor c = expectedType.getConstructor(Object.class);
-			
+
 				targetValue = c.newInstance(from);
-			} catch (Exception e){
+			} catch (Exception e) {
 				throw new PaxmlRuntimeException(e);
 			}
-		}else {
+		} else {
 			targetValue = ConvertUtils.convert(from.toString(), expectedType);
 		}
 
@@ -418,6 +415,12 @@ public final class ReflectUtils {
 			return collectArray(obj, col);
 		} else if (obj instanceof Enumeration) {
 			return collect((Enumeration) obj, col);
+		} else if (obj instanceof CharSequence) {
+			char[] seq = new char[((CharSequence) obj).length()];
+			for (int i = 0; i < seq.length; i++) {
+				seq[i] = ((CharSequence) obj).charAt(i);
+			}
+			return collectArray(seq, col);
 		} else if (collectSingle) {
 			col.add(obj);
 			return 1;
@@ -552,5 +555,46 @@ public final class ReflectUtils {
 			}
 		}
 		throw new PaxmlRuntimeException("No method named '" + method + "' has " + args.length + " parameters from class: " + clazz.getName());
+	}
+	/**
+	 * Property descriptor type enum.
+	 * @author Xuetao Niu
+	 *
+	 */
+	public static enum PropertyDescriptorType {
+		GETTER, SETTER
+	}
+
+	/**
+	 * Get a specific type of property descriptors, except the "class" property.
+	 * 
+	 * @param clazz
+	 *            the class
+	 * @param type the type filter, null means no filtering
+	 * @return the list of property descriptors.
+	 */
+	public static List<PropertyDescriptor> getPropertyDescriptors(Class clazz, PropertyDescriptorType type) {
+		List<PropertyDescriptor> list = new ArrayList<PropertyDescriptor>();
+		for (PropertyDescriptor pd : BeanUtils.getPropertyDescriptors(clazz)) {
+			if ("class".equals(pd.getName())) {
+				continue;
+			}
+			switch (type) {
+			case GETTER:
+				if (pd.getReadMethod() != null) {
+					list.add(pd);
+				}
+				break;
+			case SETTER:
+				if (pd.getWriteMethod() != null) {
+					list.add(pd);
+				}
+				break;
+			default:
+				list.add(pd);
+			}
+
+		}
+		return list;
 	}
 }

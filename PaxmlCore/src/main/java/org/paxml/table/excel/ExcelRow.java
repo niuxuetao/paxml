@@ -23,9 +23,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.paxml.table.AbstractRow;
 import org.paxml.table.ICell;
-import org.paxml.table.ITableRange;
-import org.paxml.table.TableRange;
-import org.paxml.util.RangedIterator;
 
 public class ExcelRow extends AbstractRow<ExcelTable> {
 	private Row row;

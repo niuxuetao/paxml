@@ -121,6 +121,16 @@ public class JdbcTable extends AbstractTable {
 	}
 
 	@Override
+	public IColumn addColumn(String name) {
+		throw new PaxmlRuntimeException("Not supported to add column to jdbc");
+	}
+
+	@Override
+	public IColumn addColumn(String name, int index) {
+		return addColumn(name);
+	}
+
+	@Override
 	public List<IColumn> getColumns() {
 		return new ArrayList<IColumn>(columns.values());
 	}

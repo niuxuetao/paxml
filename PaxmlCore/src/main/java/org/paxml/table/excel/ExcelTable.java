@@ -71,6 +71,16 @@ public class ExcelTable extends AbstractTable {
 	}
 
 	@Override
+	public IColumn addColumn(String name) {
+		return getColumn(name);
+	}
+
+	@Override
+	public IColumn addColumn(String name, int index) {
+		return getColumn(name);
+	}
+
+	@Override
 	public ExcelColumn getColumn(int index) {
 		notifyMaxColumn(index);
 		ExcelColumn col = cachedColumns.get(index);
