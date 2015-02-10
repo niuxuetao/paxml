@@ -41,6 +41,7 @@ This software is built on and attributes to third-party libraries with the follo
   Java Native Access under LGPL, version 2.1
   Java Native Access Platform under LGPL, version 2.1
   JavaMail 1.4 under The Apache Software License, Version 2.0
+  Javassist under lgpl
   jaxen under Apache style license
   Jetty :: Http Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   Jetty :: IO Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0

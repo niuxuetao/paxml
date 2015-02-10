@@ -17,12 +17,22 @@
 package org.paxml.testng;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtNewConstructor;
+import javassist.Modifier;
+
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.core.Context;
@@ -43,134 +53,165 @@ import org.testng.annotations.Parameters;
  * 
  */
 public class PaxmlTestCaseFactory {
-    private static final AtomicInteger SEQUENCE = new AtomicInteger(0);
+	private static final AtomicInteger SEQUENCE = new AtomicInteger(0);
 
-    /**
-     * The paxml launch plan file path.
-     */
-    public static final String PARAM_NAME_PLANFILE = "paxmlTestPlanFile";
-    public static final String PARAM_NAME_SUPPRESS_GROUPS = "paxmlSuppressGroups";
-    public static final String PARAM_NAME_RESULT_DIR = "paxmlTestResultDir";
-    public static final String PARAM_NAME_RESULT_TYPE = "paxmlTestResultType";
+	/**
+	 * The paxml launch plan file path.
+	 */
+	public static final String PARAM_NAME_PLANFILE = "paxmlTestPlanFile";
+	public static final String PARAM_NAME_SUPPRESS_GROUPS = "paxmlSuppressGroups";
+	public static final String PARAM_NAME_RESULT_DIR = "paxmlTestResultDir";
+	public static final String PARAM_NAME_RESULT_TYPE = "paxmlTestResultType";
 
-    private static final Log log = LogFactory.getLog(PaxmlTestCaseFactory.class);
-    private static final Object LOCK = new Object();
+	private static final Log log = LogFactory.getLog(PaxmlTestCaseFactory.class);
+	private static final Object LOCK = new Object();
 
-    public static interface ILockedOperation<T> {
-        T perform();
-    }
+	// this hashmap is accessed only from synchronization block, so no need to have extra synchronization nor be concurrent hash map.
+	private static final Map<String, Constructor<? extends PaxmlTestCase>> CACHE = new HashMap<String, Constructor<? extends PaxmlTestCase>>();
 
-    /**
-     * The factory method.
-     * 
-     * @param planFile
-     *            the plan file
-     * @param suppressedGroups
-     *            the execution groups to suppress
-     * @param outputDir
-     *            the dir to output results
-     * @param resultType
-     *            the format of results
-     * @return the test objects.
-     */
-    @Factory
-    @Parameters({PARAM_NAME_PLANFILE, PARAM_NAME_SUPPRESS_GROUPS, PARAM_NAME_RESULT_DIR, PARAM_NAME_RESULT_TYPE})
-    public Object[] create(final String planFile, @Optional("") final String suppressedGroups,
-            @Optional("./target/surefire-reports/paxml/results") final String outputDir,
-            @Optional("JSON") final String resultType) {
-        final List<Matcher> suppression = new ArrayList<Matcher>(0);
-        for (String groupName : AbstractTag.parseDelimitedString(suppressedGroups, null)) {
-            Matcher matcher = new Matcher();
-            matcher.setMatchPath(false);
-            matcher.setPattern(groupName);
-            suppression.add(matcher);
-        }
-        return performLocked(new ILockedOperation<Object[]>() {
+	public static interface ILockedOperation<T> {
+		T perform();
+	}
 
-            @Override
-            public Object[] perform() {
+	/**
+	 * The factory method.
+	 * 
+	 * @param planFile
+	 *            the plan file
+	 * @param suppressedGroups
+	 *            the execution groups to suppress
+	 * @param outputDir
+	 *            the dir to output results
+	 * @param resultType
+	 *            the format of results
+	 * @return the test objects.
+	 */
+	@Factory
+	@Parameters({ PARAM_NAME_PLANFILE, PARAM_NAME_SUPPRESS_GROUPS, PARAM_NAME_RESULT_DIR, PARAM_NAME_RESULT_TYPE })
+	public Object[] create(final String planFile, @Optional("") final String suppressedGroups, @Optional("./target/surefire-reports/paxml/results") final String outputDir,
+			@Optional("JSON") final String resultType) {
+		final List<Matcher> suppression = new ArrayList<Matcher>(0);
+		for (String groupName : AbstractTag.parseDelimitedString(suppressedGroups, null)) {
+			Matcher matcher = new Matcher();
+			matcher.setMatchPath(false);
+			matcher.setPattern(groupName);
+			suppression.add(matcher);
+		}
+		return performLocked(new ILockedOperation<Object[]>() {
 
-                File resultFolder = null;
-                ResultType rt = null;
-                final long start = System.currentTimeMillis();
-                try {
-                    File dir = new File(outputDir);
-                    rt = ResultType.valueOf(resultType.toUpperCase());
-                    resultFolder = new File(dir, SEQUENCE.getAndIncrement() + "/");
-                    Object[] cases = doCreate(planFile, suppression.isEmpty() ? null : suppression, resultFolder, rt);
-                    PaxmlTestCase.init(cases.length, start, FilenameUtils.getBaseName(planFile));
+			@Override
+			public Object[] perform() {
 
-                    // clean the paxml thread context and log into the default
-                    // file
-                    Context.cleanCurrentThreadContext();
-                    if (log.isInfoEnabled()) {
-                        log.info("Launching totally " + cases.length + " tests ...");
-                    }
+				File resultFolder = null;
+				ResultType rt = null;
+				final long start = System.currentTimeMillis();
+				try {
+					File dir = new File(outputDir);
+					rt = ResultType.valueOf(resultType.toUpperCase());
+					resultFolder = new File(dir, SEQUENCE.getAndIncrement() + "/");
+					Object[] cases = createTestCases(planFile, suppression.isEmpty() ? null : suppression, resultFolder, rt);
+					PaxmlTestCase.init(cases.length, start, FilenameUtils.getBaseName(planFile));
 
-                    return cases;
-                } catch (Throwable e) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Cannot create test cases", e);
-                    }
-                    return new Object[] {new PaxmlPlanFileFailure(e, planFile, resultFolder, rt,
-                            Context.getCurrentContext(), Thread.currentThread().getName(), start,
-                            System.currentTimeMillis())};
-                }
-            }
+					// clean the paxml thread context and log into the default
+					// file
+					Context.cleanCurrentThreadContext();
+					if (log.isInfoEnabled()) {
+						log.info("Launching totally " + cases.length + " tests ...");
+					}
 
-        });
-    }
+					return cases;
+				} catch (Throwable e) {
+					if (log.isErrorEnabled()) {
+						log.error("Cannot create test cases", e);
+					}
+					return new Object[] { new PaxmlPlanFileFailure(e, planFile, resultFolder, rt, Context.getCurrentContext(), Thread.currentThread().getName(), start,
+							System.currentTimeMillis()) };
+				}
+			}
 
-    /**
-     * Let the shared context be propagated to other threads.
-     * 
-     * @param <T>
-     * @param op
-     * @return
-     */
-    public static <T> T performLocked(ILockedOperation<T> op) {
-        synchronized (LOCK) {
-            return op.perform();
-        }
-    }
+		});
+	}
 
-    private Object[] doCreate(String planFile, List<Matcher> suppression, File outputDir, ResultType resultType) {
+	/**
+	 * Let the shared context be propagated to other threads.
+	 * 
+	 * @param <T>
+	 * @param op
+	 * @return
+	 */
+	public static <T> T performLocked(ILockedOperation<T> op) {
+		synchronized (LOCK) {
+			return op.perform();
+		}
+	}
 
-        LaunchModel model = Paxml.executePlanFile(planFile, null);
+	private Object[] createTestCases(String planFile, List<Matcher> suppression, File outputDir, ResultType resultType) {
 
-        List<LaunchPoint> points = model.getLaunchPoints(false, -1);
+		LaunchModel model = Paxml.executePlanFile(planFile, null);
 
-        List<Object> result = new LinkedList<Object>();
-        for (LaunchPoint p : points) {
-            if (isSuppressed(suppression, p.getGroup())) {
-                if (log.isInfoEnabled()) {
-                    log.info("This scenario '" + p.getResource().getName()
-                            + "' will not run because its group is suppressed: " + p.getGroup());
-                }
-            } else {
-                result.add(new PaxmlTestCase(p, outputDir, resultType));
-            }
+		List<LaunchPoint> points = model.getLaunchPoints(false, -1);
 
-        }
-        if (result.isEmpty()) {
+		List<Object> result = new LinkedList<Object>();
+		for (LaunchPoint p : points) {
+			if (isSuppressed(suppression, p.getGroup())) {
+				if (log.isInfoEnabled()) {
+					log.info("This scenario '" + p.getResource().getName() + "' will not run because its group is suppressed: " + p.getGroup());
+				}
+			} else {
+				result.add(createTestCase(p, outputDir, resultType));
+			}
 
-            if (log.isWarnEnabled()) {
-                log.warn("No scenarios will run from plan file:" + planFile);
-            }
-        }
-        return result.toArray(new Object[result.size()]);
+		}
+		if (result.isEmpty()) {
 
-    }
+			if (log.isWarnEnabled()) {
+				log.warn("No scenarios will run from plan file:" + planFile);
+			}
+		}
+		return result.toArray(new Object[result.size()]);
 
-    private boolean isSuppressed(List<Matcher> suppression, String groupName) {
-        if (suppression == null || suppression.isEmpty()) {
-            return false;
-        }
-        for (Matcher m : suppression) {
-            if (m.match(groupName)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	}
+
+	private static Object createTestCase(LaunchPoint p, File outputDir, ResultType resultType) {
+		String className = p.getResource().getName();
+		if (StringUtils.isNoneBlank(p.getGroup())) {
+			className = p.getGroup() + "." + className;
+		}
+		try {
+			Constructor<? extends PaxmlTestCase> constructor = CACHE.get(className);
+			if (constructor == null) {
+				ClassPool pool = ClassPool.getDefault();
+				System.out.println("Generating " + className);
+				CtClass testclass = pool.makeClass(className);
+				final CtClass superClass = pool.get(PaxmlTestCase.class.getName());
+				testclass.setSuperclass(superClass);
+				testclass.setModifiers(Modifier.PUBLIC);
+
+				// Add a constructor which will call super( ... );
+				CtClass[] params = new CtClass[] { pool.get(LaunchPoint.class.getName()), pool.get(File.class.getName()), pool.get(ResultType.class.getName()) };
+				final CtConstructor ctor = CtNewConstructor.make(params, null, CtNewConstructor.PASS_PARAMS, null, null, testclass);
+				testclass.addConstructor(ctor);
+
+				Class<? extends PaxmlTestCase> c = testclass.toClass();
+				constructor = c.getConstructor(new Class[] { LaunchPoint.class, File.class, ResultType.class });
+				CACHE.put(className, constructor);
+			}
+			return constructor.newInstance(new Object[] { p, outputDir, resultType });
+
+		} catch (Exception e) {
+			throw new RuntimeException("Could not create test case: " + className, e);
+		}
+	}
+
+	private boolean isSuppressed(List<Matcher> suppression, String groupName) {
+		if (suppression == null || suppression.isEmpty()) {
+			return false;
+		}
+		for (Matcher m : suppression) {
+			if (m.match(groupName)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
