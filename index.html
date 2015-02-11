@@ -51,14 +51,13 @@
 <p>Here is a simple example. Suppose you have an Excel file MyExcel.xls which contains 1000 rows of English terms in column A that you want to let Google translate into German and save the translation back to column B. You can simply use the XML below to have the job done for you, iterating through all those 1000 rows and for each term open web browser to let Google translate do the work:</p>
 
 <div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">scenario</span>&gt;
-  &lt;<span class="pl-ent">readExcel</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>excel<span class="pl-pds">"</span></span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>MyExcel.xls<span class="pl-pds">"</span></span> /&gt;
-  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">values</span>=<span class="pl-s1"><span class="pl-pds">"</span>${excel}<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>MyExcel.xls<span class="pl-pds">"</span></span>&gt;
     &lt;<span class="pl-ent">url</span>&gt;https://translate.google.com/#en/de&lt;/<span class="pl-ent">url</span>&gt;
-    &lt;<span class="pl-ent">type</span> <span class="pl-e">locator</span>=<span class="pl-s1"><span class="pl-pds">"</span>source<span class="pl-pds">"</span></span>&gt;${var.A}&lt;/<span class="pl-ent">type</span>&gt;
+    &lt;<span class="pl-ent">type</span> <span class="pl-e">locator</span>=<span class="pl-s1"><span class="pl-pds">"</span>source<span class="pl-pds">"</span></span>&gt;${row.A}&lt;/<span class="pl-ent">type</span>&gt;
     &lt;<span class="pl-ent">click</span> <span class="pl-e">locator</span>=<span class="pl-s1"><span class="pl-pds">"</span>gt-lang-submit<span class="pl-pds">"</span></span>/&gt;
-    &lt;<span class="pl-ent">writeExcel</span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>${excel}<span class="pl-pds">"</span></span> <span class="pl-e">row</span>=<span class="pl-s1"><span class="pl-pds">"</span>${index+1}<span class="pl-pds">"</span></span> <span class="pl-e">column</span>=<span class="pl-s1"><span class="pl-pds">"</span>B<span class="pl-pds">"</span></span> &gt;    
+    &lt;<span class="pl-ent">set</span> <span class="pl-e">column</span>=<span class="pl-s1"><span class="pl-pds">"</span>B<span class="pl-pds">"</span></span> &gt;    
       &lt;<span class="pl-ent">pick</span> <span class="pl-e">locator</span>=<span class="pl-s1"><span class="pl-pds">"</span>result_box<span class="pl-pds">"</span></span> <span class="pl-e">timeout</span>=<span class="pl-s1"><span class="pl-pds">"</span>5000<span class="pl-pds">"</span></span>/&gt;
-    &lt;/<span class="pl-ent">writeExcel</span>&gt;
+    &lt;/<span class="pl-ent">set</span>&gt;
   &lt;/<span class="pl-ent">iterate</span>&gt;
 &lt;/<span class="pl-ent">scenario</span>&gt;</pre></div>
 
@@ -75,9 +74,8 @@
 
 <div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">scenario</span>&gt;
   &lt;<span class="pl-ent">TranslateExcel</span>/&gt;
-  &lt;<span class="pl-ent">readExcel</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>excel<span class="pl-pds">"</span></span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>MyExcel.xls<span class="pl-pds">"</span></span>/&gt;
-  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">values</span>=<span class="pl-s1"><span class="pl-pds">"</span>${excel}<span class="pl-pds">"</span></span> &gt;
-    &lt;<span class="pl-ent">assert</span> <span class="pl-e">expected</span>=<span class="pl-s1"><span class="pl-pds">"</span>${var.C}<span class="pl-pds">"</span></span> <span class="pl-e">actual</span>=<span class="pl-s1"><span class="pl-pds">"</span>${var.B}<span class="pl-pds">"</span></span> /&gt;
+  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>MyExcel.xls<span class="pl-pds">"</span></span> &gt;
+    &lt;<span class="pl-ent">assert</span> <span class="pl-e">expected</span>=<span class="pl-s1"><span class="pl-pds">"</span>${row.C}<span class="pl-pds">"</span></span> <span class="pl-e">actual</span>=<span class="pl-s1"><span class="pl-pds">"</span>${row.B}<span class="pl-pds">"</span></span> /&gt;
   &lt;/<span class="pl-ent">iterate</span>&gt;
 &lt;/<span class="pl-ent">scenario</span>&gt;</pre></div>
 
@@ -93,9 +91,8 @@
 <p>Suppose you have an Excel file Tests.xls that holds all your test case names in column D. And you have already created many Paxml files each representing a specific test case. Then you can make a plan file like below, taking such Excel as input. So that you just need to maintain the Excel file to dictate what tests need to run.</p>
 
 <div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">plan</span>&gt;
-  &lt;<span class="pl-ent">readExcel</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>excel<span class="pl-pds">"</span></span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>Tests.xls<span class="pl-pds">"</span></span>/&gt;
-  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">values</span>=<span class="pl-s1"><span class="pl-pds">"</span>${excel}<span class="pl-pds">"</span></span>&gt;
-    &lt;<span class="pl-ent">execution</span> <span class="pl-e">scenario</span>=<span class="pl-s1"><span class="pl-pds">"</span>${var.D}<span class="pl-pds">"</span></span>/&gt;
+  &lt;<span class="pl-ent">iterate</span> <span class="pl-e">file</span>=<span class="pl-s1"><span class="pl-pds">"</span>Tests.xls<span class="pl-pds">"</span></span>&gt;
+    &lt;<span class="pl-ent">execution</span> <span class="pl-e">scenario</span>=<span class="pl-s1"><span class="pl-pds">"</span>${row.D}<span class="pl-pds">"</span></span>/&gt;
   &lt;/<span class="pl-ent">iterate</span>&gt;
 &lt;/<span class="pl-ent">plan</span>&gt;</pre></div>
 
