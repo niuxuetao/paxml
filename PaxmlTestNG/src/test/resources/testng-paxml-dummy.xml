@@ -17,17 +17,16 @@
 
 -->
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Paxml Selftest suite 1" 
-    thread-count="1" parallel="methods"
+<suite name="Paxml Dummy suite" 
+    thread-count="10" parallel="methods"
     verbose="1" skipfailedinvocationCounts="true">
     
     <listeners>
       <listener class-name="org.paxml.testng.PaxmlListener" />    
     </listeners>
     
-    <test name="Paxml Selftest" >
-        <parameter name="paxmlTestPlanFile" value="testng/test.plan.xml" />
-        <parameter name="paxmlTestNamePrefixWithPid" value="true" />
+    <test name="Paxml Dummy">
+        <parameter name="paxmlTestPlanFile" value="testng/dummy.plan.xml" />
         <classes>
             <class name="org.paxml.testng.PaxmlTestCaseFactory" />
         </classes>

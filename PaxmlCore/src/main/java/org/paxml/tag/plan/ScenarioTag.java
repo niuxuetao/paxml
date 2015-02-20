@@ -42,111 +42,116 @@ import org.paxml.tag.plan.PlanEntityFactory.Plan;
  */
 @Tag(name = ScenarioTag.TAG_NAME)
 public class ScenarioTag extends BeanTag {
-    /**
-     * The tag name.
-     */
-    public static final String TAG_NAME = "scenario";
+	/**
+	 * The tag name.
+	 */
+	public static final String TAG_NAME = "scenario";
 
-    private String path;
-    private String name;
-    private String group;
+	private String path;
+	private String name;
+	private String group;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Object doInvoke(Context context) throws Exception {
-        if (StringUtils.isBlank(group)) {
-            throw new PaxmlRuntimeException("The 'group' attribute is not given!");
-        }
-        if (StringUtils.isBlank(name) && StringUtils.isBlank(path)) {
-            throw new PaxmlRuntimeException("Neither the 'name' nor the 'path' attribute is not given!");
-        }
-        if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(path)) {
-            throw new PaxmlRuntimeException("Cannot have both the 'name' and the 'path' attribute given!");
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Object doInvoke(Context context) throws Exception {
 
-        LaunchModel model = Plan.getLaunchModel(context);
+		if (StringUtils.isBlank(name) && StringUtils.isBlank(path)) {
+			throw new PaxmlRuntimeException("Neither the 'name' nor the 'path' attribute is not given!");
+		}
+		if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(path)) {
+			throw new PaxmlRuntimeException("Cannot have both the 'name' and the 'path' attribute given!");
+		}
 
-        Group g = new Group(group);
-        if (null != model.getGroups().put(group, g)) {
-            throw new PaxmlRuntimeException("Group name conflict: " + group);
-        }
-        
-        Settings s = g.getSettings();
+		LaunchModel model = Plan.getLaunchModel(context);
 
-        for (String pattern : AbstractTag.parseDelimitedString(name, null)) {
+		Group g = new Group(group);
+		if (null != model.getGroups().put(group, g)) {
+			throw new PaxmlRuntimeException("Group name conflict: " + group);
+		}
 
-            Matcher m = new Matcher();
-            m.setPattern(pattern.trim());
-            m.setMatchPath(false);
-            s.getGroupMatchers().add(m);
+		Settings s = g.getSettings();
 
-        }
-        for (String pattern : AbstractTag.parseDelimitedString(path, null)) {
+		for (String pattern : AbstractTag.parseDelimitedString(name, null)) {
 
-            Matcher m = new Matcher();
-            m.setPattern(pattern.trim());
-            m.setMatchPath(true);
-            s.getGroupMatchers().add(m);
+			Matcher m = new Matcher();
+			m.setPattern(pattern.trim());
+			m.setMatchPath(false);
+			s.getGroupMatchers().add(m);
 
-        }
+		}
+		for (String pattern : AbstractTag.parseDelimitedString(path, null)) {
 
-        Object value = getValue();
-        if (value instanceof List) {
-            for (Object item : (List) value) {
-                buildGroup(g, item);
-            }
-        } else {
-            buildGroup(g, value);
-        }
-        return model;
-    }
+			Matcher m = new Matcher();
+			m.setPattern(pattern.trim());
+			m.setMatchPath(true);
+			s.getGroupMatchers().add(m);
 
-    private void buildGroup(Group g, Object obj) {
-        if (obj instanceof Factor) {
-            Factor f = (Factor) obj;
-            if (null != g.getSettings().getFactors().put(f.getName(), f)) {
-                throw new PaxmlRuntimeException("Conflicting factor name given under one <" + TAG_NAME + "> tag: "
-                        + f.getName());
-            }
-        } else if (obj instanceof PropertiesObjectTree) {
-            // must be properties
-            Properties props = g.getSettings().getProperties();
-            for (Map.Entry<String, Object> entry : ((PropertiesObjectTree) obj).entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                if (key != null && value != null) {
-                    props.put(key, value);
-                }
-            }
-        } else if (obj != null) {
-            throw new PaxmlRuntimeException("Parameter type not supported: " + obj.getClass().getName());
-        }
-    }
+		}
 
-    public String getName() {
-        return name;
-    }
+		Object value = getValue();
+		if (value instanceof List) {
+			for (Object item : (List) value) {
+				buildGroup(g, item);
+			}
+		} else {
+			buildGroup(g, value);
+		}
+		return model;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	private void buildGroup(Group g, Object obj) {
+		if (obj instanceof Factor) {
+			Factor f = (Factor) obj;
+			if (null != g.getSettings().getFactors().put(f.getName(), f)) {
+				throw new PaxmlRuntimeException("Conflicting factor name given under one <" + TAG_NAME + "> tag: " + f.getName());
+			}
+		} else if (obj instanceof PropertiesObjectTree) {
+			// must be properties
+			Properties props = g.getSettings().getProperties();
+			for (Map.Entry<String, Object> entry : ((PropertiesObjectTree) obj).entrySet()) {
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				if (key != null && value != null) {
+					props.put(key, value);
+				}
+			}
+		} else if (obj != null) {
+			throw new PaxmlRuntimeException("Parameter type not supported: " + obj.getClass().getName());
+		}
+	}
 
-    public String getGroup() {
-        return group;
-    }
+	@Override
+	protected void afterPropertiesInjection(Context context) {
+		super.afterPropertiesInjection(context);
+		if (StringUtils.isBlank(group)) {
+			group = "";
+		}
+	}
 
-    public void setGroup(String group) {
-        this.group = group;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getPath() {
-        return path;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
 
 }

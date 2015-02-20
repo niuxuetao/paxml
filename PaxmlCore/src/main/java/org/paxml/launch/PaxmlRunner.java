@@ -70,8 +70,8 @@ public class PaxmlRunner {
 
 		Properties properties = new Properties();
 		properties.putAll(System.getProperties());
-		final long sid = PaxmlUtils.getNextSessionId();
-		Paxml paxml = new Paxml(0, sid);
+		final long execId = PaxmlUtils.getNextExecutionId();
+		Paxml paxml = new Paxml(0, execId);
 		paxml.addStaticConfig(config);
 		paxml.getParser().addTagLibrary(new PlanTagLibrary(), false);
 
@@ -93,7 +93,7 @@ public class PaxmlRunner {
 			Properties props = new Properties();
 			props.put(LaunchModel.class, model);
 			paxml.execute(entity, System.getProperties(), props);
-			run(model, sid);
+			run(model, execId);
 			if (log.isInfoEnabled()) {
 				log.info("Finished executing plan file: " + entity.getResource().getPath());
 			}
@@ -123,9 +123,9 @@ public class PaxmlRunner {
 	 * @param model
 	 *            the model containing the launch points
 	 */
-	public static void run(LaunchModel model, long sessionId) {
+	public static void run(LaunchModel model, long executionId) {
 
-		List<LaunchPoint> points = model.getLaunchPoints(false, sessionId);
+		List<LaunchPoint> points = model.getLaunchPoints(false, executionId);
 		if (log.isInfoEnabled()) {
 			log.info("Found " + points.size() + " Paxml files to execute based on plan file: " + model.getPlanEntity().getResource().getPath());
 		}

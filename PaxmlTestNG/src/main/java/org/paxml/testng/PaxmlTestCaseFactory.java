@@ -54,7 +54,6 @@ import org.testng.annotations.Parameters;
  */
 public class PaxmlTestCaseFactory {
 	private static final AtomicInteger SEQUENCE = new AtomicInteger(0);
-
 	/**
 	 * The paxml launch plan file path.
 	 */
@@ -62,11 +61,13 @@ public class PaxmlTestCaseFactory {
 	public static final String PARAM_NAME_SUPPRESS_GROUPS = "paxmlSuppressGroups";
 	public static final String PARAM_NAME_RESULT_DIR = "paxmlTestResultDir";
 	public static final String PARAM_NAME_RESULT_TYPE = "paxmlTestResultType";
+	public static final String PARAM_NAME_PREFIX_WITH_PID = "paxmlTestNamePrefixWithPid";
 
 	private static final Log log = LogFactory.getLog(PaxmlTestCaseFactory.class);
 	private static final Object LOCK = new Object();
 
-	// this hashmap is accessed only from synchronization block, so no need to have extra synchronization nor be concurrent hash map.
+	// this hashmap is accessed only from synchronization block, so no need to
+	// have extra synchronization nor be concurrent hash map.
 	private static final Map<String, Constructor<? extends PaxmlTestCase>> CACHE = new HashMap<String, Constructor<? extends PaxmlTestCase>>();
 
 	public static interface ILockedOperation<T> {
@@ -87,9 +88,9 @@ public class PaxmlTestCaseFactory {
 	 * @return the test objects.
 	 */
 	@Factory
-	@Parameters({ PARAM_NAME_PLANFILE, PARAM_NAME_SUPPRESS_GROUPS, PARAM_NAME_RESULT_DIR, PARAM_NAME_RESULT_TYPE })
+	@Parameters({ PARAM_NAME_PLANFILE, PARAM_NAME_SUPPRESS_GROUPS, PARAM_NAME_RESULT_DIR, PARAM_NAME_RESULT_TYPE, PARAM_NAME_PREFIX_WITH_PID })
 	public Object[] create(final String planFile, @Optional("") final String suppressedGroups, @Optional("./target/surefire-reports/paxml/results") final String outputDir,
-			@Optional("JSON") final String resultType) {
+	        @Optional("JSON") final String resultType, @Optional("false") final boolean prefixNameWithPid) {
 		final List<Matcher> suppression = new ArrayList<Matcher>(0);
 		for (String groupName : AbstractTag.parseDelimitedString(suppressedGroups, null)) {
 			Matcher matcher = new Matcher();
@@ -109,7 +110,7 @@ public class PaxmlTestCaseFactory {
 					File dir = new File(outputDir);
 					rt = ResultType.valueOf(resultType.toUpperCase());
 					resultFolder = new File(dir, SEQUENCE.getAndIncrement() + "/");
-					Object[] cases = createTestCases(planFile, suppression.isEmpty() ? null : suppression, resultFolder, rt);
+					Object[] cases = createTestCases(planFile, suppression.isEmpty() ? null : suppression, resultFolder, rt, prefixNameWithPid);
 					PaxmlTestCase.init(cases.length, start, FilenameUtils.getBaseName(planFile));
 
 					// clean the paxml thread context and log into the default
@@ -125,7 +126,7 @@ public class PaxmlTestCaseFactory {
 						log.error("Cannot create test cases", e);
 					}
 					return new Object[] { new PaxmlPlanFileFailure(e, planFile, resultFolder, rt, Context.getCurrentContext(), Thread.currentThread().getName(), start,
-							System.currentTimeMillis()) };
+					        System.currentTimeMillis()) };
 				}
 			}
 
@@ -145,7 +146,7 @@ public class PaxmlTestCaseFactory {
 		}
 	}
 
-	private Object[] createTestCases(String planFile, List<Matcher> suppression, File outputDir, ResultType resultType) {
+	private Object[] createTestCases(String planFile, List<Matcher> suppression, File outputDir, ResultType resultType, boolean prefixPid) {
 
 		LaunchModel model = Paxml.executePlanFile(planFile, null);
 
@@ -158,7 +159,7 @@ public class PaxmlTestCaseFactory {
 					log.info("This scenario '" + p.getResource().getName() + "' will not run because its group is suppressed: " + p.getGroup());
 				}
 			} else {
-				result.add(createTestCase(p, outputDir, resultType));
+				result.add(createTestCase(p, outputDir, resultType, prefixPid));
 			}
 
 		}
@@ -172,16 +173,22 @@ public class PaxmlTestCaseFactory {
 
 	}
 
-	private static Object createTestCase(LaunchPoint p, File outputDir, ResultType resultType) {
+	private static Object createTestCase(LaunchPoint p, File outputDir, ResultType resultType, boolean prefixPid) {
 		String className = p.getResource().getName();
+
 		if (StringUtils.isNoneBlank(p.getGroup())) {
 			className = p.getGroup() + "." + className;
+		}
+		if (prefixPid) {
+			className = "_" + p.getProcessId() + "." + className;
 		}
 		try {
 			Constructor<? extends PaxmlTestCase> constructor = CACHE.get(className);
 			if (constructor == null) {
 				ClassPool pool = ClassPool.getDefault();
-				System.out.println("Generating " + className);
+				if (log.isInfoEnabled()) {
+					log.info("Generating test class proxy:" + className);
+				}
 				CtClass testclass = pool.makeClass(className);
 				final CtClass superClass = pool.get(PaxmlTestCase.class.getName());
 				testclass.setSuperclass(superClass);

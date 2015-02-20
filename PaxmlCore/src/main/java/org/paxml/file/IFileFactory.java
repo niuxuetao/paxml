@@ -14,21 +14,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.paxml.table.excel;
+package org.paxml.file;
 
-import java.io.File;
+import org.springframework.core.io.Resource;
 
-import org.junit.Test;
-import org.paxml.table.IRow;
-import org.paxml.table.excel.ExcelTable;
 
-public class ExcelTableTest {
-	@Test
-	public void testRange() {
-		ExcelTable table = new ExcelTable(new File("excel.xls"), null, "A1:B999", true, false);
-		for(IRow row:table){
-			
-		}
-		
-	}
+/**
+ * File factory. 
+ * 
+ * @author Xuetao Niu
+ *
+ */
+public interface IFileFactory {
+	/**
+	 * Load a file instance.
+	 * @param file a file to create from
+	 * @return the loaded file instance
+	 */
+	IFile load(Resource file);
 }

@@ -83,7 +83,7 @@ public class PaxmlListener extends TestListenerAdapter implements IReporter {
 		super();
 		sequence = SEQUENCE.getAndIncrement();
 		if (log.isDebugEnabled()) {
-			log.debug("paxml Listener instance created with result sequence: "
+			log.debug("paxml listener instance created with result sequence: "
 					+ sequence);
 		}
 	}

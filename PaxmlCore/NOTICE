@@ -5,6 +5,7 @@ This software is built on and attributes to third-party libraries with the follo
   Apache Ant + Commons Net under The Apache Software License, Version 2.0
   Apache Ant Core under The Apache Software License, Version 2.0
   Apache Ant Launcher under The Apache Software License, Version 2.0
+  Apache Commons CSV under Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Apache Commons Logging under The Apache Software License, Version 2.0
   Apache JAMES Mime4j (Core) under The Apache Software License, Version 2.0
@@ -31,6 +32,7 @@ This software is built on and attributes to third-party libraries with the follo
   JSch under Revised BSD
   JUnit under Common Public License Version 1.0
   Log4j under The Apache Software License, Version 2.0
+  MXP1: Xml Pull Parser 3rd Edition (XPP3) under Indiana University Extreme! Lab Software License, vesion 1.1.1 or Public Domain
   oro under Apache License, Version 2.0
   PaxmlCore under GNU Affero General Public License, Version 3.0
   Spring AOP under The Apache Software License, Version 2.0
@@ -48,5 +50,7 @@ This software is built on and attributes to third-party libraries with the follo
   Streaming API for XML (STAX API 1.0) under The Apache Software License, Version 2.0
   Woodstox under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
+  XML Pull Parsing API under Public Domain
   XmlBeans under The Apache Software License, Version 2.0
+  XStream Core under BSD style
 

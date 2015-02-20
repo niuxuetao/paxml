@@ -14,21 +14,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.paxml.table.excel;
+package org.paxml.file;
 
 import java.io.File;
 
-import org.junit.Test;
-import org.paxml.table.IRow;
-import org.paxml.table.excel.ExcelTable;
+import org.springframework.core.io.Resource;
 
-public class ExcelTableTest {
-	@Test
-	public void testRange() {
-		ExcelTable table = new ExcelTable(new File("excel.xls"), null, "A1:B999", true, false);
-		for(IRow row:table){
-			
-		}
-		
+public class LineBasedFileFactory implements IFileFactory {
+
+	@Override
+	public LineBasedFile load(Resource file) {
+		return new LineBasedFile(file, null);
 	}
+
 }

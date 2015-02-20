@@ -34,64 +34,68 @@ import org.springframework.core.io.Resource;
  * 
  */
 public abstract class AbstractPaxmlEntity extends AbstractTag implements IEntity {
-    private long timestamp;
+	private long timestamp;
 
-    /**
-     * {@inheritDoc}
-     * 
-     */
-    @Override
-    public Object execute(Context context) {
-        final List<IEntityExecutionListener> listeners = context.getEntityExecutionListeners(false);
-        try {
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public Object execute(Context context) {
+		final List<IEntityExecutionListener> listeners = context.getEntityExecutionListeners(false);
+		try {
 
-            if (listeners != null) {
-                for (IEntityExecutionListener listener : listeners) {
-                    listener.onEntry(this, context);
-                }
-            }
-            Object result = super.execute(context);
+			if (listeners != null) {
+				for (IEntityExecutionListener listener : listeners) {
+					listener.onEntry(this, context);
+				}
+			}
+			Object result = super.execute(context);
 
-            return result;
+			return result;
 
-        } finally {
-            if (listeners != null) {
-                for (IEntityExecutionListener listener : listeners) {
-                    listener.onExit(this, context);
-                }
-            }
-        }
-    }
+		} finally {
+			try {
+				if (listeners != null) {
+					for (IEntityExecutionListener listener : listeners) {
+						listener.onExit(this, context);
+					}
+				}
+			} finally {
+				context.closeAllCloseables();
+			}
+		}
+	}
 
-    @Override
-    public boolean isCachable() {
-        PaxmlResource res = getResource();
-        return res != null && !(getResource() instanceof InMemoryResource);
-    }
+	@Override
+	public boolean isCachable() {
+		PaxmlResource res = getResource();
+		return res != null && !(getResource() instanceof InMemoryResource);
+	}
 
-    @Override
-    public boolean isModified() {
-        Resource res = getResource().getSpringResource();
-        if (!res.exists()) {
-            return true;
-        }
-        final File file;
-        try {
-            file = res.getFile();
+	@Override
+	public boolean isModified() {
+		Resource res = getResource().getSpringResource();
+		if (!res.exists()) {
+			return true;
+		}
+		final File file;
+		try {
+			file = res.getFile();
 
-        } catch (IOException e) {
-            // if file is not obtainable, it is not modifiable.
-            return false;
-        }
-        return !file.exists() || file.lastModified() != timestamp;
-    }
+		} catch (IOException e) {
+			// if file is not obtainable, it is not modifiable.
+			return false;
+		}
+		return !file.exists() || file.lastModified() != timestamp;
+	}
 
-    public long getTimestamp() {
-        return timestamp;
-    }
+	public long getTimestamp() {
+		return timestamp;
+	}
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
 
 }

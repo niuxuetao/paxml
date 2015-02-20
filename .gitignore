@@ -45,4 +45,5 @@ _ReSharper*/
 .project
 target/
 bin/
+test-output/
 *.versionsBackup

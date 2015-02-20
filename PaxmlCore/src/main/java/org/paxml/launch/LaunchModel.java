@@ -40,9 +40,9 @@ import org.springframework.core.io.Resource;
  */
 public class LaunchModel {
 	/**
-	 * Ever increasing process id generator, starting from 1.
+	 * Per-jvm/classloader increasing process id generator, starting from 1.
 	 */
-	private final AtomicLong PID = new AtomicLong(1);
+	private static final AtomicLong PID = new AtomicLong(1);
 
 	private final StaticConfig config = new StaticConfig();
 	private volatile Resource resource;
@@ -104,7 +104,7 @@ public class LaunchModel {
 	 *            reparse the points which is expensive.
 	 * @return the launch points, never null
 	 */
-	public synchronized List<LaunchPoint> getLaunchPoints(boolean forceRefresh, long sessionId) {
+	public synchronized List<LaunchPoint> getLaunchPoints(boolean forceRefresh, long executionId) {
 		if (forceRefresh || launchPoints == null) {
 			List<Map<PaxmlResource, List<Settings>>> points = findLaunchPoints();
 
@@ -114,10 +114,10 @@ public class LaunchModel {
 					for (Settings s : entry.getValue()) {
 						List<Properties> explodedFactors = explodeFactors(s);
 						if (explodedFactors == null || explodedFactors.size() <= 0) {
-							launchPoints.add(createLaunchPoint(entry.getKey(), s, null, PID.getAndIncrement(), sessionId));
+							launchPoints.add(createLaunchPoint(entry.getKey(), s, null, PID.getAndIncrement(), executionId));
 						} else {
 							for (Properties factors : explodedFactors) {
-								launchPoints.add(createLaunchPoint(entry.getKey(), s, factors, PID.getAndIncrement(), sessionId));
+								launchPoints.add(createLaunchPoint(entry.getKey(), s, factors, PID.getAndIncrement(), executionId));
 							}
 						}
 					}
@@ -127,7 +127,7 @@ public class LaunchModel {
 		return launchPoints;
 	}
 
-	private LaunchPoint createLaunchPoint(PaxmlResource res, Settings settings, Properties factors, long processId, long sessionId) {
+	private LaunchPoint createLaunchPoint(PaxmlResource res, Settings settings, Properties factors, long processId, long executionId) {
 		Properties props = new Properties();
 
 		if (settings != null) {
@@ -140,7 +140,7 @@ public class LaunchModel {
 			}
 		}
 
-		return new LaunchPoint(this, res, settings.getGroup(), getGlobalSettings().getProperties(), props, factors, processId, sessionId);
+		return new LaunchPoint(this, res, settings.getGroup(), getGlobalSettings().getProperties(), props, factors, processId, executionId);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class LaunchModel {
 	 * @return the resource execution result
 	 */
 	public Object execute(LaunchPoint point) {
-		Paxml paxml = new Paxml(point.getProcessId(), point.getSessionId());
+		Paxml paxml = new Paxml(point.getProcessId(), point.getExecutionId());
 		paxml.addStaticConfig(config);
 		return paxml.execute(point.getResource().getName(), System.getProperties(), point.getEffectiveProperties(false));
 	}

@@ -50,12 +50,12 @@ public class PaxmlUtils {
 		return new File(getPaxmlHome(), file);
 	}
 
-	public static long getNextSessionId() {
-		if(true){
+	public static long getNextExecutionId() {
+		if (true) {
 			return -1;
 		}
 		JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
-		return temp.query("select next value for session_id_seq", new ResultSetExtractor<Long>() {
+		return temp.query("select next value for execution_id_seq", new ResultSetExtractor<Long>() {
 
 			@Override
 			public Long extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -65,24 +65,25 @@ public class PaxmlUtils {
 
 		});
 	}
+
 	public static long recordExecutionScheduled(LaunchPoint p, long planExecutionId) {
-		final long id = getNextSessionId();
+		final long id = getNextExecutionId();
 		JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
-		temp.update("insert into paxml_execution (id, session_id, process_id, paxml_name, paxml_path, paxml_params, status) values(?,?,?,?,?,?,?)", 
-				id, p.getSessionId(), p.getProcessId(), p.getResource().getName(), p.getResource().getPath(), null, 0);
+		temp.update("insert into paxml_execution (id, session_id, process_id, paxml_name, paxml_path, paxml_params, status) values(?,?,?,?,?,?,?)", id, p.getExecutionId(),
+				p.getProcessId(), p.getResource().getName(), p.getResource().getPath(), null, 0);
 		return id;
 	}
-/*
-	public static void recordExecutionStart(long recId) {
-		JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
-		temp.update("update paxml_execution ", p.get);
-	}
 
-	public static void recordExecutionStop(long recId, boolean succeeded) {
-		JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
-
-	}
-*/
+	/*
+	 * public static void recordExecutionStart(long recId) { JdbcTemplate temp =
+	 * new JdbcTemplate(DBUtils.getPooledDataSource());
+	 * temp.update("update paxml_execution ", p.get); }
+	 * 
+	 * public static void recordExecutionStop(long recId, boolean succeeded) {
+	 * JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
+	 * 
+	 * }
+	 */
 	public static Resource readResource(String resUri) {
 		return new DefaultResourceLoader().getResource(resUri);
 	}
@@ -110,4 +111,11 @@ public class PaxmlUtils {
 		}
 	}
 
+	public static String getResourceFile(Resource res) {
+		try {
+			return res.getFile().getAbsolutePath();
+		} catch (IOException e) {
+			return res.getFilename();
+		}
+	}
 }

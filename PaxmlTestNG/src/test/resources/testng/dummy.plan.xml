@@ -17,31 +17,14 @@
 
 -->
 <plan>
-    <log>Processing self test plan...</log>
+    <log>Processing dummy plan</log>
     
-    <execution group="g2,g1" />
-    <execution group="g4" />
-        
-    
-    <factor name="factorX" >1</factor>  
-    <factor name="factorY">2</factor>   
-    
-    <scenario path="*testng/testfile1" group="g1">           
-    </scenario>
-    <scenario path="*testng/testfile2" group="g2">
-        <factor name="factor1" >1,2</factor>              
-    </scenario>
-    <scenario path="*testng/testfile4" group="g4">
-        <factor name="factor1" >true,false</factor>  
-        <factor name="factor2">${util.list('a','b')}</factor>   
-    </scenario>
+    <execution scenario="Dummy" />
     
     <resource>
       <!-- this is the path relative to this file -->
       <include>**/*.xml</include>    
               
     </resource>
-    
-    <listener></listener>
       
 </plan>

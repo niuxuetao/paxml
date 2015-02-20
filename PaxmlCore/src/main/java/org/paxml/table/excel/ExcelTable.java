@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.collections.iterators.AbstractIteratorDecorator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.paxml.file.IFile;
 import org.paxml.table.AbstractTable;
 import org.paxml.table.IColumn;
 import org.paxml.table.IRow;
@@ -35,7 +36,7 @@ import org.paxml.table.ITableTransformer;
 import org.paxml.table.TableRange;
 import org.paxml.util.CachedIterator;
 
-public class ExcelTable extends AbstractTable {
+public class ExcelTable extends AbstractTable implements IFile {
 	private static final int CACHE_SIZE = 50;
 	private final ExcelFile file;
 	private final Sheet sheet;
@@ -68,6 +69,11 @@ public class ExcelTable extends AbstractTable {
 		this.readonly = readonly;
 		this.compact = compact;
 		setRange(range);
+	}
+
+	@Override
+	public void close() {
+		file.close();
 	}
 
 	@Override

@@ -221,6 +221,6 @@ public abstract class BeanTag extends AbstractInvokerTag {
 	 *            the context
 	 */
 	protected void afterPropertiesInjection(Context context) {
-		// do nothing here
+		// do nothing here, let subclasses do stuff
 	}
 }

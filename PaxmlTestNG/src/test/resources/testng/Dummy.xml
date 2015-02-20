@@ -16,21 +16,6 @@
     along with PaxmlTestNG.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Paxml Selftest suite 1" 
-    thread-count="1" parallel="methods"
-    verbose="1" skipfailedinvocationCounts="true">
-    
-    <listeners>
-      <listener class-name="org.paxml.testng.PaxmlListener" />    
-    </listeners>
-    
-    <test name="Paxml Selftest" >
-        <parameter name="paxmlTestPlanFile" value="testng/test.plan.xml" />
-        <parameter name="paxmlTestNamePrefixWithPid" value="true" />
-        <classes>
-            <class name="org.paxml.testng.PaxmlTestCaseFactory" />
-        </classes>
-    </test>
-    
-</suite>
+<scenario>
+    <log>i am a dummy</log>
+</scenario>

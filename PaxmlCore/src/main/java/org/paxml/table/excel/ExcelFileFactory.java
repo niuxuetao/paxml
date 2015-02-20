@@ -16,19 +16,31 @@
  */
 package org.paxml.table.excel;
 
-import java.io.File;
+import java.io.IOException;
 
-import org.junit.Test;
-import org.paxml.table.IRow;
-import org.paxml.table.excel.ExcelTable;
+import org.paxml.core.PaxmlRuntimeException;
+import org.paxml.file.IFile;
+import org.paxml.file.IFileFactory;
+import org.paxml.util.PaxmlUtils;
+import org.springframework.core.io.Resource;
 
-public class ExcelTableTest {
-	@Test
-	public void testRange() {
-		ExcelTable table = new ExcelTable(new File("excel.xls"), null, "A1:B999", true, false);
-		for(IRow row:table){
-			
+/**
+ * Excel table factory.
+ * 
+ * @author Xuetao Niu
+ * 
+ */
+public class ExcelFileFactory implements IFileFactory {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IFile load(Resource file) {
+		try {
+			return new ExcelTable(file.getFile(), null, null, false, false);
+		} catch (IOException e) {
+			throw new PaxmlRuntimeException("Cannot find the file of resource: " + PaxmlUtils.getResourceFile(file), e);
 		}
-		
 	}
+
 }

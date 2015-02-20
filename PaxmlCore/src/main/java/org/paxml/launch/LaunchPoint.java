@@ -34,7 +34,7 @@ public class LaunchPoint {
 	private final Properties globalProperties;
 	private final Properties factors;
 	private final long processId;
-	private final long sessionId;
+	private final long executionId;
 	private final String group;
 	private final LaunchModel model;
 	private volatile long startMs;
@@ -59,14 +59,14 @@ public class LaunchPoint {
 	 *            the process id
 	 */
 	public LaunchPoint(LaunchModel model, PaxmlResource resource, String group, Properties globalProperties, Properties properties,
-			Properties factors, long processId, long sessionId) {
+			Properties factors, long processId, long executionId) {
 		this.model = model;
 		this.resource = resource;
 		this.properties = properties;
 		this.globalProperties = globalProperties;
 		this.factors = factors;
 		this.processId = processId;
-		this.sessionId = sessionId;
+		this.executionId = executionId;
 		this.group = group;
 	}
 
@@ -140,8 +140,8 @@ public class LaunchPoint {
 		return group;
 	}
 
-	public long getSessionId() {
-		return sessionId;
+	public long getExecutionId() {
+		return executionId;
 	}
 
 }

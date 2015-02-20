@@ -28,12 +28,15 @@ import java.util.Map;
 import org.apache.commons.jxpath.Pointer;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
+import org.paxml.core.Parser;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.el.IExpression;
+import org.paxml.file.FileHelper;
 import org.paxml.tag.AbstractTag.ChildrenResultList;
 import org.paxml.tag.IPropertyVisitor;
 import org.paxml.util.ReflectUtils;
 import org.paxml.util.ReflectUtils.PropertyDescriptorType;
+import org.springframework.core.io.Resource;
 
 /**
  * Iterate tag impl.
@@ -62,6 +65,7 @@ public class IterateTag extends AbstractControlTag implements IPropertyVisitor<C
 	private IExpression times;
 	private IExpression bean;
 	private IExpression values;
+	private IExpression file;
 	private String varName = DEFAULT_VAR;
 	private String indexVarName = DEFAULT_INDEX;
 	private String varNameText = DEFAULT_VAR_NAME;
@@ -188,8 +192,11 @@ public class IterateTag extends AbstractControlTag implements IPropertyVisitor<C
 				return list;
 			} else if (values != null) {
 				return iterateValues(context, values.evaluate(context));
+			} else if (file != null) {
+				Resource res = Parser.getResource(file.evaluateString(context), getEntity().getResource().getSpringResource());
+				return iterateValues(context, FileHelper.load(res));
 			} else {
-				throw new PaxmlRuntimeException("Nothing to iterate!!!");
+				throw new PaxmlRuntimeException("Nothing to iterate on!!!");
 			}
 		} finally {
 			context.setConstOverwritable(false);
@@ -356,6 +363,14 @@ public class IterateTag extends AbstractControlTag implements IPropertyVisitor<C
 
 	public void setValues(IExpression values) {
 		this.values = values;
+	}
+
+	public IExpression getFile() {
+		return file;
+	}
+
+	public void setFile(IExpression file) {
+		this.file = file;
 	}
 
 }

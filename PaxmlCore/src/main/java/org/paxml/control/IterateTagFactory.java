@@ -70,7 +70,10 @@ public class IterateTagFactory extends AbstractTagFactory<IterateTag> {
      * The attr name for values.
      */
     public static final String ATTR_VALUES = "values";
-
+    /**
+     * The attr name for values.
+     */
+    public static final String ATTR_FILE = "file";
     /**
      * {@inheritDoc}
      */
@@ -82,7 +85,7 @@ public class IterateTagFactory extends AbstractTagFactory<IterateTag> {
         final OMElement ele = context.getElement();
 
         assertNoAttributes(ele, tag.getClass(), ATTR_VALUES, ATTR_VAR, ATTR_BEAN, ATTR_INDEX, ATTR_LIST, ATTR_MAP,
-                ATTR_XPATH, ATTR_TIMES, ATTR_NAME);
+                ATTR_XPATH, ATTR_TIMES, ATTR_NAME, ATTR_FILE);
 
         String varName = AxiomUtils.getAttribute(ele, ATTR_VAR);
         if (StringUtils.isNotBlank(varName)) {
@@ -103,6 +106,7 @@ public class IterateTagFactory extends AbstractTagFactory<IterateTag> {
         String xpath = AxiomUtils.getAttribute(ele, ATTR_XPATH);
         String times = AxiomUtils.getAttribute(ele, ATTR_TIMES);
         String values = AxiomUtils.getAttribute(ele, ATTR_VALUES);
+        String file = AxiomUtils.getAttribute(ele, ATTR_FILE);
 
         int c = 0;
 
@@ -130,10 +134,15 @@ public class IterateTagFactory extends AbstractTagFactory<IterateTag> {
             tag.setValues(ExpressionFactory.create(values));
             c++;
         }
+        if (StringUtils.isNotBlank(file)) {
+            tag.setFile(ExpressionFactory.create(file));
+            c++;
+        }
+        
         if (c != 1) {
 
             throw new PaxmlRuntimeException("Only one of these attributes can be specified: "
-                    + Arrays.asList(ATTR_LIST, ATTR_MAP, ATTR_XPATH, ATTR_TIMES, ATTR_VALUES));
+                    + Arrays.asList(ATTR_LIST, ATTR_MAP, ATTR_XPATH, ATTR_TIMES, ATTR_VALUES, ATTR_FILE));
 
         }
         return false;

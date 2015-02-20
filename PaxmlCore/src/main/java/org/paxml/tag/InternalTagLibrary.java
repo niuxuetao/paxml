@@ -48,6 +48,7 @@ import org.paxml.bean.ResultTag;
 import org.paxml.bean.ReturnTag;
 import org.paxml.bean.RunTag;
 import org.paxml.bean.SetLocaleTag;
+import org.paxml.bean.SetTag;
 import org.paxml.bean.SftpTag;
 import org.paxml.bean.SoapTag;
 import org.paxml.bean.SplitTag;
@@ -98,6 +99,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(ReturnTag.class);
         registerTag(ConstTag.class);
         registerTag(DefaultConstTag.class);
+        registerTag(SetTag.class);
         
         registerTag(MutexTag.class);
         registerTag(ReadFileTag.class);

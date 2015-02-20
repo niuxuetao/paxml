@@ -26,68 +26,68 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.paxml.core.Context;
 
 public class PerProcessFileAppender extends FileAppender {
-    private boolean duplicate;
-    private final HashMap<Long, FileAppender> appenders = new HashMap<Long, FileAppender>();
+	private boolean duplicate;
+	private final HashMap<String, FileAppender> appenders = new HashMap<String, FileAppender>();
 
-    @Override
-    public void append(LoggingEvent event) {
-        Context context = Context.getCurrentContext();
-        if (context == null) {
-            super.append(event);
-        } else {
-            if (duplicate) {
-                super.append(event);
-            }
-            final long pid = context.getProcessId();
-            FileAppender appender = null;
-            synchronized (appenders) {
-                appender = appenders.get(pid);
-                if (appender == null) {
-                    appender = new FileAppender();
-                    appender.setLayout(getLayout());
-                    appender.setAppend(getAppend());
-                    appender.setBufferSize(getBufferSize());
-                    appender.setBufferedIO(getBufferedIO());
-                    appender.setEncoding(getEncoding());
-                    appender.setImmediateFlush(getImmediateFlush());
-                    appender.setThreshold(getThreshold());
-                    appender.setName(getName() + "_" + pid);
-                    appender.setFile(getProcessFileName(pid));
-                    try {
-                        appender.setWriter(new FileWriter(appender.getFile(), appender.getAppend()));
-                    } catch (IOException e) {
-                        throw new RuntimeException("Cannot write to log file: "
-                                + new File(appender.getFile()).getAbsolutePath(), e);
-                    }
-                    appenders.put(pid, appender);
-                }
-            }
-            appender.append(event);
-        }
-    }
+	@Override
+	public void append(LoggingEvent event) {
+		Context context = Context.getCurrentContext();
+		if (context == null) {
+			super.append(event);
+		} else {
+			if (duplicate) {
+				super.append(event);
+			}
+			final long pid = context.getProcessId();
+			final String key = getProcessFileName(pid);
+			FileAppender appender = null;
+			synchronized (appenders) {
+				appender = appenders.get(key);
+				if (appender == null) {
+					appender = new FileAppender();
+					appender.setLayout(getLayout());
+					appender.setAppend(getAppend());
+					appender.setBufferSize(getBufferSize());
+					appender.setBufferedIO(getBufferedIO());
+					appender.setEncoding(getEncoding());
+					appender.setImmediateFlush(getImmediateFlush());
+					appender.setThreshold(getThreshold());
+					appender.setName(getName() + "_" + pid);
+					appender.setFile(getProcessFileName(pid));
+					try {
+						appender.setWriter(new FileWriter(appender.getFile(), appender.getAppend()));
+					} catch (IOException e) {
+						throw new RuntimeException("Cannot write to log file: " + new File(appender.getFile()).getAbsolutePath(), e);
+					}
+					appenders.put(key, appender);
+				}
+			}
+			appender.append(event);
+		}
+	}
 
-    @Override
-    public synchronized void close() {
-        super.close();
-        for (FileAppender appender : appenders.values()) {
-            appender.finalize();
-            appender.close();
-        }
-    }
+	@Override
+	public synchronized void close() {
+		super.close();
+		for (FileAppender appender : appenders.values()) {
+			appender.finalize();
+			appender.close();
+		}
+	}
 
-    private String getProcessFileName(long pid) {
-        File f = new File(getFile());
-        if(pid==0){
+	private String getProcessFileName(long pid) {
+		File f = new File(getFile());
+		if (pid == 0) {
 			return f.getAbsolutePath();
-        }
-        return new File(f.getParent(), pid + "." + Thread.currentThread().getName() + ".log").getAbsolutePath();
-    }
+		}
+		return new File(f.getParent(), pid + "." + Thread.currentThread().getName() + ".log").getAbsolutePath();
+	}
 
-    public boolean getDuplicate() {
-        return duplicate;
-    }
+	public boolean getDuplicate() {
+		return duplicate;
+	}
 
-    public void setDuplicate(boolean duplicate) {
-        this.duplicate = duplicate;
-    }
+	public void setDuplicate(boolean duplicate) {
+		this.duplicate = duplicate;
+	}
 }

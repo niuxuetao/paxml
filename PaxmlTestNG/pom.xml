@@ -18,6 +18,7 @@
 		<testng.version>5.10</testng.version>
 		<testng.suites>
 			${project.basedir}/src/test/resources/testng-paxml-selftest.xml,
+			${project.basedir}/src/test/resources/testng-paxml-dummy.xml,
 			${project.basedir}/src/test/resources/testng-paxml-selftest-checker.xml
 		</testng.suites>
 		<languages>nl</languages>
