@@ -159,4 +159,10 @@ public abstract class AbstractTable implements ITable {
 		return result;
 	}
 
+	@Override
+    public IRow getRow(int index) {
+		// this source does not support getting a particular table row.
+	    return null;
+    }
+
 }

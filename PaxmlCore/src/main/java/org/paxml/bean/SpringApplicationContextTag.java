@@ -19,10 +19,10 @@ package org.paxml.bean;
 import org.apache.commons.lang.StringUtils;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
-import org.paxml.core.Parser;
 import org.paxml.core.PaxmlResource;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.tag.SpringXmlEntityFactory;
+import org.paxml.util.PaxmlUtils;
 import org.springframework.core.io.Resource;
 
 /**
@@ -48,7 +48,7 @@ public class SpringApplicationContextTag extends BeanTag {
         if (StringUtils.isBlank(path)) {
             throw new PaxmlRuntimeException("No spring xml file given!");
         }
-        Resource res = Parser.getResource(path, getEntity().getResource().getSpringResource());
+        Resource res = PaxmlUtils.getResource(path, getEntity().getResource().getSpringResource());
         PaxmlResource _res = PaxmlResource.createFromResource(res);
         return SpringXmlEntityFactory.getApplicationContext(_res);
     }

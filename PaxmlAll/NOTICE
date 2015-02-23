@@ -5,7 +5,6 @@ This software is built on and attributes to third-party libraries with the follo
   Apache Ant + Commons Net under The Apache Software License, Version 2.0
   Apache Ant Core under The Apache Software License, Version 2.0
   Apache Ant Launcher under The Apache Software License, Version 2.0
-  Apache Commons CSV under Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Apache Commons Lang under The Apache Software License, Version 2.0
   Apache Commons Logging under The Apache Software License, Version 2.0
@@ -88,6 +87,7 @@ This software is built on and attributes to third-party libraries with the follo
   StAX API under The Apache Software License, Version 2.0
   Stax2 API under The BSD License
   Streaming API for XML (STAX API 1.0) under The Apache Software License, Version 2.0
+  Super CSV Core under Apache License, Version 2.0
   TestNG under Apache License, Version 2.0
   The Netty Project under Apache License, Version 2.0
   webbit under BSD License

@@ -99,7 +99,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(ReturnTag.class);
         registerTag(ConstTag.class);
         registerTag(DefaultConstTag.class);
-        registerTag(SetTag.class);
+        //registerTag(SetTag.class);
         
         registerTag(MutexTag.class);
         registerTag(ReadFileTag.class);

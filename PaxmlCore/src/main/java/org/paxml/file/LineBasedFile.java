@@ -37,7 +37,7 @@ public class LineBasedFile implements Iterator<String>, IFile {
 		InputStream in = null;
 		try {
 			in = file.getInputStream();
-			reader = new BufferedReader(new InputStreamReader(in));
+			reader = new BufferedReader(new InputStreamReader(in, encoding == null ? "UTF-8" : encoding));
 			// cache the 1st line
 			line = reader.readLine();
 		} catch (IOException e) {

@@ -285,7 +285,6 @@ public class ExcelTable extends AbstractTable implements IFile {
 		return compact;
 	}
 
-	@Override
 	public ExcelRow getRow(int index) {
 		Row row = sheet.getRow(index);
 

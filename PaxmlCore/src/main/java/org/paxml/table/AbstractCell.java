@@ -39,4 +39,14 @@ public abstract class AbstractCell<T extends IRow> implements ICell{
 		return String.valueOf(getValue());
 	}
 	
+	@Override
+	public Object getValue() {
+		return getRow().getCellValue(getIndex());
+	}
+
+	@Override
+	public void setValue(Object obj) {
+		getRow().setCellValue(getIndex(), obj);
+	}
+	
 }

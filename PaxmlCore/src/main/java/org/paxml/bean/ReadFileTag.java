@@ -22,7 +22,7 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
-import org.paxml.core.Parser;
+import org.paxml.util.PaxmlUtils;
 
 /**
  * readFile tag impl.
@@ -41,7 +41,7 @@ public class ReadFileTag extends BeanTag {
     @Override
     protected Object doInvoke(Context context) throws Exception {
         
-        InputStream in = Parser.getResource(file, null).getInputStream();
+        InputStream in = PaxmlUtils.getResource(file, null).getInputStream();
 
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();

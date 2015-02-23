@@ -170,11 +170,6 @@ public class JdbcTable extends AbstractTable {
 	}
 
 	@Override
-	public IRow getRow(int index) {
-		return null;
-	}
-
-	@Override
 	protected String getResourceIdentifier() {
 		return query;
 	}

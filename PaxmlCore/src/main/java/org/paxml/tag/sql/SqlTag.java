@@ -34,11 +34,11 @@ import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Tag;
 import org.paxml.bean.BeanTag;
 import org.paxml.core.Context;
-import org.paxml.core.Parser;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.tag.sql.SqlQueryTag.ClosableResultSetIterable;
 import org.paxml.tag.sql.SqlQueryTag.ResultSetsHolder;
 import org.paxml.util.DBUtils;
+import org.paxml.util.PaxmlUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -141,7 +141,7 @@ public class SqlTag extends BeanTag {
     protected Object doInvoke(Context context) throws Exception {
         Object result = null;
         if (StringUtils.isNotBlank(file)) {
-            Resource res = Parser.getResource(file, getResource().getSpringResource());
+            Resource res = PaxmlUtils.getResource(file, getResource().getSpringResource());
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             InputStream in = res.getInputStream();
             try {

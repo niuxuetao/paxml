@@ -16,14 +16,21 @@
  */
 package org.paxml.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.paxml.core.PaxmlParseException;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.launch.LaunchPoint;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -33,21 +40,199 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class PaxmlUtils {
+
+	private static final Log log = LogFactory.getLog(PaxmlUtils.class);
+
 	public static final String PAXML_HOME_ENV_KEY = "PAXML_HOME";
 
-	public static File getPaxmlHome() {
+	public static File getPaxmlHome(boolean assert_PAXML_HOME) {
 		String paxmlHome = System.getenv(PAXML_HOME_ENV_KEY);
 		if (paxmlHome == null) {
 			paxmlHome = System.getProperty(PAXML_HOME_ENV_KEY);
 		}
 		if (paxmlHome == null) {
-			throw new PaxmlRuntimeException("System environment 'PAXML_HOME' not set!");
+			if (assert_PAXML_HOME) {
+				throw new PaxmlRuntimeException("System environment 'PAXML_HOME' not set!");
+			} else {
+				return null;
+			}
 		}
 		return new File(paxmlHome);
 	}
 
-	public static File getPaxmlFile(String file) {
-		return new File(getPaxmlHome(), file);
+	/**
+	 * Get resource from path.
+	 * 
+	 * @param path
+	 *            if path has prefix, the path will be directly used; if not,
+	 *            the path will be treated as a relative path based on the
+	 *            "base" resource parameter.
+	 * @param base
+	 *            the base resource when path has no prefix. If null given and
+	 *            base resource has no prefix, then the path is assumed to be a
+	 *            file system resource if it exists, and if it doesn't exist, it
+	 *            will be assumed as a classpath resource.
+	 * @return the Spring resource.
+	 */
+	public static Resource getResource(String path, Resource base) {
+		final String filePrefix = "file:";
+		final String classpathPrefix = "classpath:";
+
+		if (!path.startsWith(filePrefix) && !path.startsWith(classpathPrefix)) {
+			if (base == null) {
+				File file = getFile(path);
+				if (file.isFile()) {
+					path = filePrefix + file.getAbsolutePath();
+				} else {
+					// assume to be a file
+					path = classpathPrefix + path;
+				}
+			} else {
+				try {
+					path = base.createRelative(path).getURI().toString();
+				} catch (IOException e) {
+					throw new PaxmlParseException("Cannot create relative path '" + path + "' from base resource: " + base + ", because: " + e.getMessage());
+				}
+			}
+		}
+		if (log.isDebugEnabled()) {
+			log.debug("Taking resource from computed path: " + path);
+		}
+		return new DefaultResourceLoader().getResource(path);
+
+	}
+
+	/**
+	 * Create a file object.
+	 * 
+	 * @param pathWithoutPrefix
+	 *            the path without spring resource prefix.
+	 * @return if the given path is relative, try the following locations in
+	 *         order: - current working dir - user.home dir - dir pointed by
+	 *         PAXML_HOME system property - if file not found in all above
+	 *         locations, then return {@code}new File(pathWithoutPrefix);{@code}
+	 */
+	public static File getFile(String pathWithoutPrefix) {
+		File file = new File(pathWithoutPrefix);
+		if (!file.isAbsolute()) {
+			file = getFileUnderCurrentDir(pathWithoutPrefix);
+			if (!file.exists()) {
+				file = getFileUnderUserHome(pathWithoutPrefix);
+			}
+			if (!file.exists()) {
+				File f = getFileUnderPaxmlHome(pathWithoutPrefix, false);
+				if (f != null && f.exists()) {
+					file = f;
+				}
+			}
+		}
+
+		return file;
+	}
+
+	public static File getFileUnderPaxmlHome(String file, boolean assert_PAXML_HOME) {
+		File home = getPaxmlHome(assert_PAXML_HOME);
+		if (home == null) {
+			return null;
+		}
+		return new File(home, file);
+	}
+
+	public static File getFileUnderCurrentDir(String file) {
+
+		return new File(new File("."), file);
+
+	}
+
+	public static File getFileUnderUserHome(String file) {
+
+		File userHomeDir = new File(System.getProperty("user.home"));
+		return new File(userHomeDir, file);
+
+	}
+
+	/**
+	 * Trim the property names and values and return in a new Properties object.
+	 * 
+	 * @param props
+	 *            properties
+	 * @return the new Properties object contained the trimmed names and values.
+	 */
+	public static Properties trimProperties(Properties props) {
+		Properties result = new Properties();
+		for (Map.Entry<Object, Object> entry : props.entrySet()) {
+			String key = entry.getKey().toString();
+			String value = entry.getValue().toString();
+			result.put(key.trim(), value.trim());
+		}
+		return result;
+	}
+
+	/**
+	 * Load properties from a resource file and more text if given.
+	 * 
+	 * @param props
+	 *            the properties file to load into
+	 * @param res
+	 *            a resource to load from, null to ignore
+	 * @param moreText
+	 *            a text to load from, null to ignore
+	 * @return the input properties
+	 */
+	public static Properties loadProperties(Properties props, Resource res, String moreText) {
+
+		InputStream[] ins = new InputStream[2];
+		if (res != null) {
+			try {
+				ins[0] = res.getInputStream();
+			} catch (IOException e) {
+				throw new PaxmlRuntimeException("Cannot load properties from resource " + res, e);
+			}
+		}
+		if (moreText != null) {
+			try {
+				ins[1] = new ByteArrayInputStream(moreText.getBytes("UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				throw new PaxmlRuntimeException(e);
+			}
+		}
+		return loadProperties(props, true, ins);
+
+	}
+
+	/**
+	 * Load properties from multiple streams.
+	 * 
+	 * @param props
+	 *            the properties to load into
+	 * @param closeStream
+	 *            true to close all streams no matter what, false not to close
+	 *            any single stream
+	 * @param inputStreams
+	 *            all input streams, the loading order is the same as the order
+	 *            the input streams are given
+	 * @return the properties passed in.
+	 */
+	public static Properties loadProperties(Properties props, boolean closeStream, InputStream... inputStreams) {
+		int i = 0;
+		try {
+			for (InputStream in : inputStreams) {
+				if (in != null) {
+					props.load(in);
+					System.out.println(props);
+					i++;
+				}
+			}
+		} catch (IOException e) {
+			throw new PaxmlRuntimeException("Cannot load properties from input stream: " + i, e);
+		} finally {
+			if (closeStream) {
+				for (InputStream in : inputStreams) {
+					IOUtils.closeQuietly(in);
+				}
+			}
+		}
+		return props;
 	}
 
 	public static long getNextExecutionId() {
@@ -70,7 +255,7 @@ public class PaxmlUtils {
 		final long id = getNextExecutionId();
 		JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
 		temp.update("insert into paxml_execution (id, session_id, process_id, paxml_name, paxml_path, paxml_params, status) values(?,?,?,?,?,?,?)", id, p.getExecutionId(),
-				p.getProcessId(), p.getResource().getName(), p.getResource().getPath(), null, 0);
+		        p.getProcessId(), p.getResource().getName(), p.getResource().getPath(), null, 0);
 		return id;
 	}
 
@@ -118,4 +303,17 @@ public class PaxmlUtils {
 			return res.getFilename();
 		}
 	}
+
+	public static String getResourceIdentifier(Resource res) {
+		try {
+			return res.getFile().getAbsolutePath();
+		} catch (Exception e) {
+			return res.getFilename();
+		}
+	}
+
+	public static File getSiblingFile(File base, String name, boolean appendName) {
+		return new File(base.getParentFile(), appendName ? base.getName() : name);
+	}
+
 }

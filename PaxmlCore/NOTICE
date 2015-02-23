@@ -5,7 +5,6 @@ This software is built on and attributes to third-party libraries with the follo
   Apache Ant + Commons Net under The Apache Software License, Version 2.0
   Apache Ant Core under The Apache Software License, Version 2.0
   Apache Ant Launcher under The Apache Software License, Version 2.0
-  Apache Commons CSV under Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Apache Commons Logging under The Apache Software License, Version 2.0
   Apache JAMES Mime4j (Core) under The Apache Software License, Version 2.0
@@ -48,6 +47,7 @@ This software is built on and attributes to third-party libraries with the follo
   StAX API under The Apache Software License, Version 2.0
   Stax2 API under The BSD License
   Streaming API for XML (STAX API 1.0) under The Apache Software License, Version 2.0
+  Super CSV Core under Apache License, Version 2.0
   Woodstox under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
   XML Pull Parsing API under Public Domain

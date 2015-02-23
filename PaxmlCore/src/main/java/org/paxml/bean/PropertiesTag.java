@@ -28,10 +28,10 @@ import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
 import org.paxml.core.ObjectList;
 import org.paxml.core.ObjectTree;
-import org.paxml.core.Parser;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.tag.AbstractTagFactory;
 import org.paxml.tag.ConstTag;
+import org.paxml.util.PaxmlUtils;
 import org.springframework.core.io.Resource;
 
 /**
@@ -129,8 +129,8 @@ public class PropertiesTag extends BeanTag {
 
         // load from file
         if (StringUtils.isNotBlank(file)) {
-            Resource res = Parser.getResource(file, getEntity().getResource().getSpringResource());
-            Parser.loadProperties(props, res, null);
+            Resource res = PaxmlUtils.getResource(file, getEntity().getResource().getSpringResource());
+            PaxmlUtils.loadProperties(props, res, null);
         }
 
         // load from children
@@ -161,11 +161,11 @@ public class PropertiesTag extends BeanTag {
         Properties loaded = new Properties();
         
         try {
-            Parser.loadProperties(loaded, true, new ByteArrayInputStream(text.getBytes("UTF-8")));
+            PaxmlUtils.loadProperties(loaded, true, new ByteArrayInputStream(text.getBytes("UTF-8")));
         } catch (UnsupportedEncodingException e) {
             throw new PaxmlRuntimeException(e);
         }
-        loaded = Parser.trimProperties(loaded);
+        loaded = PaxmlUtils.trimProperties(loaded);
         
         props.putAll(loaded);
     }

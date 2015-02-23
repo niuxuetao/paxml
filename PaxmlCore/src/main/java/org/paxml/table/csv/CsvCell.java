@@ -14,15 +14,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.paxml.file;
+package org.paxml.table.csv;
 
-import org.springframework.core.io.Resource;
+import org.paxml.table.AbstractCell;
 
-public class LineBasedFileFactory implements IFileFactory {
+public class CsvCell extends AbstractCell<CsvRow> {
+	private int index;
+
+	public CsvCell(CsvRow row, int index) {
+		this.index = index;
+		setRow(row);
+	}
 
 	@Override
-	public LineBasedFile load(Resource file) {
-		return new LineBasedFile(file, null);
+	public int getIndex() {
+		return index;
 	}
 
 }

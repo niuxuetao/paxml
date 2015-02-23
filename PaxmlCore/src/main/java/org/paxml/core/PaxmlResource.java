@@ -20,10 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.paxml.util.PaxmlUtils;
 import org.springframework.core.io.Resource;
 
 /**
@@ -138,7 +138,7 @@ public abstract class PaxmlResource {
     }
 
     public Resource getSpringResource() {
-        return Parser.getResource(path, null);
+        return PaxmlUtils.getResource(path, null);
     }
 
     public long getLastModified() {

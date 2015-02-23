@@ -36,6 +36,7 @@ import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.core.ResourceLocator;
 import org.paxml.tag.AbstractTag;
 import org.paxml.tag.ITagLibrary;
+import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
 import org.springframework.core.io.Resource;
 
@@ -389,7 +390,7 @@ public class Paxml {
 
 	public static LaunchModel executePlanFile(String planFile, Properties props) {
 
-		Resource res = Parser.getResource(planFile, null);
+		Resource res = PaxmlUtils.getResource(planFile, null);
 
 		LaunchModel model = new LaunchModelBuilder().build(res, props == null ? new Properties() : props);
 

@@ -40,7 +40,7 @@ public class DBUtils {
 	public static final String H2_PASSWORD = "";
 	
 	public static String getDefaultH2Url(){
-		String file = PaxmlUtils.getPaxmlFile("/data/h2").getAbsolutePath();
+		String file = PaxmlUtils.getFileUnderPaxmlHome("/data/h2", true).getAbsolutePath();
 		return "jdbc:h2:" + file +";AUTO_SERVER=TRUE";
 	}
 
