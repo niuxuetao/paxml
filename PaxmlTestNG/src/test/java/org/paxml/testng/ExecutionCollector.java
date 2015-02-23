@@ -43,8 +43,9 @@ public class ExecutionCollector {
     
     @Test
     public void verify() {
-        Map<String, Integer> expected = new HashMap<String, Integer>();
+        Map<String, Integer> expected = new HashMap<String, Integer>();        
         expected.put("testfile4", 4);
+        expected.put("3testfile", 10);
         expected.put("testfile2", 2);
         expected.put("testfile1", 1);
         Assert.assertEquals(getExecutedFiles(), expected);

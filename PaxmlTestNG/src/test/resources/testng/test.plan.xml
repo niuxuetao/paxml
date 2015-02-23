@@ -20,7 +20,7 @@
     <log>Processing self test plan...</log>
     
     <execution group="g2,g1" />
-    <execution group="g4" />
+    <execution group="g4,g3" />
         
     
     <factor name="factorX" >1</factor>  
@@ -35,7 +35,9 @@
         <factor name="factor1" >true,false</factor>  
         <factor name="factor2">${util.list('a','b')}</factor>   
     </scenario>
-    
+    <scenario path="*testng/3testfile" group="g3">
+        <factor name="factor3" >1,2,3,4,5,6,7,8,9,10</factor>              
+    </scenario>
     <resource>
       <!-- this is the path relative to this file -->
       <include>**/*.xml</include>    

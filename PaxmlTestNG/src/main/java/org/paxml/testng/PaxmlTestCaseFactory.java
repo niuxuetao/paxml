@@ -159,7 +159,7 @@ public class PaxmlTestCaseFactory {
 					log.info("This scenario '" + p.getResource().getName() + "' will not run because its group is suppressed: " + p.getGroup());
 				}
 			} else {
-				result.add(createTestCase(p, outputDir, resultType, prefixPid));
+				result.add(createTestCase(p, outputDir, resultType, prefixPid ? points.size() : null));
 			}
 
 		}
@@ -173,14 +173,15 @@ public class PaxmlTestCaseFactory {
 
 	}
 
-	private static Object createTestCase(LaunchPoint p, File outputDir, ResultType resultType, boolean prefixPid) {
+	private static Object createTestCase(LaunchPoint p, File outputDir, ResultType resultType, Integer total) {
 		String className = p.getResource().getName();
 
 		if (StringUtils.isNoneBlank(p.getGroup())) {
 			className = p.getGroup() + "." + className;
 		}
-		if (prefixPid) {
-			className = "_" + p.getProcessId() + "." + className;
+		if (total != null) {
+			// left pad with 0 because testng sorts test FQN alphabetically 
+			className = "PID_" + StringUtils.leftPad("" + p.getProcessId(), total.toString().length(), '0') + "." + className;
 		}
 		try {
 			Constructor<? extends PaxmlTestCase> constructor = CACHE.get(className);
