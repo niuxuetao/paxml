@@ -17,7 +17,9 @@
 package org.paxml.file;
 
 import java.io.Closeable;
+import java.io.Flushable;
 
-public interface IFile extends Closeable {
-	
+public interface IFile extends Closeable, Flushable {
+	boolean isReadonly();
+	String getResourceIdentifier();
 }

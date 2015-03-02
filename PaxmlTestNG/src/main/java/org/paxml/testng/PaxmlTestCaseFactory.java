@@ -61,7 +61,6 @@ public class PaxmlTestCaseFactory {
 	public static final String PARAM_NAME_SUPPRESS_GROUPS = "paxmlSuppressGroups";
 	public static final String PARAM_NAME_RESULT_DIR = "paxmlTestResultDir";
 	public static final String PARAM_NAME_RESULT_TYPE = "paxmlTestResultType";
-	public static final String PARAM_NAME_PREFIX_WITH_PID = "paxmlTestNamePrefixWithPid";
 
 	private static final Log log = LogFactory.getLog(PaxmlTestCaseFactory.class);
 	private static final Object LOCK = new Object();
@@ -88,9 +87,9 @@ public class PaxmlTestCaseFactory {
 	 * @return the test objects.
 	 */
 	@Factory
-	@Parameters({ PARAM_NAME_PLANFILE, PARAM_NAME_SUPPRESS_GROUPS, PARAM_NAME_RESULT_DIR, PARAM_NAME_RESULT_TYPE, PARAM_NAME_PREFIX_WITH_PID })
+	@Parameters({ PARAM_NAME_PLANFILE, PARAM_NAME_SUPPRESS_GROUPS, PARAM_NAME_RESULT_DIR, PARAM_NAME_RESULT_TYPE})
 	public Object[] create(final String planFile, @Optional("") final String suppressedGroups, @Optional("./target/surefire-reports/paxml/results") final String outputDir,
-	        @Optional("JSON") final String resultType, @Optional("false") final boolean prefixNameWithPid) {
+	        @Optional("JSON") final String resultType) {
 		final List<Matcher> suppression = new ArrayList<Matcher>(0);
 		for (String groupName : AbstractTag.parseDelimitedString(suppressedGroups, null)) {
 			Matcher matcher = new Matcher();
@@ -106,26 +105,28 @@ public class PaxmlTestCaseFactory {
 				File resultFolder = null;
 				ResultType rt = null;
 				final long start = System.currentTimeMillis();
+				long pid = -1;
 				try {
 					File dir = new File(outputDir);
 					rt = ResultType.valueOf(resultType.toUpperCase());
 					resultFolder = new File(dir, SEQUENCE.getAndIncrement() + "/");
-					Object[] cases = createTestCases(planFile, suppression.isEmpty() ? null : suppression, resultFolder, rt, prefixNameWithPid);
-					PaxmlTestCase.init(cases.length, start, FilenameUtils.getBaseName(planFile));
+					TestCases r = createTestCases(planFile, suppression.isEmpty() ? null : suppression, resultFolder, rt);
+					pid = r.planPid;
+					PaxmlTestCase.init(r.objects.length, start, FilenameUtils.getBaseName(planFile));
 
 					// clean the paxml thread context and log into the default
 					// file
 					Context.cleanCurrentThreadContext();
 					if (log.isInfoEnabled()) {
-						log.info("Launching totally " + cases.length + " tests ...");
+						log.info("Launching totally " + r.objects.length + " tests ...");
 					}
 
-					return cases;
+					return r.objects;
 				} catch (Throwable e) {
 					if (log.isErrorEnabled()) {
 						log.error("Cannot create test cases", e);
 					}
-					return new Object[] { new PaxmlPlanFileFailure(e, planFile, resultFolder, rt, Context.getCurrentContext(), Thread.currentThread().getName(), start,
+					return new Object[] { new PaxmlPlanFileFailure(e, planFile, resultFolder, rt, Context.getCurrentContext(), Thread.currentThread().getName(), pid, start,
 					        System.currentTimeMillis()) };
 				}
 			}
@@ -146,7 +147,12 @@ public class PaxmlTestCaseFactory {
 		}
 	}
 
-	private Object[] createTestCases(String planFile, List<Matcher> suppression, File outputDir, ResultType resultType, boolean prefixPid) {
+	private class TestCases {
+		Object[] objects;
+		long planPid;
+	}
+
+	private TestCases createTestCases(String planFile, List<Matcher> suppression, File outputDir, ResultType resultType) {
 
 		LaunchModel model = Paxml.executePlanFile(planFile, null);
 
@@ -159,7 +165,7 @@ public class PaxmlTestCaseFactory {
 					log.info("This scenario '" + p.getResource().getName() + "' will not run because its group is suppressed: " + p.getGroup());
 				}
 			} else {
-				result.add(createTestCase(p, outputDir, resultType, prefixPid ? points.size() : null));
+				result.add(createTestCase(p, outputDir, resultType));
 			}
 
 		}
@@ -169,20 +175,19 @@ public class PaxmlTestCaseFactory {
 				log.warn("No scenarios will run from plan file:" + planFile);
 			}
 		}
-		return result.toArray(new Object[result.size()]);
-
+		TestCases r = new TestCases();
+		r.objects = result.toArray(new Object[result.size()]);
+		r.planPid = model.getPlanProcessId();
+		return r;
 	}
 
-	private static Object createTestCase(LaunchPoint p, File outputDir, ResultType resultType, Integer total) {
+	private static Object createTestCase(LaunchPoint p, File outputDir, ResultType resultType) {
 		String className = p.getResource().getName();
 
 		if (StringUtils.isNoneBlank(p.getGroup())) {
 			className = p.getGroup() + "." + className;
 		}
-		if (total != null) {
-			// left pad with 0 because testng sorts test FQN alphabetically 
-			className = "PID_" + StringUtils.leftPad("" + p.getProcessId(), total.toString().length(), '0') + "." + className;
-		}
+
 		try {
 			Constructor<? extends PaxmlTestCase> constructor = CACHE.get(className);
 			if (constructor == null) {

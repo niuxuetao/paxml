@@ -50,8 +50,17 @@ public class LaunchModel {
 	private final Map<String, Group> groups = Collections.synchronizedMap(new LinkedHashMap<String, Group>());
 	private final Settings globalSettings = new Settings(null);
 	private volatile List<LaunchPoint> launchPoints;
+	private volatile long planProcessId;
 	private volatile int concurrency;
 	private Plan planEntity;
+
+	public long getPlanProcessId() {
+		return planProcessId;
+	}
+
+	public void setPlanProcessId(long planProcessId) {
+		this.planProcessId = planProcessId;
+	}
 
 	public Settings getGlobalSettings() {
 		return globalSettings;
@@ -114,10 +123,10 @@ public class LaunchModel {
 					for (Settings s : entry.getValue()) {
 						List<Properties> explodedFactors = explodeFactors(s);
 						if (explodedFactors == null || explodedFactors.size() <= 0) {
-							launchPoints.add(createLaunchPoint(entry.getKey(), s, null, PID.getAndIncrement(), executionId));
+							launchPoints.add(createLaunchPoint(entry.getKey(), s, null, generateNextPid(), executionId));
 						} else {
 							for (Properties factors : explodedFactors) {
-								launchPoints.add(createLaunchPoint(entry.getKey(), s, factors, PID.getAndIncrement(), executionId));
+								launchPoints.add(createLaunchPoint(entry.getKey(), s, factors, generateNextPid(), executionId));
 							}
 						}
 					}
@@ -125,6 +134,10 @@ public class LaunchModel {
 			}
 		}
 		return launchPoints;
+	}
+
+	public static long generateNextPid() {
+		return PID.getAndIncrement();
 	}
 
 	private LaunchPoint createLaunchPoint(PaxmlResource res, Settings settings, Properties factors, long processId, long executionId) {

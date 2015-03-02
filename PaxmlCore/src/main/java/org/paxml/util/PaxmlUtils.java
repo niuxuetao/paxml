@@ -101,6 +101,14 @@ public class PaxmlUtils {
 		return new DefaultResourceLoader().getResource(path);
 
 	}
+	
+	public static Resource getResource(String path){
+		return getResource(path, null);
+	}
+	
+	public static Resource getResource(File file){
+		return getResource(file.getAbsolutePath());
+	}
 
 	/**
 	 * Create a file object.
@@ -300,14 +308,6 @@ public class PaxmlUtils {
 		try {
 			return res.getFile().getAbsolutePath();
 		} catch (IOException e) {
-			return res.getFilename();
-		}
-	}
-
-	public static String getResourceIdentifier(Resource res) {
-		try {
-			return res.getFile().getAbsolutePath();
-		} catch (Exception e) {
 			return res.getFilename();
 		}
 	}

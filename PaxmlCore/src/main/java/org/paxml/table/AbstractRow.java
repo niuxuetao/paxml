@@ -107,7 +107,7 @@ public abstract class AbstractRow<T extends ITable> extends AbstractMap<String, 
 	@Override
 	public void setCellValues(int from, int to, Iterator<Object> values) {
 		int now = from;
-		while (now <= to && values.hasNext()) {
+		while ((to < 0 || now <= to) && values.hasNext()) {
 			Object v = values.next();
 			setCellValue(now++, v);
 		}

@@ -60,5 +60,9 @@ public interface ITable extends Iterable<IRow> {
 	
 	ITableRange getRange();
 	
+	IRow createNextRow(Object... cellValues);
+	
+	int getCurrentRowIndex();
+	
 	List<RowDiff> compare(List<IColumn> myColumns, ITable against, List<IColumn> theirColumns, ICellComparator comp);
 }

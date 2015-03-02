@@ -27,7 +27,6 @@
     
     <test name="Paxml Selftest" >
         <parameter name="paxmlTestPlanFile" value="testng/test.plan.xml" />
-        <parameter name="paxmlTestNamePrefixWithPid" value="true" />
         <classes>
             <class name="org.paxml.testng.PaxmlTestCaseFactory" />
         </classes>

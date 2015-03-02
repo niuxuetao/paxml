@@ -22,6 +22,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -29,7 +32,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.paxml.core.PaxmlRuntimeException;
 import org.springframework.core.io.ClassPathResource;
+import org.testng.IMethodInstance;
+import org.testng.IMethodInterceptor;
 import org.testng.IReporter;
 import org.testng.ISuite;
 import org.testng.ITestContext;
@@ -43,20 +49,16 @@ import org.testng.xml.XmlSuite;
  * @author Xuetao Niu
  * 
  */
-public class PaxmlListener extends TestListenerAdapter implements IReporter {
-	public static final String REPORTER_DIR = (PaxmlListener.class.getPackage()
-			.getName().replace('.', '/') + "/report");
-	private static final ClassPathResource RES = new ClassPathResource(
-			REPORTER_DIR + "/frame.html");
+public class PaxmlListener extends TestListenerAdapter implements IReporter, IMethodInterceptor {
+	public static final String REPORTER_DIR = (PaxmlListener.class.getPackage().getName().replace('.', '/') + "/report");
+	private static final ClassPathResource RES = new ClassPathResource(REPORTER_DIR + "/frame.html");
 
 	private static final AtomicLong SEQUENCE = new AtomicLong(0);
 	private static final Log log = LogFactory.getLog(PaxmlListener.class);
 
 	static {
-		final String[] files = { "index.html", "blankDetail.html",
-				"detail.html", "screenshots.html", "jquery-1.9.1.min.js",
-				"jquery.imagesloaded.min.js", "jquery.scrollTo-1.4.3.1-min.js",
-				"common.js", "style.css" };
+		final String[] files = { "index.html", "blankDetail.html", "detail.html", "screenshots.html", "jquery-1.9.1.min.js", "jquery.imagesloaded.min.js",
+		        "jquery.scrollTo-1.4.3.1-min.js", "common.js", "style.css" };
 		// before all tests, copy the viewer to the target dir
 		File dest = new File("target/surefire-reports/paxml/reportViewer");
 		dest.mkdirs();
@@ -64,8 +66,7 @@ public class PaxmlListener extends TestListenerAdapter implements IReporter {
 			for (String file : files) {
 				copyFile(file, dest);
 				if (log.isDebugEnabled()) {
-					log.debug("Copied report generic viewer to: "
-							+ dest.getAbsolutePath());
+					log.debug("Copied report generic viewer to: " + dest.getAbsolutePath());
 				}
 			}
 		} catch (Exception e) {
@@ -83,8 +84,35 @@ public class PaxmlListener extends TestListenerAdapter implements IReporter {
 		super();
 		sequence = SEQUENCE.getAndIncrement();
 		if (log.isDebugEnabled()) {
-			log.debug("paxml listener instance created with result sequence: "
-					+ sequence);
+			log.debug("paxml listener instance created with result sequence: " + sequence);
+		}
+	}
+
+	/**
+	 * This controls the sorting logic of the paxml test case executions.
+	 */
+	@Override
+	public List<IMethodInstance> intercept(List<IMethodInstance> list, ITestContext context) {
+		List<IMethodInstance> result = new ArrayList<IMethodInstance>(list);
+		Collections.sort(result, new Comparator<IMethodInstance>() {
+
+			@Override
+			public int compare(IMethodInstance m1, IMethodInstance m2) {
+				Long pid1 = getPid(m1.getInstances()[0]);
+				Long pid2 = getPid(m2.getInstances()[0]);
+				return pid1.compareTo(pid2);
+			}
+
+		});
+		return result;
+
+	}
+
+	private static Long getPid(Object obj) {
+		if (obj instanceof AbstractPaxmlTestResult) {
+			return ((AbstractPaxmlTestResult) obj).getProcessId();
+		} else {
+			throw new PaxmlRuntimeException("Unknown paxml test case type: " + obj.getClass().getName());
 		}
 	}
 
@@ -139,8 +167,7 @@ public class PaxmlListener extends TestListenerAdapter implements IReporter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void generateReport(List<XmlSuite> arg0, List<ISuite> arg1,
-			String arg2) {
+	public void generateReport(List<XmlSuite> arg0, List<ISuite> arg1, String arg2) {
 		if (log.isDebugEnabled()) {
 			log.debug("Generating paxml report ... ");
 		}
@@ -157,22 +184,16 @@ public class PaxmlListener extends TestListenerAdapter implements IReporter {
 			IOUtils.copy(in, array);
 			String content = array.toString("UTF-8");
 			content = content.replace("%{SEQUENCE}%", sequence + "");
-			content = content.replace("%{TIMESTAMP}%",
-					System.currentTimeMillis() + "");
+			content = content.replace("%{TIMESTAMP}%", System.currentTimeMillis() + "");
 			content = content.replace("%{SUIT_NAME}%", suiteName);
-			File file = new File("./target/surefire-reports/" + suiteName
-					+ "/index.html");
+			File file = new File("./target/surefire-reports/" + suiteName + "/index.html");
 			file.getParentFile().mkdirs();
 			FileUtils.writeStringToFile(file, content, "UTF-8");
 			if (log.isDebugEnabled()) {
-				log.debug("Report for test suit '" + suiteName
-						+ "' overwritten with sequence number " + sequence
-						+ ", file: " + file.getAbsolutePath());
+				log.debug("Report for test suit '" + suiteName + "' overwritten with sequence number " + sequence + ", file: " + file.getAbsolutePath());
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(
-					"Cannot overwrite report index for test suit: " + suiteName,
-					e);
+			throw new RuntimeException("Cannot overwrite report index for test suit: " + suiteName, e);
 		} finally {
 			IOUtils.closeQuietly(out);
 			IOUtils.closeQuietly(in);

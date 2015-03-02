@@ -71,7 +71,7 @@ public class PaxmlRunner {
 		Properties properties = new Properties();
 		properties.putAll(System.getProperties());
 		final long execId = PaxmlUtils.getNextExecutionId();
-		Paxml paxml = new Paxml(0, execId);
+		Paxml paxml = new Paxml(LaunchModel.generateNextPid(), execId);
 		paxml.addStaticConfig(config);
 		paxml.getParser().addTagLibrary(new PlanTagLibrary(), false);
 

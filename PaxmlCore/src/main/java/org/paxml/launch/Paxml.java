@@ -393,7 +393,7 @@ public class Paxml {
 		Resource res = PaxmlUtils.getResource(planFile, null);
 
 		LaunchModel model = new LaunchModelBuilder().build(res, props == null ? new Properties() : props);
-
+		
 		return model;
 	}
 

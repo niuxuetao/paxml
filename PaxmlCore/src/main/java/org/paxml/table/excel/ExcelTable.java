@@ -16,6 +16,7 @@
  */
 package org.paxml.table.excel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -74,6 +75,11 @@ public class ExcelTable extends AbstractTable implements IFile {
 	@Override
 	public void close() {
 		file.close();
+	}
+
+	@Override
+	public void flush() {
+		file.save();
 	}
 
 	@Override
@@ -145,7 +151,7 @@ public class ExcelTable extends AbstractTable implements IFile {
 	}
 
 	@Override
-	protected String getResourceIdentifier() {
+	public String getResourceIdentifier() {
 		return file.getFile().getAbsolutePath();
 	}
 
@@ -197,6 +203,15 @@ public class ExcelTable extends AbstractTable implements IFile {
 			names.add(getColumn(i).getName());
 		}
 		return names;
+	}
+
+	@Override
+	public IRow createNextRow(Object... cellValues) {
+		ExcelRow row = getRow(getCurrentRowIndex() + 1);
+		for (int i = 0; i < cellValues.length; i++) {
+			row.setCellValue(i, cellValues[i]);
+		}
+		return row;
 	}
 
 	@Override

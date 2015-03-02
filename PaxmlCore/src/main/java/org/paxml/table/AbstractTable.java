@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.iterators.AbstractIteratorDecorator;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.util.RangedIterator;
 
@@ -29,7 +30,7 @@ public abstract class AbstractTable implements ITable {
 	private boolean readonly;
 	private ITableRange range;
 	private ITableTransformer readTransformer;
-
+	private int currentRowIndex;
 	@Override
 	public Iterator<IRow> iterator() {
 		return getRows();
@@ -93,18 +94,39 @@ public abstract class AbstractTable implements ITable {
 			throw new PaxmlRuntimeException("Resource is readonly: " + getResourceIdentifier());
 		}
 	}
-
+	
 	abstract protected Iterator<IRow> getAllRows();
 
 	@Override
 	public Iterator<IRow> getRows() {
 		ITableRange r = getRange();
+		Iterator<IRow> it;
 		if (r == null) {
-			return getAllRows();
+			 it = getAllRows();
 		} else {
-			return new RangedIterator<IRow>(r.getFirstRow(), r.getLastRow(), getAllRows());
+			it = new RangedIterator<IRow>(r.getFirstRow(), r.getLastRow(), getAllRows());
 		}
+		return new AbstractIteratorDecorator(it){
+
+			@Override
+            public Object next() {
+	            Object n = super.next();
+	            currentRowIndex++;
+	            return n;
+            }
+
+			@Override
+            public void remove() {
+	            throw new UnsupportedOperationException(); 
+            }
+			
+		};
 	}
+
+	@Override
+    public int getCurrentRowIndex() {
+	    return currentRowIndex;
+    }
 
 	@Override
 	public List<RowDiff> compare(List<IColumn> myColumns, ITable against, List<IColumn> theirColumns, ICellComparator comp) {

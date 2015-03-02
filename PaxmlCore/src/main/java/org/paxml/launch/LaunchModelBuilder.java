@@ -121,7 +121,9 @@ public class LaunchModelBuilder {
 	}
 
 	private Plan processPlan(OMElement root, Properties props) {
-		final Paxml paxml = new Paxml(0, PaxmlUtils.getNextExecutionId());
+		final long pid = LaunchModel.generateNextPid();
+		model.setPlanProcessId(pid);
+		final Paxml paxml = new Paxml(pid, PaxmlUtils.getNextExecutionId());
 		paxml.addStaticConfig(model.getConfig());
 
 		// add the plan tag lib temporarily

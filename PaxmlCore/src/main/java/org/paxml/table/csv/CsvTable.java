@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.core.PaxmlRuntimeException;
@@ -63,19 +64,23 @@ public class CsvTable extends AbstractTable implements IFile {
 		if (opt == null) {
 			opt = new CsvOptions();
 		}
-		CsvPreference pref = opt.buildPreference();
 		this.res = res;
 		this.opt = opt;
+
+		CsvPreference pref = opt.toPreference();
+
 		if (res.exists()) {
 			try {
-				reader = new CsvListReader(new InputStreamReader(res.getInputStream(), opt.getEncoding()), pref);
+				reader = new CsvListReader(new InputStreamReader(new BOMInputStream(res.getInputStream()), opt.getEncoding()), pref);
 			} catch (IOException e) {
 				throw new PaxmlRuntimeException("Cannot read csv file: " + PaxmlUtils.getResourceFile(res), e);
 			}
 		} else {
 			reader = null;
 		}
-		if (opt.isWithHeader()) {
+		List<String> cols = opt.getColumns();
+		if (cols == null) {
+			// detect headers from file
 			headers = new LinkedHashMap<String, IColumn>();
 			if (reader != null) {
 				String[] h;
@@ -90,8 +95,21 @@ public class CsvTable extends AbstractTable implements IFile {
 					}
 				}
 			}
-		} else {
+		} else if (cols.isEmpty()) {
 			headers = null;
+		} else {
+			// given header, skip existing header too
+			if (reader != null) {
+				try {
+					reader.getHeader(true);
+				} catch (IOException e) {
+					throw new PaxmlRuntimeException("Cannot read csv file header: " + PaxmlUtils.getResourceFile(res), e);
+				}
+			}
+			headers = new LinkedHashMap<String, IColumn>();
+			for (String col : cols) {
+				addColumn(col);
+			}
 		}
 		CsvListWriter w = null;
 		if (!opt.isReadOnly()) {
@@ -100,6 +118,9 @@ public class CsvTable extends AbstractTable implements IFile {
 
 				try {
 					w = new CsvListWriter(new FileWriter(reader == null ? res.getFile() : writerFile), pref);
+					if (headers != null && !headers.isEmpty()) {
+						w.writeHeader(headers.keySet().toArray(new String[headers.size()]));
+					}
 				} catch (IOException e) {
 					// do nothing, because this means writer cannot write to the
 					// file.
@@ -147,16 +168,25 @@ public class CsvTable extends AbstractTable implements IFile {
 
 	@Override
 	public IColumn getColumn(String name) {
+		checkHeaderless();
 		return headers.get(name);
 	}
 
 	@Override
 	public IColumn addColumn(String name) {
+		checkHeaderless();
 		return addColumn(name, headers.size());
+	}
+
+	private void checkHeaderless() {
+		if (headers == null) {
+			throw new PaxmlRuntimeException("Cannot add column to headerless csv: " + getResourceIdentifier());
+		}
 	}
 
 	@Override
 	public IColumn addColumn(String name, int index) {
+		checkHeaderless();
 		TableColumn col = new TableColumn(index, name);
 		headers.put(name, col);
 		return col;
@@ -164,24 +194,25 @@ public class CsvTable extends AbstractTable implements IFile {
 
 	@Override
 	public Map<String, IColumn> getColumnsMap() {
+		checkHeaderless();
 		return Collections.unmodifiableMap(headers);
 	}
 
 	@Override
 	public List<String> getColumnNames() {
+		checkHeaderless();
 		return new ArrayList<String>(headers.keySet());
 	}
 
 	@Override
 	public ITable getPart(ITableRange range, ITableTransformer tran) {
-		// TODO Auto-generated method stub
-		return null;
+		CsvTable table = new CsvTable(res, opt, range);
+		return table;
 	}
 
 	@Override
 	public void setPart(ITableRange range, ITable source, boolean insert, ITableTransformer tran) {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -190,8 +221,8 @@ public class CsvTable extends AbstractTable implements IFile {
 	}
 
 	@Override
-	protected String getResourceIdentifier() {
-		return PaxmlUtils.getResourceIdentifier(res);
+	public String getResourceIdentifier() {
+		return PaxmlUtils.getResourceFile(res);
 	}
 
 	@Override
@@ -240,7 +271,21 @@ public class CsvTable extends AbstractTable implements IFile {
 		return row;
 	}
 
+	@Override
+	public IRow createNextRow(Object... cellValues) {
+		writeRow();
+		row = null;
+		CsvRow row = new CsvRow(this);
+		for (int i = 0; i < cellValues.length; i++) {
+			row.setCellValue(i, cellValues[i]);
+		}
+		return row;
+	}
+
 	void writeCurrentRow(int index, String value) {
+
+		assertWritable();
+
 		if (row == null) {
 			row = new ArrayList<String>();
 		}
@@ -253,6 +298,24 @@ public class CsvTable extends AbstractTable implements IFile {
 			row.add(value);
 		}
 		needToWrite = true;
+	}
+
+	private void writeRow() {
+		assertWritable();
+		if (row != null) {
+			try {
+				writer.write(row);
+			} catch (IOException e) {
+				throw new PaxmlRuntimeException("Cannot write to shadow csv file: " + writerFile.getAbsolutePath(), e);
+			}
+		}
+	}
+
+	@Override
+	public void flush() throws IOException {
+		if (writer != null) {
+			writer.flush();
+		}
 	}
 
 	/**
@@ -268,49 +331,58 @@ public class CsvTable extends AbstractTable implements IFile {
 		} finally {
 			if (writer != null) {
 				// dump the last row to the writer
-				if (row != null) {
-					writer.write(row);
+				try {
+					writeRow();
+					writer.flush();
+				} finally {
+					try {
+						writer.close();
+					} finally {
+						renameFiles();
+					}
 				}
-				writer.flush();
-				writer.close();
-				File file = res.getFile();
-				if (needToWrite) {
-					if (log.isDebugEnabled()) {
-						log.debug("Writing csv file: " + file.getAbsolutePath());
-					}
-					File del = null;
-					if (file.exists()) {
-						File f = res.getFile();
-						del = PaxmlUtils.getSiblingFile(f, "." + seq.getNextValue(f.getAbsolutePath()) + ".delete", true);
-						if (!file.renameTo(del)) {
-							if (log.isErrorEnabled()) {
-								log.error("Cannot rename csv file '" + f.getAbsolutePath() + "' to '" + del.getAbsolutePath() + "'");
-							}
-							throw new PaxmlRuntimeException("Cannot overwrite csv file: " + getResourceIdentifier());
-						}
 
+			}
+		}
+	}
+
+	private void renameFiles() throws IOException {
+		File file = res.getFile();
+		if (needToWrite) {
+			if (log.isDebugEnabled()) {
+				log.debug("Writing csv file: " + file.getAbsolutePath());
+			}
+			File del = null;
+			if (file.exists()) {
+				File f = res.getFile();
+				del = PaxmlUtils.getSiblingFile(f, "." + seq.getNextValue(f.getAbsolutePath()) + ".delete", true);
+				if (!file.renameTo(del)) {
+					if (log.isErrorEnabled()) {
+						log.error("Cannot rename csv file '" + f.getAbsolutePath() + "' to '" + del.getAbsolutePath() + "'");
 					}
-					if (!writerFile.renameTo(file)) {
-						if (log.isErrorEnabled()) {
-							log.error("Cannot rename csv file '" + writerFile.getAbsolutePath() + "' to '" + file.getAbsolutePath() + "'");
-						}
-						throw new PaxmlRuntimeException("Cannnot overwrite csv file: " + getResourceIdentifier());
-					}
-					if (del != null) {
-						del.delete();
-						if (log.isWarnEnabled()) {
-							log.warn("Cannot delete shadow csv file: " + del.getAbsolutePath());
-						}
-					}
-				} else {
-					if (log.isDebugEnabled()) {
-						log.debug("No need to write to csv file: " + file.getAbsolutePath());
-					}
-					if (!writerFile.delete()) {
-						if (log.isWarnEnabled()) {
-							log.warn("Cannot delete shadow csv file: " + writerFile.getAbsolutePath());
-						}
-					}
+					throw new PaxmlRuntimeException("Cannot overwrite csv file: " + getResourceIdentifier());
+				}
+
+			}
+			if (!writerFile.renameTo(file)) {
+				if (log.isErrorEnabled()) {
+					log.error("Cannot rename csv file '" + writerFile.getAbsolutePath() + "' to '" + file.getAbsolutePath() + "'");
+				}
+				throw new PaxmlRuntimeException("Cannnot overwrite csv file: " + getResourceIdentifier());
+			}
+			if (del != null) {
+				del.delete();
+				if (log.isWarnEnabled()) {
+					log.warn("Cannot delete shadow csv file: " + del.getAbsolutePath());
+				}
+			}
+		} else {
+			if (log.isDebugEnabled()) {
+				log.debug("No need to write to csv file: " + file.getAbsolutePath());
+			}
+			if (!writerFile.delete()) {
+				if (log.isWarnEnabled()) {
+					log.warn("Cannot delete shadow csv file: " + writerFile.getAbsolutePath());
 				}
 			}
 		}

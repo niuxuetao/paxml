@@ -14,6 +14,7 @@ This software is built on and attributes to third-party libraries with the follo
   Codec under Apache License, Version 2.0
   Collections under The Apache Software License, Version 2.0
   Commons DBCP under The Apache Software License, Version 2.0
+  Commons IO under The Apache Software License, Version 2.0
   Commons JEXL under The Apache Software License, Version 2.0
   Commons JXPath under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
@@ -24,7 +25,6 @@ This software is built on and attributes to third-party libraries with the follo
   Hamcrest Core under BSD style
   HttpClient under Apache License
   HyperSQL Database under HSQLDB License, a BSD open source license
-  IO under The Apache Software License, Version 2.0
   Jakarta Commons Net under The Apache Software License, Version 2.0
   JavaMail 1.4 under The Apache Software License, Version 2.0
   jaxen under Apache style license

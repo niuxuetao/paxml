@@ -170,6 +170,11 @@ public class JdbcTable extends AbstractTable {
 	}
 
 	@Override
+    public IRow createNextRow(Object... cellValues) {
+	    throw new UnsupportedOperationException();
+    }
+
+	@Override
 	protected String getResourceIdentifier() {
 		return query;
 	}

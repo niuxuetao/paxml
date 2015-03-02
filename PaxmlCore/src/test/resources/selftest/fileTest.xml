@@ -22,9 +22,9 @@
     <iterate file="dates_en.properties" >
     
         <print>${var}</print>
-        
+        <set var="x">${index}</set>
         <!--
-        <set var="x">${index}</set> 
+         
         <groovy>
             System.err.println(x);
         </groovy>

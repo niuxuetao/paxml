@@ -33,106 +33,105 @@ import org.testng.Assert;
  */
 public class PaxmlTestCase extends AbstractPaxmlTestResult {
 
-    private static final Log log = LogFactory.getLog(PaxmlTestCase.class);
+	private static final Log log = LogFactory.getLog(PaxmlTestCase.class);
 
-    private static final AtomicInteger TOTAL = new AtomicInteger(0);
-    private static final AtomicInteger SUCCEEDED = new AtomicInteger(0);
-    private static final AtomicInteger FAILED = new AtomicInteger(0);
-    private static volatile TestResultIndex RESULT_INDEX;
-    private static final Object LOCK = new Object();
-    private final LaunchPoint point;
-    
-    /**
-     * Construct from factors.
-     * 
-     * @param point
-     *            the launch point
-     * 
-     */
-    public PaxmlTestCase(final LaunchPoint point, File outputDir, ResultType resultType) {
-        super(point.getGroup(), point.getResource().getName(), point
-                .getProcessId(), outputDir, resultType, point.getFactors());
-        this.point = point;
-    }
+	private static final AtomicInteger TOTAL = new AtomicInteger(0);
+	private static final AtomicInteger SUCCEEDED = new AtomicInteger(0);
+	private static final AtomicInteger FAILED = new AtomicInteger(0);
+	private static volatile TestResultIndex RESULT_INDEX;
+	private static final Object LOCK = new Object();
+	private final LaunchPoint point;
 
-    private void logSummary(boolean success) {
+	/**
+	 * Construct from factors.
+	 * 
+	 * @param point
+	 *            the launch point
+	 * 
+	 */
+	public PaxmlTestCase(final LaunchPoint point, File outputDir, ResultType resultType) {
+		super(point.getGroup(), point.getResource().getName(), point.getProcessId(), outputDir, resultType, point.getFactors());
+		this.point = point;
+	}
 
-        if (success) {
-            if (log.isInfoEnabled()) {
-                log.info("Test succeeded: " + getTitle() + ". Currently succeeded " + SUCCEEDED.incrementAndGet()
-                        + " and failed " + FAILED.get() + " of total " + TOTAL.get() + " tests.");
-            }
-        } else {
-            if (log.isErrorEnabled()) {
-                log.error("Test failed: " + getTitle() + ". Currently succeeded " + SUCCEEDED.get() + " and failed "
-                        + FAILED.incrementAndGet() + " of total " + TOTAL.get() + " tests.");
-            }
-        }
-    }
+	private void logSummary(boolean success) {
 
-    @Override
-    protected Context getContext() {
-        return Context.getCurrentContext();
-    }
+		if (success) {
+			if (log.isInfoEnabled()) {
+				log.info("Test succeeded: " + getTitle() + ". Currently succeeded " + SUCCEEDED.incrementAndGet() + " and failed " + FAILED.get() + " of total " + TOTAL.get()
+				        + " tests.");
+			}
+		} else {
+			if (log.isErrorEnabled()) {
+				log.error("Test failed: " + getTitle() + ". Currently succeeded " + SUCCEEDED.get() + " and failed " + FAILED.incrementAndGet() + " of total " + TOTAL.get()
+				        + " tests.");
+			}
+		}
+	}
 
-    @Override
-    protected void onSummary(TestResultSummary s) {
+	@Override
+	protected Context getContext() {
+		return Context.getCurrentContext();
+	}
 
-        logSummary(s.isSuccessful());
+	@Override
+	protected void onSummary(TestResultSummary s) {
 
-        synchronized (LOCK) {            
-            RESULT_INDEX.setStop(System.currentTimeMillis());            
-            RESULT_INDEX.getSummary().add(s);
-            writeReportFile(RESULT_INDEX, true);
-        }
-    }
+		logSummary(s.isSuccessful());
 
-    @Override
-    protected String getThreadName() {
-        return Thread.currentThread().getName();
-    }
+		synchronized (LOCK) {
+			RESULT_INDEX.setStop(System.currentTimeMillis());
+			RESULT_INDEX.getSummary().add(s);
+			writeReportFile(RESULT_INDEX, true);
+		}
+	}
 
-    @Override
-    protected long getStartMs() {
-        return point.getStartMs();
-    }
+	@Override
+	protected String getThreadName() {
+		return Thread.currentThread().getName();
+	}
 
-    @Override
-    protected long getStopMs() {
-        return point.getStopMs();
-    }
+	@Override
+	protected long getStartMs() {
+		return point.getStartMs();
+	}
 
-    /**
-     * The test method.
-     */
-    @Override
-    protected void doTest() {
-        // this will only run for scenario, never for the plan file.
-        // the plan file's execution will be done in the test case factory.
-        try {
-            Context.cleanCurrentThreadContext();
+	@Override
+	protected long getStopMs() {
+		return point.getStopMs();
+	}
 
-            if (log.isInfoEnabled()) {
-                log.info("Starting test: " + getTitle() + " of totally " + TOTAL.get() + " tests.");
-            }
+	/**
+	 * The test method.
+	 */
+	@Override
+	protected void doTest() {
+		// this will only run for scenario, never for the plan file.
+		// the plan file's execution will be done in the test case factory.
+		try {
+			Context.cleanCurrentThreadContext();
 
-            point.execute();
-        } catch (Throwable t) {
-            if (log.isErrorEnabled()) {
-                log.error(t.getMessage(), t);
-            }
-            Assert.fail(t.getMessage());
-        }
-    }
+			if (log.isInfoEnabled()) {
+				log.info("Starting test: " + getTitle() + " of totally " + TOTAL.get() + " tests.");
+			}
 
-    static void init(int totalTestCases, long startMs, String planEntityName) {
-        synchronized (LOCK) {
-            TOTAL.set(totalTestCases);
-            FAILED.set(0);
-            SUCCEEDED.set(0);
-            RESULT_INDEX = new TestResultIndex();
-            RESULT_INDEX.setStart(startMs);
-            RESULT_INDEX.setPlanEntityName(planEntityName);
-        }
-    }
+			point.execute();
+		} catch (Throwable t) {
+			if (log.isErrorEnabled()) {
+				log.error(t.getMessage(), t);
+			}
+			Assert.fail(t.getMessage());
+		}
+	}
+
+	static void init(int totalTestCases, long startMs, String planEntityName) {
+		synchronized (LOCK) {
+			TOTAL.set(totalTestCases);
+			FAILED.set(0);
+			SUCCEEDED.set(0);
+			RESULT_INDEX = new TestResultIndex();
+			RESULT_INDEX.setStart(startMs);
+			RESULT_INDEX.setPlanEntityName(planEntityName);
+		}
+	}
 }

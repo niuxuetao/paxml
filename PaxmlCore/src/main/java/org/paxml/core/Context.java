@@ -17,6 +17,8 @@
 package org.paxml.core;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -50,12 +52,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Util;
 import org.paxml.el.IUtilFunctionsFactory;
+import org.paxml.file.IFile;
 import org.paxml.launch.Paxml;
 import org.paxml.tag.ITag;
 import org.paxml.tag.ITagLibrary;
 import org.paxml.tag.invoker.FileInvokerTag;
+import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
 import org.paxml.util.XmlUtils;
+import org.springframework.core.io.Resource;
 
 /**
  * The execution context.
@@ -134,9 +139,14 @@ public class Context implements IdentityManager {
 		PROPERTIES,
 
 		/**
-		 * The const name for Closeables.
+		 * The key for Closeables.
 		 */
-		CloseableS
+		CLOSEABLES,
+
+		/**
+		 * The key for all files
+		 */
+		FILES
 	}
 
 	/**
@@ -237,7 +247,7 @@ public class Context implements IdentityManager {
 	private final long processId;
 	private final long id;
 	private boolean returning = false;
-	
+
 	private final ObjectTree idConstsMap = new ObjectTree();
 	private final Map<String, String> idToTagName = new HashMap<String, String>();
 	private final Map<Object, Object> localMap = new LinkedHashMap<Object, Object>(0);
@@ -1325,10 +1335,10 @@ public class Context implements IdentityManager {
 	}
 
 	public void registerCloseable(Closeable... Closeables) {
-		List<Closeable> list = (List) getInternalObject(PrivateKeys.CloseableS, true);
+		List<Closeable> list = (List) getInternalObject(PrivateKeys.CLOSEABLES, true);
 		if (list == null) {
 			list = new ArrayList<Closeable>();
-			setInternalObject(PrivateKeys.CloseableS, list, true);
+			setInternalObject(PrivateKeys.CLOSEABLES, list, true);
 		}
 		for (Closeable c : Closeables) {
 			list.add(c);
@@ -1336,19 +1346,71 @@ public class Context implements IdentityManager {
 	}
 
 	public void closeAllCloseables() {
-		List<Closeable> list = (List) getInternalObject(PrivateKeys.CloseableS, true);
+		List<Closeable> list = (List) getInternalObject(PrivateKeys.CLOSEABLES, true);
 		if (list != null) {
 			for (Iterator<Closeable> it = list.iterator(); it.hasNext();) {
 				Closeable c = it.next();
 				try {
-					c.close();
-					it.remove();
-				} catch (Exception e) {
-					// say nothing about it because it could be already closed
-					// by anything else
+					if (c instanceof Flushable) {
+						((Flushable) c).flush();
+					}
+				} catch (IOException e) {
+					// do nothing because it could be already closed.
+				} finally {
+					try {
+						c.close();
+						it.remove();
+					} catch (Exception e) {
+						// say nothing about it because it could be already
+						// closed
+						// by anything else
+					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get the only file in the context.
+	 * 
+	 * @return the file or null if no file at all or more than 1 file is in the
+	 *         context
+	 */
+	public IFile getOnlyFile() {
+		Map<String, IFile> map = getFiles();
+		if (map.size() == 1) {
+			return map.values().iterator().next();
+		}
+		return null;
+
+	}
+
+	private Map<String, IFile> getFiles() {
+		Map<String, IFile> map = (Map<String, IFile>) getInternalObject(PrivateKeys.FILES, true);
+		if (map == null) {
+			map = new LinkedHashMap<String, IFile>();
+			setInternalObject(PrivateKeys.FILES, map, true);
+		}
+		return map;
+	}
+
+	/**
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public IFile getFile(Resource res) {
+		String key = PaxmlUtils.getResourceFile(res);
+		return getFiles().get(key);
+	}
+
+	public IFile getFile(File file) {
+		return getFile(new FileSystemResource(file).getSpringResource());
+	}
+
+	public IFile addFile(Resource res, IFile file) {
+		String key = PaxmlUtils.getResourceFile(res);
+		return getFiles().put(key, file);
 	}
 
 	public long getId() {

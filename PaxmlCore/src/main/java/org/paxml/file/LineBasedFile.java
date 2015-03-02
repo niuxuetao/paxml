@@ -75,4 +75,20 @@ public class LineBasedFile implements Iterator<String>, IFile {
 		IOUtils.closeQuietly(reader);
 	}
 
+	@Override
+    public void flush() throws IOException {
+	    // do nothing
+    }
+
+	@Override
+    public boolean isReadonly() {
+	    return true;
+    }
+
+	@Override
+    public String getResourceIdentifier() {
+	    return name;
+    }
+
+	
 }

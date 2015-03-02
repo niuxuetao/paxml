@@ -53,7 +53,7 @@ public class PlanEntityFactory extends AbstractPaxmlEntityFactory {
 	 * 
 	 */
 	public static class Plan extends Scenario {
-
+		
 		/**
 		 * Get the launch model from context's global internal object map.
 		 * 
@@ -64,7 +64,7 @@ public class PlanEntityFactory extends AbstractPaxmlEntityFactory {
 		public static LaunchModel getLaunchModel(Context context) {
 			return (LaunchModel) context.getInternalObject(LaunchModel.class, true);
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */

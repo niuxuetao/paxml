@@ -16,14 +16,16 @@
  */
 package org.paxml.table.csv;
 
+import java.util.List;
+
 import org.supercsv.prefs.CsvPreference;
 
 public class CsvOptions {
 	private String lineSeparator = CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols();
 	private char columnSeparator =  (char)CsvPreference.STANDARD_PREFERENCE.getDelimiterChar();
 	private char quote =  (char)CsvPreference.STANDARD_PREFERENCE.getQuoteChar();
-	
-	private boolean withHeader;
+		
+	private List<String> columns;
 	private boolean readOnly;
 	private String encoding;
 	
@@ -45,11 +47,12 @@ public class CsvOptions {
 	public void setQuote(char quote) {
 		this.quote = quote;
 	}
-	public boolean isWithHeader() {
-		return withHeader;
+	
+	public List<String> getColumns() {
+		return columns;
 	}
-	public void setWithHeader(boolean withHeader) {
-		this.withHeader = withHeader;
+	public void setColumns(List<String> columns) {
+		this.columns = columns;
 	}
 	public boolean isReadOnly() {
 		return readOnly;
@@ -64,7 +67,7 @@ public class CsvOptions {
 		this.encoding = encoding;
 	}
 	
-	public CsvPreference buildPreference(){
+	public CsvPreference toPreference(){
 		return new CsvPreference.Builder(getQuote(), getColumnSeparator(),
 		        getLineSeparator()).build();
 	}

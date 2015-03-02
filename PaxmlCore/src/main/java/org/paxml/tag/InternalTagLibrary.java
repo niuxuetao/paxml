@@ -27,6 +27,7 @@ import org.paxml.assertion.AssertTag;
 import org.paxml.assertion.AssertTrueTag;
 import org.paxml.assertion.FailTag;
 import org.paxml.bean.AntTag;
+import org.paxml.bean.AppendTag;
 import org.paxml.bean.BeanCreationTag;
 import org.paxml.bean.BundleTag;
 import org.paxml.bean.CallTag;
@@ -99,7 +100,8 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(ReturnTag.class);
         registerTag(ConstTag.class);
         registerTag(DefaultConstTag.class);
-        //registerTag(SetTag.class);
+        registerTag(SetTag.class);
+        registerTag(AppendTag.class);
         
         registerTag(MutexTag.class);
         registerTag(ReadFileTag.class);

@@ -49,14 +49,15 @@ public class PaxmlPlanFileFailure extends AbstractPaxmlTestResult {
      * 
      */
     public PaxmlPlanFileFailure(final Throwable exception, String planFile, File outputDir, ResultType resultType,
-            Context c, String threadName, long start, long stop) {
-        super(null, FilenameUtils.getBaseName(planFile), 0, outputDir, resultType, null);
+            Context c, String threadName, long pid, long start, long stop) {
+        super(null, FilenameUtils.getBaseName(planFile), pid, outputDir, resultType, null);
         this.exception = exception;
         this.threadName = threadName;
         this.context = c;
         this.start = start;
         this.stop = stop;
         this.planEntityName = FilenameUtils.getBaseName(planFile);
+        
     }
 
     @Override
@@ -93,7 +94,7 @@ public class PaxmlPlanFileFailure extends AbstractPaxmlTestResult {
         return threadName;
     }
 
-    /**
+	/**
      * Test method that will fail with the reason given during construction.
      */
     @Override
