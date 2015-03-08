@@ -18,6 +18,7 @@ package org.paxml.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * The object list.
@@ -44,7 +45,12 @@ public class ObjectList extends ArrayList<Object> implements IObjectContainer {
         }
     }
 
-    public String getId() {
+    @Override
+    public List<Object> getList() {
+	    return this;
+    }
+
+	public String getId() {
         return id;
     }
 
@@ -121,4 +127,29 @@ public class ObjectList extends ArrayList<Object> implements IObjectContainer {
             return this;
         }
     }
+
+	@Override
+    public String toXml() {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
+
+	@Override
+    public String toJson() {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
+
+	@Override
+    public void fromXml(String xml) {
+	    // TODO Auto-generated method stub
+	    
+    }
+
+	@Override
+    public void fromJson(String json) {
+	    // TODO Auto-generated method stub
+	    
+    }
+    
 }

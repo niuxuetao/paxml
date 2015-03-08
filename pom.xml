@@ -20,6 +20,7 @@
 		<module>PaxmlCore</module>
 		<module>PaxmlTestNG</module>
 		<module>PaxmlSelenium</module>	
+		<module>PaxmlWeb</module>	
 		<module>PaxmlAll</module>
 		<module>PaxmlExecutable</module>
 		<module>PaxmlExample</module>

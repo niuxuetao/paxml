@@ -418,7 +418,9 @@ public class Context implements IdentityManager {
 			}
 		}
 		idConstsMap.putAll(map);
-		idToTagName.putAll(rootTags);
+		if (rootTags != null) {
+			idToTagName.putAll(rootTags);
+		}
 	}
 
 	/**

@@ -33,174 +33,173 @@ import org.paxml.core.Context.Scope;
  * @author Xuetao Niu
  * 
  */
-@Tag(name = "data", factory = ConstTagFactory.class)
+@Tag(name = "const", alias = { "data" }, factory = ConstTagFactory.class)
 public class ConstTag extends AbstractTag {
 
-    private static class ConstNode {
-        private final String name;
-        private final Object value;
+	private static class ConstNode {
+		private final String name;
+		private final Object value;
 
-        public ConstNode(String name, Object value) {
-            super();
-            this.name = name;
-            this.value = value;
-        }
+		public ConstNode(String name, Object value) {
+			super();
+			this.name = name;
+			this.value = value;
+		}
 
-        public String getName() {
-            return name;
-        }
+		public String getName() {
+			return name;
+		}
 
-        public Object getValue() {
-            return value;
-        }
-    }
+		public Object getValue() {
+			return value;
+		}
+	}
 
-    private String valueName;
-    private boolean subconst;
-    private Scope scope;
+	private String valueName;
+	private boolean subconst;
+	private Scope scope;
 
-    private ChildrenResultList extractResults(ChildrenResultList from, ChildrenResultList to) {
-        if (to == null) {
-            to = new ChildrenResultList(1);
-        }
-        if (from == null) {
-            return to;
-        }
-        for (Object obj : from) {
-            if (obj instanceof ChildrenResultList) {
-                extractResults((ChildrenResultList) obj, to);
-            } else {
-                to.add(obj);
-            }
-        }
-        return to;
-    }
+	private ChildrenResultList extractResults(ChildrenResultList from, ChildrenResultList to) {
+		if (to == null) {
+			to = new ChildrenResultList(1);
+		}
+		if (from == null) {
+			return to;
+		}
+		for (Object obj : from) {
+			if (obj instanceof ChildrenResultList) {
+				extractResults((ChildrenResultList) obj, to);
+			} else {
+				to.add(obj);
+			}
+		}
+		return to;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Object doExecute(Context context) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Object doExecute(Context context) {
 
-        Object myValue = null;
-        ChildrenResultList childrenResults = executeChildren(Scope.PARAMETER == scope ? context
-                .findContextForEntity(getEntity()) : context);
+		Object myValue = null;
+		ChildrenResultList childrenResults = executeChildren(Scope.PARAMETER == scope ? context.findContextForEntity(getEntity()) : context);
 
-        if (childrenResults != null) {
-            childrenResults = extractResults(childrenResults, null);
-            boolean allSubconsts = true;
-            boolean hasSubconsts = false;
-            for (Object childResult : childrenResults) {
-                if (childResult instanceof ConstNode) {
-                    hasSubconsts = true;
-                } else {
-                    allSubconsts = false;
-                    break;
-                }
-            }
-            if (allSubconsts) {
-                ObjectTree tree = new ObjectTree();
-                for (Object childResult : childrenResults) {
-                    ConstNode node = (ConstNode) childResult;
-                    if (node.getValue() != null) {
-                        tree.addValue(node.getName(), node.getValue());
-                    }
-                }
-                myValue = tree.shrink();
-            } else if (hasSubconsts) {
-                throw new PaxmlRuntimeException("Cannot mix const tag with value tag under the same parent");
-            } else {
+		if (childrenResults != null) {
+			childrenResults = extractResults(childrenResults, null);
+			boolean allSubconsts = true;
+			boolean hasSubconsts = false;
+			for (Object childResult : childrenResults) {
+				if (childResult instanceof ConstNode) {
+					hasSubconsts = true;
+				} else {
+					allSubconsts = false;
+					break;
+				}
+			}
+			if (allSubconsts) {
+				ObjectTree tree = new ObjectTree();
+				for (Object childResult : childrenResults) {
+					ConstNode node = (ConstNode) childResult;
+					if (node.getValue() != null) {
+						tree.addValue(node.getName(), node.getValue());
+					}
+				}
+				myValue = tree.shrink();
+			} else if (hasSubconsts) {
+				throw new PaxmlRuntimeException("Cannot mix const tag with value tag under the same parent");
+			} else {
 
-                ObjectList list = new ObjectList(false);
+				ObjectList list = new ObjectList(false);
 
-                for (Object childResult : childrenResults) {
-                    if (childResult instanceof ConstNode) {
-                        ConstNode cn = (ConstNode) childResult;
-                        if (cn.getValue() != null) {
-                            list.addValue(cn.getName(), cn.getValue());
-                        }
-                    } else {
-                        if (childResult != null) {
-                            list.add(childResult);
-                        }
-                    }
-                }
-                myValue = list.shrink();
-            }
-        }
+				for (Object childResult : childrenResults) {
+					if (childResult instanceof ConstNode) {
+						ConstNode cn = (ConstNode) childResult;
+						if (cn.getValue() != null) {
+							list.addValue(cn.getName(), cn.getValue());
+						}
+					} else {
+						if (childResult != null) {
+							list.add(childResult);
+						}
+					}
+				}
+				myValue = list.shrink();
+			}
+		}
 
-        if (Scope.LOCAL == scope) {
-            final IdExpression idExp = getIdExpression();
-            final String id = idExp == null ? null : idExp.getId(context);
-            // set the id of the const if it is object container
-            if (myValue instanceof IObjectContainer) {
-                ((IObjectContainer) myValue).setId(id);
-            }
-            if (context.isConstOverwritable()) {
-                context.setConst(id, valueName, myValue, false);
-            } else {
-                context.addConst(id, valueName, myValue, true);
-            }
+		if (Scope.LOCAL == scope) {
+			final IdExpression idExp = getIdExpression();
+			final String id = idExp == null ? null : idExp.getId(context);
+			// set the id of the const if it is object container
+			if (myValue instanceof IObjectContainer) {
+				((IObjectContainer) myValue).setId(id);
+			}
+			if (context.isConstOverwritable()) {
+				context.setConst(id, valueName, myValue, false);
+			} else {
+				context.addConst(id, valueName, myValue, true);
+			}
 
-        } else if (Scope.PARAMETER == scope) {
-            context.addConst(valueName, valueName, myValue, false);
-        } else if (isSubconst()) {
-            myValue = new ConstNode(valueName, myValue);
-        } else {
-            throw new PaxmlRuntimeException("Internal error: Shouldn't to reach here");
-        }
-        return myValue;
-    }
+		} else if (Scope.PARAMETER == scope) {
+			context.addConst(valueName, valueName, myValue, false);
+		} else if (isSubconst()) {
+			myValue = new ConstNode(valueName, myValue);
+		} else {
+			throw new PaxmlRuntimeException("Internal error: Shouldn't to reach here");
+		}
+		return myValue;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void putResultAsConst(Context context, Object result) {
-        // cancel the default behavior because the const has already been put on
-        // context in the 1st place.
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void putResultAsConst(Context context, Object result) {
+		// cancel the default behavior because the const has already been put on
+		// context in the 1st place.
+	}
 
-    public String getValueName() {
-        return valueName;
-    }
+	public String getValueName() {
+		return valueName;
+	}
 
-    public void setValueName(String valueName) {
-        this.valueName = valueName;
-    }
+	public void setValueName(String valueName) {
+		this.valueName = valueName;
+	}
 
-    public boolean isSubconst() {
-        return subconst;
-    }
+	public boolean isSubconst() {
+		return subconst;
+	}
 
-    public void setSubconst(boolean subconst) {
-        this.subconst = subconst;
-    }
+	public void setSubconst(boolean subconst) {
+		this.subconst = subconst;
+	}
 
-    public Scope getScope() {
-        return scope;
-    }
+	public Scope getScope() {
+		return scope;
+	}
 
-    public void setScope(Scope scope) {
-        this.scope = scope;
-    }
+	public void setScope(Scope scope) {
+		this.scope = scope;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Map<String, Object> inspectAttributes() {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Map<String, Object> inspectAttributes() {
 
-        Map<String, Object> map = super.inspectAttributes();
-        if (map == null) {
-            map = new LinkedHashMap<String, Object>();
-        }
-        map.put("id", getIdExpression());
-        map.put("scope", scope);
-        map.put("subconst", subconst);
-        map.put("valueName", valueName);
+		Map<String, Object> map = super.inspectAttributes();
+		if (map == null) {
+			map = new LinkedHashMap<String, Object>();
+		}
+		map.put("id", getIdExpression());
+		map.put("scope", scope);
+		map.put("subconst", subconst);
+		map.put("valueName", valueName);
 
-        return map;
-    }
+		return map;
+	}
 
 }

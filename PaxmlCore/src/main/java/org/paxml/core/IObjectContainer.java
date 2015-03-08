@@ -16,6 +16,8 @@
  */
 package org.paxml.core;
 
+import java.util.List;
+
 /**
  * Prototype for value container.
  * 
@@ -36,4 +38,9 @@ public interface IObjectContainer {
     void setId(String id);
     void addValue(String key, Object value);
     Object shrink();
+    List<Object> getList();
+    String toXml();
+    String toJson();
+    void fromXml(String xml);
+    void fromJson(String json);
 }

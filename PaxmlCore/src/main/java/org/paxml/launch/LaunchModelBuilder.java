@@ -44,6 +44,7 @@ import org.paxml.util.AxiomUtils;
 import org.paxml.util.Elements;
 import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
+import org.paxml.util.AxiomUtils.MediaType;
 import org.springframework.core.io.Resource;
 
 /**
@@ -87,7 +88,7 @@ public class LaunchModelBuilder {
 	 * @return the launch model, never null.
 	 */
 	public LaunchModel build(Resource res, Properties props) {
-
+		OMElement root = null;
 		InputStream in = null;
 		try {
 			model = new LaunchModel();
@@ -97,7 +98,7 @@ public class LaunchModelBuilder {
 
 			model.setResource(res);
 
-			OMElement root = AxiomUtils.getRootElement(in);
+			root = AxiomUtils.getRootElement(in, MediaType.XML);
 
 			// build the primitive parts
 			buildLibraries(root, true);
@@ -116,7 +117,9 @@ public class LaunchModelBuilder {
 			model = null;
 
 			IOUtils.closeQuietly(in);
-
+			if (root != null) {
+				root.close(false);
+			}
 		}
 	}
 

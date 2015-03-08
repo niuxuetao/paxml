@@ -227,7 +227,6 @@ public class PaxmlUtils {
 			for (InputStream in : inputStreams) {
 				if (in != null) {
 					props.load(in);
-					System.out.println(props);
 					i++;
 				}
 			}

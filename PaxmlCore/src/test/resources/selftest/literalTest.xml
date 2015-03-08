@@ -65,5 +65,10 @@
     <actual><literal><![CDATA[1
 2]]></literal></actual>
   </assert>  
+  
+  <assert expected="&lt;iterate times=&quot;2&quot;&gt;100&lt;/iterate&gt;">
+    <actual><literal><iterate times="2">${d100}</iterate></literal></actual>
+  </assert>
+  
 </scenario>
  

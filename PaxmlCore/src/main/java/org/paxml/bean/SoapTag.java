@@ -45,6 +45,7 @@ import org.paxml.core.ObjectTree;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.util.AxiomUtils;
 import org.paxml.util.Elements;
+import org.paxml.util.AxiomUtils.MediaType;
 
 
 /**
@@ -128,7 +129,7 @@ public class SoapTag extends BeanTag {
         InputStream in = null;
         try {
             in = new URL(getWsdlUrl()).openStream();
-            OMElement root = AxiomUtils.getRootElement(in);
+			OMElement root = AxiomUtils.getRootElement(in, MediaType.XML);
             if (root != null) {
                 String ns = AxiomUtils.getAttribute(root, "targetNamespace");
                 return StringUtils.isNotBlank(ns) ? ns : null;
@@ -145,7 +146,7 @@ public class SoapTag extends BeanTag {
         if (responseless) {
             return null;
         }
-        OMElement root = AxiomUtils.getRootElement(in);
+        OMElement root = AxiomUtils.getRootElement(in, MediaType.XML);
         OMElement bd = AxiomUtils.getFirstChildElement(root, "Body");
 
         OMElement ele = bd.getFirstElement();

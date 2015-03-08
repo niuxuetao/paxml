@@ -38,6 +38,12 @@ public @interface Tag {
      * 
      */
     String name() default "";
+    
+    /**
+     * The tag name alias.
+     * @return
+     */
+    String[] alias() default {};
 
     /**
      * The tag factory class which must be a class with default constructor.

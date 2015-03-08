@@ -18,18 +18,11 @@
 
 -->
 <scenario>
-    
-    <iterate file="dates_en.properties" >
-    
-        <print>${var}</print>
-        <set var="x">${index}</set>
-        <!--
-         
-        <groovy>
-            System.err.println(x);
-        </groovy>
-         -->
+    <file id="f" >dates_en.properties.txt</file>
+    <iterate file="dates_en.properties" >    
+        <print>${var}</print>            
     </iterate> 
+    
        
 </scenario>
  

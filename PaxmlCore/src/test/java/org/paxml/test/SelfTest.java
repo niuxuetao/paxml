@@ -36,8 +36,7 @@ import org.paxml.launch.Paxml;
 public class SelfTest {
     
     private static final Log log = LogFactory.getLog(SelfTest.class);
-    
-    
+        
     public void testSyntax()throws Exception {
         ScriptEngine  runtime = new ScriptEngineManager().getEngineByName("javascript");
         Bindings bindings = runtime.getBindings(ScriptContext.ENGINE_SCOPE);

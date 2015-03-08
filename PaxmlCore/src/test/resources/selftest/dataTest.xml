@@ -267,5 +267,10 @@
     <assert expected="x13" actual="${util.findConstIdExcept(var,false,false,['var'])}" if="${index==0}"/>
     <assert expected="x11" actual="${util.findConstIdExcept(var,false,false,['var'])}" if="${index==1}"/>
    </iterate>
+   
+   <const id="html">
+    <input type="box"><text>xsas</text></input>
+   </const>
+   <print>${html}</print>
 </scenario>
  

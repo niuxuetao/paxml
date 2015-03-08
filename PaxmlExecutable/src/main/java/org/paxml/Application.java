@@ -21,9 +21,7 @@ import java.io.File;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxml.launch.LaunchModelBuilder;
 import org.paxml.launch.PaxmlRunner;
-import org.paxml.launch.StaticConfig;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -55,13 +53,8 @@ public class Application {
 		if (log.isInfoEnabled()) {
 			log.info("Searching for Paxml " + fn + " from dir: " + baseDir);
 		}
-		StaticConfig config = new StaticConfig();
-		// add additional projects tag libs
-		config.getTagLibs().add(org.paxml.selenium.rc.TagLibrary.class);
-		// find resources
-		config.getResources().addAll(LaunchModelBuilder.findResources(baseDir, null, null));
-
-		PaxmlRunner.run(fn, config);
+		
+		PaxmlRunner.run(fn, null, baseDir, org.paxml.selenium.rc.TagLibrary.class);
 
 	}
 

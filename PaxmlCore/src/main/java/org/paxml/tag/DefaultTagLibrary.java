@@ -16,7 +16,10 @@
  */
 package org.paxml.tag;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +31,7 @@ import org.paxml.annotation.Tag;
 import org.paxml.annotation.Util;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.el.IUtilFunctionsFactory;
+import org.paxml.util.ReflectUtils;
 
 /**
  * Default impl of tag library.
@@ -36,73 +40,86 @@ import org.paxml.el.IUtilFunctionsFactory;
  * 
  */
 public class DefaultTagLibrary implements ITagLibrary {
-    private static final Log log = LogFactory.getLog(DefaultTagLibrary.class);
-    private final Map<String, Class<? extends IUtilFunctionsFactory>> utils = 
-        new ConcurrentHashMap<String, Class<? extends IUtilFunctionsFactory>>();
-    private final Map<String, Class<? extends ITag>> tags = 
-        new ConcurrentHashMap<String, Class<? extends ITag>>(0);
+	private static final Log log = LogFactory.getLog(DefaultTagLibrary.class);
+	private final Map<String, Class<? extends IUtilFunctionsFactory>> utils = new ConcurrentHashMap<String, Class<? extends IUtilFunctionsFactory>>();
+	private final Map<String, Class<? extends ITag>> tags = new ConcurrentHashMap<String, Class<? extends ITag>>(0);
 
-    /**
-     * {@inheritDoc}
-     */
-    public Class<? extends ITag> getTagImpl(String tagName) {
-        return tags.get(tagName);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public Class<? extends ITag> getTagImpl(String tagName) {
+		return tags.get(tagName);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public Class<? extends IUtilFunctionsFactory> getUtilFunctionsFactory(String name) {
-        return utils.get(name);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public Class<? extends IUtilFunctionsFactory> getUtilFunctionsFactory(String name) {
+		return utils.get(name);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public void registerTag(Class<? extends ITag> clazz) {
-        String tagName = getTagName(clazz);
-        if (StringUtils.isBlank(tagName)) {
-            throw new PaxmlRuntimeException("Class " + clazz.getName()
-                    + " has no 'name' property given in its own nor its super classes/interfaces' @"
-                    + Tag.class.getSimpleName() + " annotation");
-        }
-        tags.put(tagName, clazz);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public void registerTag(Class<? extends ITag> clazz) {
+		List<String> names = getTagNames(clazz);
+		if (names == null || names.isEmpty()) {
 
-    /**
-     * {@inheritDoc}
-     */
-    public void registerUtil(Class<? extends IUtilFunctionsFactory> clazz) {
-        String utilName = getUtilName(clazz);
-        if (StringUtils.isBlank(utilName)) {
-            throw new PaxmlRuntimeException("Class " + clazz.getName() + " has no value given in the @"
-                    + Util.class.getSimpleName() + " annotation.");
-        }
-        Class<? extends IUtilFunctionsFactory> existing = utils.put(utilName, clazz);
-        if (existing != null) {
-            log.warn("Util functions named " + utilName + " from class " + existing.getName()
-                    + " is overridded by another one from class " + clazz.getName());
-        }
-    }
+			throw new PaxmlRuntimeException("Class " + clazz.getName() + " has no 'name' property given in its own nor its super classes/interfaces' @" + Tag.class.getSimpleName()
+			        + " annotation");
 
-    private static String getUtilName(Class<? extends IUtilFunctionsFactory> clazz) {
-        Util a = clazz.getAnnotation(Util.class);
-        if (a != null) {
-            return a.value();
-        }
-        return null;
-    }
+		}
+		for (String tagName : names) {
 
-    private static String getTagName(Class<? extends ITag> clazz) {
-        Tag a = clazz.getAnnotation(Tag.class);
-        if (a != null) {
-            return a.name();
-        }
-        return null;
-    }
+			tags.put(tagName, clazz);
+		}
+	}
 
-    public Set<String> getUtilFunctionsFactoryNames() {
-        return Collections.unmodifiableSet(utils.keySet());
-    }
-    
+	/**
+	 * {@inheritDoc}
+	 */
+	public void registerUtil(Class<? extends IUtilFunctionsFactory> clazz) {
+		String utilName = getUtilName(clazz);
+		if (StringUtils.isBlank(utilName)) {
+			throw new PaxmlRuntimeException("Class " + clazz.getName() + " has no value given in the @" + Util.class.getSimpleName() + " annotation.");
+		}
+		Class<? extends IUtilFunctionsFactory> existing = utils.put(utilName, clazz);
+		if (existing != null) {
+			log.warn("Util functions named " + utilName + " from class " + existing.getName() + " is overridded by another one from class " + clazz.getName());
+		}
+	}
+
+	private static String getUtilName(Class<? extends IUtilFunctionsFactory> clazz) {
+		Util a = clazz.getAnnotation(Util.class);
+		if (a != null) {
+			return a.value();
+		}
+		return null;
+	}
+
+	private static List<String> getTagNames(Class<? extends ITag> clazz) {
+		List<String> result = new ArrayList<String>(1);
+		Tag a = clazz.getAnnotation(Tag.class);
+		if (a != null) {
+			result.add(a.name());
+			String[] alias = a.alias();
+			if (alias != null && alias.length > 0) {
+				result.addAll(Arrays.asList(alias));
+			}
+		} else {
+			Class c = clazz.getSuperclass();
+			if (ReflectUtils.isImplementingClass(c, ITag.class, true)) {
+				return getTagNames(c);
+			} else {
+				return null;
+			}
+		}
+
+		return result;
+	}
+
+	public Set<String> getUtilFunctionsFactoryNames() {
+		return Collections.unmodifiableSet(utils.keySet());
+	}
+
 }

@@ -17,6 +17,7 @@
 package org.paxml.launch;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +30,7 @@ import org.paxml.core.Context;
 import org.paxml.core.IEntity;
 import org.paxml.core.PaxmlResource;
 import org.paxml.core.PaxmlRuntimeException;
+import org.paxml.tag.ITagLibrary;
 import org.paxml.tag.plan.PlanEntityFactory.Plan;
 import org.paxml.tag.plan.PlanTagLibrary;
 import org.paxml.util.PaxmlUtils;
@@ -45,15 +47,28 @@ public class PaxmlRunner {
 
 	public static final int DEFAULT_CONCURRENCY = 4;
 
+	public static Object run(String paxmlOrPlanFileName, Map<String, Object> params, String baseDir, Class<? extends ITagLibrary>... tagLibs) {
+		StaticConfig config = new StaticConfig();
+		for (Class<? extends ITagLibrary> lib : tagLibs) {
+			config.getTagLibs().add(lib);
+		}
+		config.getResources().addAll(LaunchModelBuilder.findResources(baseDir, null, null));
+		return run(paxmlOrPlanFileName, params, config);
+	}
+
 	/**
 	 * Run either a plan file or a paxml file from the given resource set.
 	 * 
 	 * @param paxmlOrPlanFileName
 	 *            resource name with file extension to run
+	 * @param params
+	 *            the parameters, can be null
+	 * 
 	 * @param config
 	 *            the config containing resource set
+	 * 
 	 */
-	public static void run(String paxmlOrPlanFileName, StaticConfig config) {
+	public static Object run(String paxmlOrPlanFileName, Map<String, Object> params, StaticConfig config) {
 
 		Context.cleanCurrentThreadContext();
 
@@ -76,7 +91,9 @@ public class PaxmlRunner {
 		paxml.getParser().addTagLibrary(new PlanTagLibrary(), false);
 
 		Context context = new Context(new Context(properties, paxml.getProcessId()));
-
+		if (params != null) {
+			context.setConsts(params, null, false);
+		}
 		IEntity entity = paxml.getParser().parse(r, true, null);
 		if (entity instanceof Plan) {
 			// a plan file
@@ -92,16 +109,17 @@ public class PaxmlRunner {
 
 			Properties props = new Properties();
 			props.put(LaunchModel.class, model);
-			paxml.execute(entity, System.getProperties(), props);
+			Object res = paxml.execute(entity, System.getProperties(), props);
 			run(model, execId);
 			if (log.isInfoEnabled()) {
 				log.info("Finished executing plan file: " + entity.getResource().getPath());
 			}
+			return res;
 		} else {
 			// a paxml file
 			logExecution(r, true);
 			try {
-				paxml.execute(entity, context, true, true);
+				return paxml.execute(entity, context, true, true);
 			} finally {
 				logExecution(r, false);
 			}
