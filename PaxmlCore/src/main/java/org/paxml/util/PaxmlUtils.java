@@ -101,12 +101,12 @@ public class PaxmlUtils {
 		return new DefaultResourceLoader().getResource(path);
 
 	}
-	
-	public static Resource getResource(String path){
+
+	public static Resource getResource(String path) {
 		return getResource(path, null);
 	}
-	
-	public static Resource getResource(File file){
+
+	public static Resource getResource(File file) {
 		return getResource(file.getAbsolutePath());
 	}
 
@@ -313,6 +313,31 @@ public class PaxmlUtils {
 
 	public static File getSiblingFile(File base, String name, boolean appendName) {
 		return new File(base.getParentFile(), appendName ? base.getName() : name);
+	}
+
+	public static String createRegexFromGlob(String glob) {
+		String out = "^";
+		for (int i = 0; i < glob.length(); ++i) {
+			final char c = glob.charAt(i);
+			switch (c) {
+			case '*':
+				out += ".*";
+				break;
+			case '?':
+				out += '.';
+				break;
+			case '.':
+				out += "\\.";
+				break;
+			case '\\':
+				out += "\\\\";
+				break;
+			default:
+				out += c;
+			}
+		}
+		out += '$';
+		return out;
 	}
 
 }

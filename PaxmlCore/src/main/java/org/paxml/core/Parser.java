@@ -16,17 +16,11 @@
  */
 package org.paxml.core;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.io.IOUtils;
@@ -34,14 +28,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.launch.Paxml;
-import org.paxml.tag.AbstractPaxmlEntity;
 import org.paxml.tag.AbstractPaxmlEntityFactory;
 import org.paxml.tag.ITagLibrary;
 import org.paxml.tag.InternalTagLibrary;
 import org.paxml.util.AxiomUtils;
-import org.paxml.util.AxiomUtils.MediaType;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
 
 /**
  * Parser for all paxml resources to convert them into paxml entities.
@@ -153,7 +143,7 @@ public class Parser {
 				try {
 
 					in = resource.openInputStream();
-					OMElement root = AxiomUtils.getRootElement(in, MediaType.XML);
+					OMElement root = AxiomUtils.getRootElement(in);
 					try {
 						entity = parseXml(root, resource, context);
 					} finally {

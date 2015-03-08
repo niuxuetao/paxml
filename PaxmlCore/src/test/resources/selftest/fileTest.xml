@@ -22,7 +22,7 @@
     <iterate file="dates_en.properties" >    
         <print>${var}</print>            
     </iterate> 
-    
+    <set var="x">xxx</set>
        
 </scenario>
  

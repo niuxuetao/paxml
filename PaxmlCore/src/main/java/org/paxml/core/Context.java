@@ -60,6 +60,7 @@ import org.paxml.tag.invoker.FileInvokerTag;
 import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
 import org.paxml.util.XmlUtils;
+import org.paxml.util.XmlUtils.MediaType;
 import org.springframework.core.io.Resource;
 
 /**
@@ -1420,6 +1421,6 @@ public class Context implements IdentityManager {
 	}
 
 	public String dump() {
-		return XmlUtils.serializeXStream(this);
+		return XmlUtils.serializeXStream(this, "context", null, MediaType.XML);
 	}
 }

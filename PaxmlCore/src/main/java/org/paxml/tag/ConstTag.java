@@ -21,11 +21,11 @@ import java.util.Map;
 
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
+import org.paxml.core.Context.Scope;
 import org.paxml.core.IObjectContainer;
 import org.paxml.core.ObjectList;
 import org.paxml.core.ObjectTree;
 import org.paxml.core.PaxmlRuntimeException;
-import org.paxml.core.Context.Scope;
 
 /**
  * The const tag impl.

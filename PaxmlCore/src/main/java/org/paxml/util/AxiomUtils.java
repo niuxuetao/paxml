@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -36,7 +35,6 @@ import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.apache.axiom.util.stax.dialect.StAXDialect;
-import org.paxml.core.PaxmlRuntimeException;
 
 /**
  * The axiom utils.
@@ -45,38 +43,6 @@ import org.paxml.core.PaxmlRuntimeException;
  * 
  */
 public final class AxiomUtils {
-	public static enum MediaType {
-		XML, JSON
-	}
-
-	public static final String STAX_INPUT_FACT_KEY = "javax.xml.stream.XMLInputFactory";
-	public static final String STAX_OUTPUT_FACT_KEY = "javax.xml.stream.XMLOutputFactory";
-
-	private static <T> T doForMediaType(MediaType type, Callable<T> cal) {
-		if (MediaType.JSON != type) {
-			try {
-				return cal.call();
-			} catch (Exception e) {
-				throw new PaxmlRuntimeException(e);
-			}
-		} else {
-
-			final String oldR = System.getProperty(STAX_INPUT_FACT_KEY);
-			final String oldW = System.getProperty(STAX_OUTPUT_FACT_KEY);
-			try {
-
-				System.setProperty(STAX_INPUT_FACT_KEY, JsonInputFactory.class.getName());
-				System.setProperty(STAX_OUTPUT_FACT_KEY, JsonOutputFactory.class.getName());
-
-				return cal.call();
-			} catch (Exception e) {
-				throw new PaxmlRuntimeException(e);
-			} finally {
-				System.setProperty(STAX_INPUT_FACT_KEY, oldR);
-				System.setProperty(STAX_OUTPUT_FACT_KEY, oldW);
-			}
-		}
-	}
 
 	/**
 	 * Parse input stream to get document.
@@ -85,41 +51,23 @@ public final class AxiomUtils {
 	 *            input stream
 	 * @return the document
 	 */
-	public static OMDocument getDocument(final InputStream in, MediaType type) {
-		return doForMediaType(type, new Callable<OMDocument>() {
+	public static OMDocument getDocument(final InputStream in) {
+
+		// create the builder
+		OMXMLParserWrapper builder = OMXMLBuilderFactory.createOMBuilder(new StAXParserConfiguration() {
 
 			@Override
-			public OMDocument call() throws Exception {
-				// create the builder
-				OMXMLParserWrapper builder = OMXMLBuilderFactory.createOMBuilder(new StAXParserConfiguration() {
-
-					@Override
-					public XMLInputFactory configure(XMLInputFactory factory, StAXDialect dialect) {
-						return factory;
-					}
-
-				}, in);
-
-				// get the root element
-				OMDocument doc = builder.getDocument();
-
-				return doc;
+			public XMLInputFactory configure(XMLInputFactory factory, StAXDialect dialect) {
+				return factory;
 			}
 
-		});
+		}, in);
 
-	}
+		// get the root element
+		OMDocument doc = builder.getDocument();
 
-	public static String serialize(final OMElement ele, final boolean consume, MediaType type) {
-		return doForMediaType(type, new Callable<String>() {
+		return doc;
 
-			@Override
-			public String call() throws Exception {
-
-				return consume ? ele.toStringWithConsume() : ele.toString();
-			}
-
-		});
 	}
 
 	/**
@@ -129,9 +77,9 @@ public final class AxiomUtils {
 	 *            the input stream
 	 * @return the root element
 	 */
-	public static OMElement getRootElement(InputStream in, MediaType type) {
+	public static OMElement getRootElement(InputStream in) {
 
-		return getDocument(in, type).getOMDocumentElement();
+		return getDocument(in).getOMDocumentElement();
 
 	}
 

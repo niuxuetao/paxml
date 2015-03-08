@@ -16,115 +16,110 @@
  */
 package org.paxml.util;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-
-import org.paxml.core.PaxmlRuntimeException;
+import org.codehaus.jettison.mapped.Configuration;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
+import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
+import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public class XmlUtils {
-	public static class FilterConverter implements Converter {
-		private final List<Pattern> includes = new ArrayList();
-		private final List<Pattern> excludes = new ArrayList();
+	// @XmlRootElement
+	public static class X {
+		private String pri = "pvivate value";
+		private Map m;
+		private String y;
 
-		public FilterConverter(String[] includes, String[] excludes) {
-
-			for (String r : includes) {
-				this.includes.add(Pattern.compile(createRegexFromGlob(r)));
-			}
-			for (String r : excludes) {
-				this.excludes.add(Pattern.compile(createRegexFromGlob(r)));
-			}
+		public String getY() {
+			return y;
 		}
 
-		public static String createRegexFromGlob(String glob) {
-			String out = "^";
-			for (int i = 0; i < glob.length(); ++i) {
-				final char c = glob.charAt(i);
-				switch (c) {
-				case '*':
-					out += ".*";
-					break;
-				case '?':
-					out += '.';
-					break;
-				case '.':
-					out += "\\.";
-					break;
-				case '\\':
-					out += "\\\\";
-					break;
-				default:
-					out += c;
-				}
-			}
-			out += '$';
-			return out;
+		public void setY(String y) {
+			this.y = y;
 		}
 
-		@Override
-		public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
+		public Map getM() {
+			return m;
 		}
 
-		@Override
-		public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-			return null;
+		public void setM(Map m) {
+			this.m = m;
 		}
 
-		@Override
-		public boolean canConvert(Class clazz) {
-			String cn = clazz.getName();
-			boolean yes = true;
-			for (Pattern p : includes) {
-				if (p.matcher(cn).matches()) {
-					yes = false;
-					break;
-				}
-			}
-			for (Pattern p : excludes) {
-				if (p.matcher(cn).matches()) {
-					yes = true;
-					break;
-				}
-			}
-			return yes;
-		}
 	}
 
-	public static String serializeJaxb(Object obj) {
-		try {
-			JAXBContext context = JAXBContext.newInstance(obj.getClass());
-			Marshaller m = context.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FRAGMENT, true);
-			m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+	public static class XX {
+		private int val;
+		private List myList = Arrays.asList("ml1", "ml2");
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			m.marshal(obj, out);
-			return out.toString("UTF-8");
-		} catch (Exception e) {
-			throw new PaxmlRuntimeException(e);
+		public int getVal() {
+			return val;
 		}
+
+		public void setVal(int val) {
+			this.val = val;
+		}
+
+		public List getMyList() {
+			return myList;
+		}
+
+		public void setMyList(List myList) {
+			this.myList = myList;
+		}
+
 	}
 
-	public static String serializeXStream(Object obj) {
-		XStream xstream = new XStream();
+	public static void main(String[] args) throws Exception {
 
-		xstream.registerConverter(new FilterConverter(
-				new String[]{"java.lang.*", "org.paxml.*", "java.util.*"},
-				new String[]{}), Integer.MIN_VALUE);
+		Map map1 = new LinkedHashMap();
+		Map map2 = new LinkedHashMap();
+		map2.put("deep", Arrays.asList("d1", "d2"));
+		map1.put(1, 100);
+		map1.put(2, map2);
+		map1.put("li", Arrays.asList("li1", "li2"));
+		map1.put("xx-val", new XX());
+		X x = new X();
+		x.setY("y-str");
+		x.setM(map1);
+		System.out.println(serializeXStream(x, "root", "ele", MediaType.XML));
+		System.out.println(serializeXStream(Arrays.asList(map1, 2), "root", "ele", MediaType.XML));
+		System.out.println(serializeXStream(map1, "root", "ele", MediaType.XML));
+	}
+
+	public static enum MediaType {
+		XML, JSON
+	}
+
+
+
+	public static String serializeXStream(final Object obj, final String rootTag, String topCollectionTag, MediaType type) {
+		final HierarchicalStreamDriver driver;
+		if (type == MediaType.JSON) {
+			Configuration conf = new Configuration();
+
+			if (rootTag == null) {
+				conf.setDropRootElement(true);
+			}
+			driver = new JettisonMappedXmlDriver(conf);
+		} else {
+			driver = new XppDriver();
+		}
+		XStream xstream = new XStream(driver);
+		xstream.alias(rootTag, obj.getClass());
+		xstream.alias(rootTag, Map.class);
+		xstream.registerConverter(new XStreamMapColConverter(topCollectionTag));
+		xstream.registerConverter(new XStreamFilterConverter(new String[] { "java.lang.*", "java.util.*", "org.paxml.*" }, null), Integer.MIN_VALUE);
+		xstream.registerConverter(new XStreamBeanConverter(false, xstream.getMapper()),-20);
 
 		return xstream.toXML(obj);
+
 	}
 }

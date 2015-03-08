@@ -30,12 +30,12 @@ import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.IdAttribute;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
+import org.paxml.core.Context.Stack;
 import org.paxml.core.IEntity;
 import org.paxml.core.ITagExecutionListener;
 import org.paxml.core.PaxmlResource;
-import org.paxml.core.ResourceLocator;
 import org.paxml.core.PaxmlRuntimeException;
-import org.paxml.core.Context.Stack;
+import org.paxml.core.ResourceLocator;
 import org.paxml.el.Condition;
 import org.paxml.el.ExpressionFactory;
 

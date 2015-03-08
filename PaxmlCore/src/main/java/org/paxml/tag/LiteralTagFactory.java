@@ -24,7 +24,6 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.paxml.core.IParserContext;
 import org.paxml.el.ExpressionFactory;
-import org.paxml.el.UtilFunctions;
 
 /**
  * Literal tag factory impl.

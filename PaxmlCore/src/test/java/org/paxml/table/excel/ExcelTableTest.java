@@ -20,7 +20,6 @@ import java.io.File;
 
 import org.junit.Test;
 import org.paxml.table.IRow;
-import org.paxml.table.excel.ExcelTable;
 
 public class ExcelTableTest {
 	@Test

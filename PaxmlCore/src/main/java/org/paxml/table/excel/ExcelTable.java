@@ -16,7 +16,6 @@
  */
 package org.paxml.table.excel;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;

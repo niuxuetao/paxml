@@ -16,9 +16,9 @@
  */
 package org.paxml.tag;
 
+import org.paxml.core.Context.Scope;
 import org.paxml.core.IParserContext;
 import org.paxml.core.PaxmlRuntimeException;
-import org.paxml.core.Context.Scope;
 
 /**
  * Tag factory for const tags.

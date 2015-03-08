@@ -20,9 +20,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.helpers.PatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
 import org.paxml.core.Context;
-import org.paxml.core.IEntity;
 import org.paxml.core.Context.Stack;
 import org.paxml.core.Context.Stack.IStackTraverser;
+import org.paxml.core.IEntity;
 import org.paxml.tag.ITag;
 
 public class EntityInfoConverter extends PatternConverter {

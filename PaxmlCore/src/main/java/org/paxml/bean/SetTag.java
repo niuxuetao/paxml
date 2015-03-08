@@ -42,7 +42,7 @@ public class SetTag extends BeanTag {
 		} else {
 			context.setConst(var.toString(), null, getValue(), false);
 		}
-		//System.err.println(context.dump());
+		System.err.println(context.dump());
 		return var;
 	}
 

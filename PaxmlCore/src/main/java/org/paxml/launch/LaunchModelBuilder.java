@@ -44,7 +44,6 @@ import org.paxml.util.AxiomUtils;
 import org.paxml.util.Elements;
 import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
-import org.paxml.util.AxiomUtils.MediaType;
 import org.springframework.core.io.Resource;
 
 /**
@@ -98,7 +97,7 @@ public class LaunchModelBuilder {
 
 			model.setResource(res);
 
-			root = AxiomUtils.getRootElement(in, MediaType.XML);
+			root = AxiomUtils.getRootElement(in);
 
 			// build the primitive parts
 			buildLibraries(root, true);
