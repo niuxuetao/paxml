@@ -60,7 +60,6 @@ import org.paxml.tag.invoker.FileInvokerTag;
 import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
 import org.paxml.util.XmlUtils;
-import org.paxml.util.XmlUtils.MediaType;
 import org.springframework.core.io.Resource;
 
 /**
@@ -249,7 +248,7 @@ public class Context implements IdentityManager {
 	private final long id;
 	private boolean returning = false;
 
-	private final ObjectTree idConstsMap = new ObjectTree();
+	private final ObjectTree idConstsMap = new ObjectTree(null);
 	private final Map<String, String> idToTagName = new HashMap<String, String>();
 	private final Map<Object, Object> localMap = new LinkedHashMap<Object, Object>(0);
 	private final Map<Object, Object> globalMap;
@@ -760,7 +759,7 @@ public class Context implements IdentityManager {
 	 * @return the map copy.
 	 */
 	public ObjectTree getNameMap(boolean mergeParents, boolean includesRoot) {
-		ObjectTree tree = new ObjectTree();
+		ObjectTree tree = new ObjectTree(null);
 		if (includesRoot || !isRoot()) {
 			for (Map.Entry<String, Object> entry : idConstsMap.entrySet()) {
 				Object value = entry.getValue();
@@ -891,7 +890,7 @@ public class Context implements IdentityManager {
 			vars.declareVariable(XPATH_NAME_GLOBAL_VAR, nameGlobal);
 			vars.declareVariable(XPATH_NAME_LOCAL_VAR, nameLocal);
 
-			ObjectTree nameAuto = new ObjectTree(nameGlobal);
+			ObjectTree nameAuto = new ObjectTree(null, nameGlobal);
 			nameAuto.addValues(nameLocal);
 
 			from = nameAuto;
@@ -1421,6 +1420,6 @@ public class Context implements IdentityManager {
 	}
 
 	public String dump() {
-		return XmlUtils.serializeXStream(this, "context", null, MediaType.XML);
+		return XmlUtils.serializeXStream(this, "context", null);
 	}
 }

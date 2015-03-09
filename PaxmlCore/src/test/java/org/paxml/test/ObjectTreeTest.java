@@ -27,7 +27,7 @@ import org.paxml.core.ObjectTree;
 public class ObjectTreeTest {
     @Test
     public void testTraversalOrder() {
-        ObjectTree tree = new ObjectTree();
+        ObjectTree tree = new ObjectTree(null);
         tree.put("2", 2);
         tree.put("1", 1);
         List<Object> list = new ArrayList<Object>(tree.values());

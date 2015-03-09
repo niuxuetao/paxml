@@ -98,7 +98,7 @@ public class ConstTag extends AbstractTag {
 				}
 			}
 			if (allSubconsts) {
-				ObjectTree tree = new ObjectTree();
+				ObjectTree tree = new ObjectTree(valueName);
 				for (Object childResult : childrenResults) {
 					ConstNode node = (ConstNode) childResult;
 					if (node.getValue() != null) {
@@ -110,7 +110,7 @@ public class ConstTag extends AbstractTag {
 				throw new PaxmlRuntimeException("Cannot mix const tag with value tag under the same parent");
 			} else {
 
-				ObjectList list = new ObjectList(false);
+				ObjectList list = new ObjectList(valueName, false);
 
 				for (Object childResult : childrenResults) {
 					if (childResult instanceof ConstNode) {

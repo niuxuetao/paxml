@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.axiom.om.OMElement;
+import org.paxml.util.XmlUtils;
 
 /**
  * The object tree which encloses object lists and non IObjectContainer objects.
@@ -33,21 +33,15 @@ import org.apache.axiom.om.OMElement;
 public class ObjectTree extends LinkedHashMap<String, Object> implements IObjectContainer {
 
 	private String id;
+	private String name;
 
 	private final List<Object> list = new ArrayList<Object>();
-
-	private final OMElement ele;
 
 	/**
 	 * Default constructor.
 	 */
-	public ObjectTree() {
-		this((OMElement) null);
-	}
-
-	public ObjectTree(OMElement ele) {
-		super();
-		this.ele = ele;		
+	public ObjectTree(String name) {
+		this(name, null);
 	}
 
 	/**
@@ -59,10 +53,13 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	 *            true to check id conflicts, false to convert conflicting id
 	 *            values into a list and put the list as the value with that id.
 	 */
-	public ObjectTree(final Map<?, ?> map) {
+	public ObjectTree(String name, final Map<?, ?> map) {
 
-		this();
-		addValues(map);
+		super();
+		this.name = name;
+		if (map != null) {
+			addValues(map);
+		}
 
 	}
 
@@ -103,12 +100,12 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 				ObjectList list = (ObjectList) existing;
 				list.add(value);
 			} else {
-				ObjectList list = new ObjectList(true, existing, value);
+				ObjectList list = new ObjectList(key, true, existing, value);
 				put(key, list);
 			}
 
 		} else {
-			ObjectList list = new ObjectList(true, existing, value);
+			ObjectList list = new ObjectList(key, true, existing, value);
 			put(key, list);
 		}
 	}
@@ -152,7 +149,7 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	}
 
 	protected ObjectTree emptyCopy() {
-		return new ObjectTree();
+		return new ObjectTree(name);
 	}
 
 	@Override
@@ -161,27 +158,29 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	}
 
 	@Override
-    public String toXml() {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	public String toXml(String rootName) {
+		if (rootName == null) {
+			rootName = name;
+		}
+		return XmlUtils.serializeXStream(this, rootName, null);
+	}
 
 	@Override
-    public String toJson() {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	public String toJson() {
+		
+		return XmlUtils.serializeGson(this);
+	}
 
 	@Override
-    public void fromXml(String xml) {
-	    // TODO Auto-generated method stub
-	    
-    }
+	public void fromXml(String xml) {
+		// TODO Auto-generated method stub
+
+	}
 
 	@Override
-    public void fromJson(String json) {
-	    // TODO Auto-generated method stub
-	    
-    }
+	public void fromJson(String json) {
+		// TODO Auto-generated method stub
+
+	}
 
 }

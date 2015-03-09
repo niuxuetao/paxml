@@ -15,6 +15,18 @@ public class XStreamBeanConverter extends JavaBeanConverter {
 		super(mapper);
 		this.includeClass = includeClass;
 	}
+	
+	
+
+	@Override
+    public boolean canConvert(Class type) {
+	    if(Object.class.equals(type)){
+	    	return false;
+	    }
+	    return super.canConvert(type);
+    }
+
+
 
 	@Override
 	public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {

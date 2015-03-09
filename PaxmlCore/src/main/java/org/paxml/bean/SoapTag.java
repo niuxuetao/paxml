@@ -204,7 +204,7 @@ public class SoapTag extends BeanTag {
             // simple value, return the text
             return ele.getText();
         } else {
-            ObjectTree tree = new ObjectTree();
+            ObjectTree tree = new ObjectTree(ele.getLocalName());
 
             populateTree(tree, ele);
 
@@ -217,7 +217,7 @@ public class SoapTag extends BeanTag {
         if (ele.getFirstElement() == null) {
             tree.addValue(ele.getLocalName(), ele.getText());
         } else {
-            ObjectTree subTree = new ObjectTree();
+            ObjectTree subTree = new ObjectTree(ele.getLocalName());
             tree.addValue(ele.getLocalName(), subTree);
             for (OMElement child : new Elements(ele)) {
                 populateTree(subTree, child);

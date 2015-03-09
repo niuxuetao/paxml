@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.paxml.util.XmlUtils;
+
 /**
  * The object list.
  * 
@@ -27,129 +29,134 @@ import java.util.List;
  * 
  */
 public class ObjectList extends ArrayList<Object> implements IObjectContainer {
+	private String name;
+	private String id;
+	boolean _dynamic;
 
-    private String id;
-    boolean _dynamic;
-    /**
-     * Construct from a list of existing objects.
-     * 
-     * @param existing
-     *            the objects to add to initialize the list with, by calling
-     *            justAdd().
-     */
-    public ObjectList(final boolean dynamic, final Object... existing) {
-        super(existing.length);
-        this._dynamic=dynamic;
-        for (Object e : existing) {
-            add(e);
-        }
-    }
+	/**
+	 * Construct from a list of existing objects.
+	 * 
+	 * @param existing
+	 *            the objects to add to initialize the list with, by calling
+	 *            justAdd().
+	 */
+	public ObjectList(String name, boolean dynamic, final Object... existing) {
+		super(existing.length);
+		this.name = name;
+		this._dynamic = dynamic;
+		for (Object e : existing) {
+			add(e);
+		}
+	}
 
-    @Override
-    public List<Object> getList() {
-	    return this;
-    }
+	@Override
+	public List<Object> getList() {
+		return this;
+	}
 
 	public String getId() {
-        return id;
-    }
+		return id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public ObjectList copy() {
-        ObjectList newList = new ObjectList(_dynamic);
-        for (Object item : this) {
-            if (item instanceof IObjectContainer) {
-                item = ((IObjectContainer) item).copy();
-            }
-            newList.add(item);
-        }
-        return newList;
-    }
-
-    public void addValue(String key, Object value) {
-        ObjectTree tree = new ObjectTree();
-        tree.put(key, checkToCopy(value));
-        add(tree);
-    }
-
-    private Object checkToCopy(Object value) {
-        if (value instanceof IObjectContainer) {
-            value = ((IObjectContainer) value).copy();
-        }
-        return value;
-    }
-
-    @Override
-    public Object set(int index, Object element) {
-        return super.set(index, checkToCopy(element));
-    }
-
-    @Override
-    public boolean add(Object e) {
-        return super.add(checkToCopy(e));
-    }
-
-    @Override
-    public void add(int index, Object element) {
-        super.add(index, checkToCopy(element));
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends Object> c) {
-        ArrayList<Object> col = new ArrayList<Object>(c.size());
-        for (Object v : c) {
-            col.add(checkToCopy(v));
-        }
-        return super.addAll(col);
-    }
-
-    @Override
-    public boolean addAll(int index, Collection<? extends Object> c) {
-        ArrayList<Object> col = new ArrayList<Object>(c.size());
-        for (Object v : c) {
-            col.add(checkToCopy(v));
-        }
-        return super.addAll(index, col);
-    }
-
-    public Object shrink() {
-        if (size() <= 0) {
-            return null;
-        } else if (size() == 1) {
-            return get(0);
-        } else {
-            return this;
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public ObjectList copy() {
+		ObjectList newList = new ObjectList(name, _dynamic);
+		for (Object item : this) {
+			if (item instanceof IObjectContainer) {
+				item = ((IObjectContainer) item).copy();
+			}
+			newList.add(item);
+		}
+		return newList;
+	}
 
 	@Override
-    public String toXml() {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	public void addValue(String key, Object value) {
+		ObjectTree tree = new ObjectTree(key);
+		tree.put(key, checkToCopy(value));
+		add(tree);
+	}
+
+	private Object checkToCopy(Object value) {
+		if (value instanceof IObjectContainer) {
+			value = ((IObjectContainer) value).copy();
+		}
+		return value;
+	}
 
 	@Override
-    public String toJson() {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	public Object set(int index, Object element) {
+		return super.set(index, checkToCopy(element));
+	}
 
 	@Override
-    public void fromXml(String xml) {
-	    // TODO Auto-generated method stub
-	    
-    }
+	public boolean add(Object e) {
+		return super.add(checkToCopy(e));
+	}
 
 	@Override
-    public void fromJson(String json) {
-	    // TODO Auto-generated method stub
-	    
-    }
-    
+	public void add(int index, Object element) {
+		super.add(index, checkToCopy(element));
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends Object> c) {
+		ArrayList<Object> col = new ArrayList<Object>(c.size());
+		for (Object v : c) {
+			col.add(checkToCopy(v));
+		}
+		return super.addAll(col);
+	}
+
+	@Override
+	public boolean addAll(int index, Collection<? extends Object> c) {
+		ArrayList<Object> col = new ArrayList<Object>(c.size());
+		for (Object v : c) {
+			col.add(checkToCopy(v));
+		}
+		return super.addAll(index, col);
+	}
+
+	public Object shrink() {
+		if (size() <= 0) {
+			return null;
+		} else if (size() == 1) {
+			return get(0);
+		} else {
+			return this;
+		}
+	}
+
+	@Override
+	public String toXml(String rootName) {
+		if (rootName == null) {
+			rootName = name;
+		}
+		return XmlUtils.serializeXStream(this, rootName, rootName);
+	}
+
+	@Override
+	public String toJson() {
+		
+		return XmlUtils.serializeGson(this);
+	}
+
+	@Override
+	public void fromXml(String xml) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void fromJson(String json) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

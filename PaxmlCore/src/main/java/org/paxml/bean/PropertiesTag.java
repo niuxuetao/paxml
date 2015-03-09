@@ -54,10 +54,10 @@ public class PropertiesTag extends BeanTag {
          * 
          */
         public PropertiesObjectTree(final Map<?, ?> map) {
-            super(map);
+            super(null,map);
         }
         private PropertiesObjectTree() {
-            super();
+            super(null);
         }
         /**
          * {@inheritDoc}

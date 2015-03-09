@@ -16,19 +16,22 @@
  */
 package org.paxml.util;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jettison.mapped.Configuration;
+import org.springframework.beans.BeanUtils;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import com.thoughtworks.xstream.io.xml.XppDriver;
-import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public class XmlUtils {
 	// @XmlRootElement
@@ -36,6 +39,15 @@ public class XmlUtils {
 		private String pri = "pvivate value";
 		private Map m;
 		private String y;
+		private List objList = new LinkedList(Arrays.asList(new XX(), new XX()));
+
+		public List getObjList() {
+			return objList;
+		}
+
+		public void setObjList(List objList) {
+			this.objList = objList;
+		}
 
 		public String getY() {
 			return y;
@@ -57,7 +69,29 @@ public class XmlUtils {
 
 	public static class XX {
 		private int val;
-		private List myList = Arrays.asList("ml1", "ml2");
+		private Map xxMap = new LinkedHashMap();
+		private List myList = new ArrayList();
+
+		public XX() {
+			xxMap.put(1, 10);
+			xxMap.put(2, 20);
+
+			Map m1 = new HashMap();
+			m1.put("m1", Arrays.asList(1, 2));
+			Map m2 = new HashMap();
+			m2.put("m2", Arrays.asList(3, 4));
+
+			myList.add(m1);
+			myList.add(m2);
+		}
+
+		public Map getXxMap() {
+			return xxMap;
+		}
+
+		public void setXxMap(Map xxMap) {
+			this.xxMap = xxMap;
+		}
 
 		public int getVal() {
 			return val;
@@ -89,35 +123,40 @@ public class XmlUtils {
 		X x = new X();
 		x.setY("y-str");
 		x.setM(map1);
-		System.out.println(serializeXStream(x, "root", "ele", MediaType.XML));
-		System.out.println(serializeXStream(Arrays.asList(map1, 2), "root", "ele", MediaType.XML));
-		System.out.println(serializeXStream(map1, "root", "ele", MediaType.XML));
+		System.out.println(serializeXStream(x, "root", "ele"));
+		System.out.println(serializeXStream(Arrays.asList(map1, 2), "root", "ele"));
+		System.out.println(serializeXStream(map1, "root", "ele"));
 	}
 
-	public static enum MediaType {
-		XML, JSON
+	public static String serializeGson(Object obj) {
+		return new GsonBuilder().setPrettyPrinting().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+		        .addSerializationExclusionStrategy(new ExclusionStrategy() {
+
+			        @Override
+			        public boolean shouldSkipField(FieldAttributes f) {
+				        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(f.getDeclaringClass(), f.getName());
+				        return pd == null || pd.getReadMethod() == null;
+			        }
+
+			        @Override
+			        public boolean shouldSkipClass(Class<?> c) {
+				        return false;
+			        }
+		        })
+
+		        .create().toJson(obj);
 	}
 
+	public static String serializeXStream(final Object obj, final String rootTag, String topCollectionTag) {
 
-
-	public static String serializeXStream(final Object obj, final String rootTag, String topCollectionTag, MediaType type) {
-		final HierarchicalStreamDriver driver;
-		if (type == MediaType.JSON) {
-			Configuration conf = new Configuration();
-
-			if (rootTag == null) {
-				conf.setDropRootElement(true);
-			}
-			driver = new JettisonMappedXmlDriver(conf);
-		} else {
-			driver = new XppDriver();
-		}
-		XStream xstream = new XStream(driver);
+		XStream xstream = new XStream();
 		xstream.alias(rootTag, obj.getClass());
 		xstream.alias(rootTag, Map.class);
 		xstream.registerConverter(new XStreamMapColConverter(topCollectionTag));
-		xstream.registerConverter(new XStreamFilterConverter(new String[] { "java.lang.*", "java.util.*", "org.paxml.*" }, null), Integer.MIN_VALUE);
-		xstream.registerConverter(new XStreamBeanConverter(false, xstream.getMapper()),-20);
+		// xstream.registerConverter(new XStreamFilterConverter(new String[] {
+		// "java.lang.*", "java.util.*", "org.paxml.*" }, null),
+		// Integer.MIN_VALUE);
+		xstream.registerConverter(new XStreamBeanConverter(false, xstream.getMapper()), -20);
 
 		return xstream.toXML(obj);
 
