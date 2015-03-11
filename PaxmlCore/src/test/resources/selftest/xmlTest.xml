@@ -23,11 +23,12 @@
         <li>li2</li>
         <a>va</a>            
         <b at="atv">vb</b>
+        <!-- gson always parse number into float, so do not use number for testing -->
         <c>
-            <cc>1</cc>
+            <cc>1xx</cc>
         </c>
         <c>
-            <cc>2.0</cc>
+            <cc>2.0xx</cc>
         </c>
         <d>
             <dd>d1</dd>
