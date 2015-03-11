@@ -39,8 +39,9 @@ public interface IObjectContainer {
     void addValue(String key, Object value);
     Object shrink();
     List<Object> getList();
-    String toXml(String rootName);
+    String toXml();
     String toJson();
-    void fromXml(String xml);
-    void fromJson(String json);
+    void loadXml(String xml);
+    void loadJson(String json);
+    String getName();
 }

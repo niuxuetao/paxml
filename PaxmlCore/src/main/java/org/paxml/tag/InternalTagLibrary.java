@@ -36,6 +36,8 @@ import org.paxml.bean.CountTag;
 import org.paxml.bean.DateTag;
 import org.paxml.bean.FindConstTag;
 import org.paxml.bean.FlattenTag;
+import org.paxml.bean.FromJsonTag;
+import org.paxml.bean.FromXmlTag;
 import org.paxml.bean.GroovyTag;
 import org.paxml.bean.HttpTag;
 import org.paxml.bean.JoinTag;
@@ -54,6 +56,8 @@ import org.paxml.bean.SftpTag;
 import org.paxml.bean.SoapTag;
 import org.paxml.bean.SplitTag;
 import org.paxml.bean.SpringApplicationContextTag;
+import org.paxml.bean.ToJsonTag;
+import org.paxml.bean.ToXmlTag;
 import org.paxml.bean.TrimTag;
 import org.paxml.bean.UuidTag;
 import org.paxml.bean.WriteFileTag;
@@ -152,6 +156,11 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(HttpTag.class);
         registerTag(AntTag.class);
         registerTag(SftpTag.class);
+        
+        registerTag(FromXmlTag.class);
+        registerTag(FromJsonTag.class);
+        registerTag(ToXmlTag.class);
+        registerTag(ToJsonTag.class);
         
         // util functions
         registerUtil(UtilFunctions.class);

@@ -25,11 +25,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
+import org.json.JSONObject;
+import org.paxml.core.PaxmlRuntimeException;
 import org.springframework.beans.BeanUtils;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.xstream.XStream;
 
@@ -77,7 +81,7 @@ public class XmlUtils {
 			xxMap.put(2, 20);
 
 			Map m1 = new HashMap();
-			m1.put("m1", Arrays.asList(1, 2));
+			m1.put("m1", Arrays.asList(1.0, 2.1));
 			Map m2 = new HashMap();
 			m2.put("m2", Arrays.asList(3, 4));
 
@@ -112,6 +116,9 @@ public class XmlUtils {
 	}
 
 	public static void main(String[] args) throws Exception {
+		System.out.println(xmlToJson("<nn/>"));
+		System.out.println(serializeGson(Arrays.asList("x", 'Y')));
+		System.out.println(xmlToJson("<xml a='1'>x</xml>"));
 
 		Map map1 = new LinkedHashMap();
 		Map map2 = new LinkedHashMap();
@@ -123,13 +130,18 @@ public class XmlUtils {
 		X x = new X();
 		x.setY("y-str");
 		x.setM(map1);
-		System.out.println(serializeXStream(x, "root", "ele"));
-		System.out.println(serializeXStream(Arrays.asList(map1, 2), "root", "ele"));
-		System.out.println(serializeXStream(map1, "root", "ele"));
+		String xml1 = serializeXStream(x, "root", "ele");
+		String xml2 = serializeXStream(parseXml(xml1), "root", "ele");
+		System.out.println(xml1);
+		System.out.println(xml2);
+		// System.err.println(StringUtils.difference(xml1, xml2));
+		// System.out.println(serializeXStream(Arrays.asList(map1, 2), "root",
+		// "ele"));
+		// System.out.println(serializeXStream(map1, "root", "ele"));
 	}
 
 	public static String serializeGson(Object obj) {
-		return new GsonBuilder().setPrettyPrinting().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+		return new GsonBuilder().setPrettyPrinting().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'Z")
 		        .addSerializationExclusionStrategy(new ExclusionStrategy() {
 
 			        @Override
@@ -142,9 +154,7 @@ public class XmlUtils {
 			        public boolean shouldSkipClass(Class<?> c) {
 				        return false;
 			        }
-		        })
-
-		        .create().toJson(obj);
+		        }).create().toJson(obj);
 	}
 
 	public static String serializeXStream(final Object obj, final String rootTag, String topCollectionTag) {
@@ -160,5 +170,58 @@ public class XmlUtils {
 
 		return xstream.toXML(obj);
 
+	}
+
+	public static String xmlToJson(String xml) {
+		JSONObject json = JsonXml.toJSONObject(xml);
+		if (json.length() <= 0) {
+			throw new PaxmlRuntimeException("Invalid xml: " + xml);
+		}
+		return json.toString(4);
+	}
+
+	public static Object parseXml(String xml) {
+		return parseXml(xml, false);
+	}
+
+	public static Object parseXml(String xml, boolean keepSingleRoot) {
+		String json = xmlToJson(xml);
+		StringTokenizer st = new StringTokenizer(json);
+
+		return parseJson(json, keepSingleRoot);
+	}
+
+	public static Object extractSingleMapRoot(Map map) {
+
+		if (map.size() == 1) {
+			Object root = map.values().iterator().next();
+			return root;
+		}
+		return map;
+	}
+
+	public static boolean isSingleRootMap(Object obj) {
+		if (!(obj instanceof Map)) {
+			return false;
+		}
+		return ((Map) obj).size() == 1;
+	}
+
+	public static Object parseJson(String json, boolean keepSingleRoot) {
+
+		Gson gson = new GsonBuilder().create();
+		String trimmed = json.trim();
+		if (trimmed.startsWith("{")) {
+			Map map = gson.fromJson(json, LinkedHashMap.class);
+			if (!keepSingleRoot && map.size() == 1) {
+				Object root = map.values().iterator().next();
+				return root;
+			}
+			return map;
+		} else if (trimmed.startsWith("[")) {
+			return gson.fromJson(json, ArrayList.class);
+		} else {
+			return json;
+		}
 	}
 }

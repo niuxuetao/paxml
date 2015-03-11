@@ -19,8 +19,13 @@ package org.paxml.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.paxml.el.UtilFunctions;
+import org.paxml.util.ReflectUtils;
 import org.paxml.util.XmlUtils;
+
+import sun.security.action.PutAllAction;
 
 /**
  * The object list.
@@ -134,29 +139,42 @@ public class ObjectList extends ArrayList<Object> implements IObjectContainer {
 	}
 
 	@Override
-	public String toXml(String rootName) {
+	public String toXml() {
+		return toXml(null, null);
+	}
+
+	public String toXml(String rootName, String rootElementName) {
 		if (rootName == null) {
 			rootName = name;
 		}
-		return XmlUtils.serializeXStream(this, rootName, rootName);
+		if (rootElementName == null) {
+			rootElementName = name;
+		}
+		return XmlUtils.serializeXStream(this, rootName, rootElementName);
 	}
 
 	@Override
 	public String toJson() {
-		
+
 		return XmlUtils.serializeGson(this);
 	}
 
 	@Override
-	public void fromXml(String xml) {
-		// TODO Auto-generated method stub
-
+	public void loadXml(String xml) {
+		ReflectUtils.collect(XmlUtils.parseXml(xml), this, true);
 	}
 
 	@Override
-	public void fromJson(String json) {
-		// TODO Auto-generated method stub
-
+	public void loadJson(String json) {
+		ReflectUtils.collect(XmlUtils.parseJson(json, false), this, true);
 	}
+	@Override
+	public String getName() {
+		return name;
+	}
+//	@Override
+//	public String toString(){
+//		return toJson();
+//	}
 
 }

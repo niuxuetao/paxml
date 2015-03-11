@@ -18,23 +18,37 @@
 
 -->
 <scenario>
-    <r id="x1">
+    <r id="obj">
         <li>li1</li>
         <li>li2</li>
-        <a>va</a>
-        <b>vb</b>
+        <a>va</a>            
+        <b at="atv">vb</b>
+        <c>
+            <cc>1</cc>
+        </c>
+        <c>
+            <cc>2.0</cc>
+        </c>
+        <d>
+            <dd>d1</dd>
+            <dd>d2</dd>
+        </d>
     </r>
     
-    <print>====${x1.toXml(null)}</print>
+    <print>====</print>
     
-    <x id="x2">
-        <li>li1</li>
-        <li>li2</li>
-        <a>va</a>
-        <b>vb</b>
-    </x>
+    <toXml id="xml">${obj}</toXml>
+    <print>${xml}</print>
+        
+    <toJson id="json">${obj}</toJson>
+    <print>${json}</print>
     
-    <print>====${x2.toJson()}</print>
-    <print>${x2}</print>
+    <assert expected="${obj}" strict="true">
+        <actual><fromXml>${xml}</fromXml></actual>
+    </assert>    
+    
+    <assert expected="${obj}" strict="true">
+        <actual><fromJson>${json}</fromJson></actual>
+    </assert>    
 </scenario>
  

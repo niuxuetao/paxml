@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.paxml.util.ReflectUtils;
 import org.paxml.util.XmlUtils;
 
 /**
@@ -89,7 +90,9 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 		list.add(value);
 		Object existing = get(key);
 		if (existing == null) {
+			// put will do the copying work, if copy-able
 			put(key, value);
+			// getting a copy of it, if copied
 			Object v = get(key);
 			if (v instanceof ObjectList) {
 				((ObjectList) v)._dynamic = false;
@@ -157,7 +160,6 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 		return Collections.unmodifiableList(list);
 	}
 
-	@Override
 	public String toXml(String rootName) {
 		if (rootName == null) {
 			rootName = name;
@@ -166,21 +168,45 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	}
 
 	@Override
+	public String toXml() {
+		return toXml(null);
+	}
+
+	@Override
 	public String toJson() {
-		
+
 		return XmlUtils.serializeGson(this);
 	}
 
 	@Override
-	public void fromXml(String xml) {
-		// TODO Auto-generated method stub
+	public void loadXml(String xml) {
 
+		String json = XmlUtils.xmlToJson(xml);
+		Object obj = XmlUtils.parseJson(json, true);
+		if (obj instanceof Map) {
+			addValues((Map) obj);
+		} else {
+			throw new PaxmlRuntimeException("Cannot load xml: " + xml);
+		}
 	}
 
 	@Override
-	public void fromJson(String json) {
-		// TODO Auto-generated method stub
-
+	public void loadJson(String json) {
+		Object obj = XmlUtils.parseJson(json, true);
+		if (obj instanceof Map) {
+			addValues((Map) obj);
+		} else {
+			throw new PaxmlRuntimeException("Cannot load json with no key: " + json);
+		}
 	}
 
+	@Override
+	public String getName() {
+		return name;
+	}
+
+//	@Override
+//	public String toString() {
+//		return toJson();
+//	}
 }

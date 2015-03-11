@@ -15,7 +15,7 @@ public class XStreamMapColConverter implements Converter {
 	private final String rootCollectionName;
 
 	public XStreamMapColConverter(String rootCollectionName) {
-		this.rootCollectionName = rootCollectionName == null ? "*collection*element*" : rootCollectionName;
+		this.rootCollectionName = rootCollectionName == null ? "_" : rootCollectionName;
 	}
 
 	public boolean canConvert(final Class clazz) {

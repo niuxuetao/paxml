@@ -402,7 +402,13 @@ public final class ReflectUtils {
 	public static int collect(Iterable it, Collection col) {
 		return collect(it.iterator(), col);
 	}
-
+	/**
+	 * Collect elements from source to target.
+	 * @param obj the collectable source
+	 * @param col the target collection
+	 * @param collectSingle true to put single not collectable on the target collection, false not
+	 * @return the number of elements collected
+	 */
 	public static int collect(Object obj, Collection col, boolean collectSingle) {
 
 		if (obj instanceof Iterable) {

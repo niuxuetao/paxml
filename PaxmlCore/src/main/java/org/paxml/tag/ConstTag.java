@@ -107,7 +107,20 @@ public class ConstTag extends AbstractTag {
 				}
 				myValue = tree.shrink();
 			} else if (hasSubconsts) {
-				throw new PaxmlRuntimeException("Cannot mix const tag with value tag under the same parent");
+				ObjectTree tree = new ObjectTree(valueName);
+				for (Object childResult : childrenResults) {
+					if (childResult instanceof ConstNode) {
+						ConstNode node = (ConstNode) childResult;
+						if (node.getValue() != null) {
+							tree.addValue(node.getName(), node.getValue());
+						}
+					} else if(childResult!=null) {
+						tree.addValue("value", childResult.toString());
+					}
+				}
+				myValue = tree.shrink();
+				// throw new
+				// PaxmlRuntimeException("Cannot mix const tag with value tag under the same parent");
 			} else {
 
 				ObjectList list = new ObjectList(valueName, false);
