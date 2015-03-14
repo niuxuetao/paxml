@@ -19,7 +19,7 @@
 -->
 <scenario>
     <rest id="res" verb="get"
-        address="http://api.rottentomatoes.com/api/public/v1.0/movies.json?q=love&amp;page_limit=11&amp;page=1&amp;apikey=ct2mynv7qu933332wqq4ntz7" />
+        address="http://api.rottentomatoes.com/api/public/v1.0/movies.json?q=love&amp;page_limit=11&amp;page=1&amp;apikey=${rottenTomatoesApiKey}" />
     <print>Rotten Tomatoes</print>
     <print><toXml>${res}</toXml></print>
     <iterate list="${res.body.movies}">
