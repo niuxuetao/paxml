@@ -41,7 +41,7 @@ public class FromJsonTag extends BeanTag {
 			return null;
 		}
 		
-		return XmlUtils.parseJson(val.toString(), true);
+		return XmlUtils.fromJson(val.toString(), true);
 	}
 
 }

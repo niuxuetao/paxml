@@ -47,6 +47,7 @@ import org.paxml.bean.PrintTag;
 import org.paxml.bean.PropertiesTag;
 import org.paxml.bean.RandomTag;
 import org.paxml.bean.ReadFileTag;
+import org.paxml.bean.RestTag;
 import org.paxml.bean.ResultTag;
 import org.paxml.bean.ReturnTag;
 import org.paxml.bean.RunTag;
@@ -154,6 +155,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(CountTag.class);
         registerTag(LiteralTag.class);
         registerTag(HttpTag.class);
+        registerTag(RestTag.class);
         registerTag(AntTag.class);
         registerTag(SftpTag.class);
         

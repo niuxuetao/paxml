@@ -16,8 +16,6 @@
  */
 package org.paxml.util;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,16 +23,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONObject;
 import org.paxml.core.PaxmlRuntimeException;
-import org.springframework.beans.BeanUtils;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.xstream.XStream;
 
 public class XmlUtils {
@@ -116,8 +110,8 @@ public class XmlUtils {
 	}
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(xmlToJson("<nn/>"));
-		System.out.println(serializeGson(Arrays.asList("x", 'Y')));
+		System.out.println(toJson(fromJson(xmlToJson("<nn/>"))));
+		System.out.println(toJson(fromJson(toJson(Arrays.asList("x", 'Y')))));
 		System.out.println(xmlToJson("<xml a='1'>x</xml>"));
 
 		Map map1 = new LinkedHashMap();
@@ -130,34 +124,28 @@ public class XmlUtils {
 		X x = new X();
 		x.setY("y-str");
 		x.setM(map1);
-		String xml1 = serializeXStream(x, "root", "ele");
-		String xml2 = serializeXStream(parseXml(xml1), "root", "ele");
+		String xml1 = toXml(x, "root", "ele");
+		String xml2 = toXml(fromXml(xml1), "root", "ele");
 		System.out.println(xml1);
 		System.out.println(xml2);
+		System.out.println(toJson(x));
 		// System.err.println(StringUtils.difference(xml1, xml2));
 		// System.out.println(serializeXStream(Arrays.asList(map1, 2), "root",
 		// "ele"));
 		// System.out.println(serializeXStream(map1, "root", "ele"));
 	}
 
-	public static String serializeGson(Object obj) {
-		return new GsonBuilder().setPrettyPrinting().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'Z")
-		        .addSerializationExclusionStrategy(new ExclusionStrategy() {
+	public static String toJson(Object obj) {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+		} catch (Exception e) {
+			throw new PaxmlRuntimeException("Cannot convert to json", e);
+		}
 
-			        @Override
-			        public boolean shouldSkipField(FieldAttributes f) {
-				        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(f.getDeclaringClass(), f.getName());
-				        return pd == null || pd.getReadMethod() == null;
-			        }
-
-			        @Override
-			        public boolean shouldSkipClass(Class<?> c) {
-				        return false;
-			        }
-		        }).create().toJson(obj);
 	}
 
-	public static String serializeXStream(final Object obj, final String rootTag, String topCollectionTag) {
+	public static String toXml(final Object obj, final String rootTag, String topCollectionTag) {
 
 		XStream xstream = new XStream();
 		xstream.alias(rootTag, obj.getClass());
@@ -180,15 +168,13 @@ public class XmlUtils {
 		return json.toString(4);
 	}
 
-	public static Object parseXml(String xml) {
-		return parseXml(xml, false);
+	public static Object fromXml(String xml) {
+		return fromXml(xml, false);
 	}
 
-	public static Object parseXml(String xml, boolean keepSingleRoot) {
+	public static Object fromXml(String xml, boolean keepSingleRoot) {
 		String json = xmlToJson(xml);
-		StringTokenizer st = new StringTokenizer(json);
-
-		return parseJson(json, keepSingleRoot);
+		return fromJson(json, keepSingleRoot);
 	}
 
 	public static Object extractSingleMapRoot(Map map) {
@@ -207,21 +193,39 @@ public class XmlUtils {
 		return ((Map) obj).size() == 1;
 	}
 
-	public static Object parseJson(String json, boolean keepSingleRoot) {
-
-		Gson gson = new GsonBuilder().create();
-		String trimmed = json.trim();
-		if (trimmed.startsWith("{")) {
-			Map map = gson.fromJson(json, LinkedHashMap.class);
-			if (!keepSingleRoot && map.size() == 1) {
-				Object root = map.values().iterator().next();
-				return root;
+	public static Object parseJsonOrXmlOrString(String jsonOrXmlOrString) {
+		Object r = jsonOrXmlOrString;
+		String trimmed = jsonOrXmlOrString.trim();
+		if (trimmed.startsWith("<")) {
+			try {
+				r = fromXml(jsonOrXmlOrString);
+			} catch (Exception e) {
+				// keep silent
 			}
-			return map;
-		} else if (trimmed.startsWith("[")) {
-			return gson.fromJson(json, ArrayList.class);
-		} else {
-			return json;
+		} else if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+			try {
+				r = fromJson(jsonOrXmlOrString, true);
+			} catch (Exception e) {
+				// keep silent
+			}
+		}
+		return r;
+	}
+
+	public static Object fromJson(String json) {
+		return fromJson(json, true);
+	}
+
+	public static Object fromJson(String json, boolean keepSingleRoot) {
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		try {
+			return mapper.readValue(json, new TypeReference<Object>() {
+			});
+
+		} catch (Exception e) {
+			throw new PaxmlRuntimeException("Cannot parse from json", e);
 		}
 	}
 }

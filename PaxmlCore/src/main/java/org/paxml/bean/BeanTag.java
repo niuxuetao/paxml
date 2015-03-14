@@ -96,12 +96,17 @@ public abstract class BeanTag extends AbstractInvokerTag {
 	@Override
 	protected final Object invoke(final Context context) throws Exception {
 		// cache the initial properties
-		final Map<String, Object> initialProperties = new HashMap<String, Object>(settableProperties.size());
-		for (PropertyDescriptor pd : settableProperties) {
-			initialProperties.put(pd.getName(), getPropertyValue(pd.getName()));
-		}
+		// final Map<String, Object> initialProperties = new HashMap<String,
+		// Object>(settableProperties.size());
+		// for (PropertyDescriptor pd : settableProperties) {
+		// initialProperties.put(pd.getName(), getPropertyValue(pd.getName()));
+		// }
 		if (strictOnPropertyNames(context)) {
-			assertNoExcessiveParameters(initialProperties.keySet(), context);
+			Set<String> props = new HashSet<String>(settableProperties.size());
+			for (PropertyDescriptor pd : settableProperties) {
+				props.add(pd.getName());
+			}
+			assertNoExcessiveParameters(props, context);
 		}
 		preValueInjection();
 
@@ -120,12 +125,12 @@ public abstract class BeanTag extends AbstractInvokerTag {
 		Object result = doInvoke(context);
 
 		// restore the properties
-		populateProperties(true, new IPropertyValueReader() {
-
-			public Object getValue(String name) {
-				return initialProperties.get(name);
-			}
-		});
+		// populateProperties(true, new IPropertyValueReader() {
+		//
+		// public Object getValue(String name) {
+		// return initialProperties.get(name);
+		// }
+		// });
 
 		return result;
 	}

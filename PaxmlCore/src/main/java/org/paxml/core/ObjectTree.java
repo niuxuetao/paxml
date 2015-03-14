@@ -164,7 +164,7 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 		if (rootName == null) {
 			rootName = name;
 		}
-		return XmlUtils.serializeXStream(this, rootName, null);
+		return XmlUtils.toXml(this, rootName, null);
 	}
 
 	@Override
@@ -175,14 +175,14 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	@Override
 	public String toJson() {
 
-		return XmlUtils.serializeGson(this);
+		return XmlUtils.toJson(this);
 	}
 
 	@Override
 	public void loadXml(String xml) {
 
 		String json = XmlUtils.xmlToJson(xml);
-		Object obj = XmlUtils.parseJson(json, true);
+		Object obj = XmlUtils.fromJson(json, true);
 		if (obj instanceof Map) {
 			addValues((Map) obj);
 		} else {
@@ -192,7 +192,7 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 
 	@Override
 	public void loadJson(String json) {
-		Object obj = XmlUtils.parseJson(json, true);
+		Object obj = XmlUtils.fromJson(json, true);
 		if (obj instanceof Map) {
 			addValues((Map) obj);
 		} else {

@@ -66,7 +66,7 @@ public class SoapTag extends BeanTag {
 
     private String url;
     private boolean responseless = false;
-    private Object header;
+    private Map headers;
     private Object body;
     private String targetNamespace;
 
@@ -84,8 +84,8 @@ public class SoapTag extends BeanTag {
         // method.setRequestHeader(headerName, headerValue);
         method.setRequestBody(out.toString("UTF-8"));
         method.setRequestHeader("Content-Type", "text/xml;charset=UTF-8");
-        if (header != null) {
-            Map<?, ?> hd = (Map<?, ?>) this.header;
+        if (headers != null) {
+            Map<?, ?> hd = (Map<?, ?>) this.headers;
             for (Map.Entry<?, ?> entry : hd.entrySet()) {
                 Object obj = entry.getValue();
                 if (obj != null) {
@@ -255,15 +255,15 @@ public class SoapTag extends BeanTag {
         this.url = url;
     }
 
-    public Object getHeader() {
-        return header;
-    }
+    public Map getHeaders() {
+		return headers;
+	}
 
-    public void setHeader(Object header) {
-        this.header = header;
-    }
+	public void setHeaders(Map headers) {
+		this.headers = headers;
+	}
 
-    public Object getBody() {
+	public Object getBody() {
         return body;
     }
 

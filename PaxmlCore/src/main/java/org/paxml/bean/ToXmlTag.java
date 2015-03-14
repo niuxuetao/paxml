@@ -50,7 +50,7 @@ public class ToXmlTag extends BeanTag {
 			rt = "xml-fragment";
 		}
 
-		return XmlUtils.serializeXStream(val, rt, rootListItemTag == null ? "item" : rootListItemTag);
+		return XmlUtils.toXml(val, rt, rootListItemTag == null ? "item" : rootListItemTag);
 	}
 
 	public String getRootTag() {

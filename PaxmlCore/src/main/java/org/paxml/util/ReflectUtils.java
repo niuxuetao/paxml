@@ -28,8 +28,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.collections.iterators.ArrayIterator;
@@ -363,6 +365,12 @@ public final class ReflectUtils {
 			if (targetValue == null) {
 				throw new PaxmlRuntimeException("No enum named '" + from + "' is defined in class: " + expectedType);
 			}
+		} else if (List.class.equals(expectedType)) {
+			targetValue = new ArrayList();
+			collect(from, (Collection) targetValue, true);
+		} else if (Set.class.equals(expectedType)) {
+			targetValue = new LinkedHashSet();
+			collect(from, (Collection) targetValue, true);
 		} else if (isImplementingClass(expectedType, Collection.class, false)) {
 			try {
 				targetValue = expectedType.newInstance();
@@ -402,11 +410,17 @@ public final class ReflectUtils {
 	public static int collect(Iterable it, Collection col) {
 		return collect(it.iterator(), col);
 	}
+
 	/**
 	 * Collect elements from source to target.
-	 * @param obj the collectable source
-	 * @param col the target collection
-	 * @param collectSingle true to put single not collectable on the target collection, false not
+	 * 
+	 * @param obj
+	 *            the collectable source
+	 * @param col
+	 *            the target collection
+	 * @param collectSingle
+	 *            true to put single not collectable on the target collection,
+	 *            false not
 	 * @return the number of elements collected
 	 */
 	public static int collect(Object obj, Collection col, boolean collectSingle) {
@@ -562,10 +576,12 @@ public final class ReflectUtils {
 		}
 		throw new PaxmlRuntimeException("No method named '" + method + "' has " + args.length + " parameters from class: " + clazz.getName());
 	}
+
 	/**
 	 * Property descriptor type enum.
+	 * 
 	 * @author Xuetao Niu
-	 *
+	 * 
 	 */
 	public static enum PropertyDescriptorType {
 		GETTER, SETTER
@@ -576,7 +592,8 @@ public final class ReflectUtils {
 	 * 
 	 * @param clazz
 	 *            the class
-	 * @param type the type filter, null means no filtering
+	 * @param type
+	 *            the type filter, null means no filtering
 	 * @return the list of property descriptors.
 	 */
 	public static List<PropertyDescriptor> getPropertyDescriptors(Class clazz, PropertyDescriptorType type) {

@@ -47,7 +47,7 @@ public class FromXmlTag extends BeanTag {
 			return null;
 		}
 
-		Map map = (Map) XmlUtils.parseXml(val.toString(), true);
+		Map map = (Map) XmlUtils.fromXml(val.toString(), true);
 		String rootName = map.keySet().iterator().next().toString();
 
 		Object obj = XmlUtils.extractSingleMapRoot(map);

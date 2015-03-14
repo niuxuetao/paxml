@@ -1420,6 +1420,6 @@ public class Context implements IdentityManager {
 	}
 
 	public String dump() {
-		return XmlUtils.serializeXStream(this, "context", null);
+		return XmlUtils.toXml(this, "context", null);
 	}
 }

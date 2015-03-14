@@ -41,7 +41,7 @@ public class ToJsonTag extends BeanTag {
 			return null;
 		}
 		
-		return XmlUtils.serializeGson(val);
+		return XmlUtils.toJson(val);
 	}
 
 }

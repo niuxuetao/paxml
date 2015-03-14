@@ -150,23 +150,23 @@ public class ObjectList extends ArrayList<Object> implements IObjectContainer {
 		if (rootElementName == null) {
 			rootElementName = name;
 		}
-		return XmlUtils.serializeXStream(this, rootName, rootElementName);
+		return XmlUtils.toXml(this, rootName, rootElementName);
 	}
 
 	@Override
 	public String toJson() {
 
-		return XmlUtils.serializeGson(this);
+		return XmlUtils.toJson(this);
 	}
 
 	@Override
 	public void loadXml(String xml) {
-		ReflectUtils.collect(XmlUtils.parseXml(xml), this, true);
+		ReflectUtils.collect(XmlUtils.fromXml(xml), this, true);
 	}
 
 	@Override
 	public void loadJson(String json) {
-		ReflectUtils.collect(XmlUtils.parseJson(json, false), this, true);
+		ReflectUtils.collect(XmlUtils.fromJson(json, false), this, true);
 	}
 	@Override
 	public String getName() {

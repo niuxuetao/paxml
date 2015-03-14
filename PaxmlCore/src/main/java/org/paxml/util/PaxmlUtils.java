@@ -39,6 +39,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
+import com.thoughtworks.xstream.core.util.Base64Encoder;
+
 public class PaxmlUtils {
 
 	private static final Log log = LogFactory.getLog(PaxmlUtils.class);
@@ -340,4 +342,17 @@ public class PaxmlUtils {
 		return out;
 	}
 
+	public static String[] makeHttpClientAutorizationHeader(String username, String password) {
+
+		String un_pd = username + ":" + (password == null ? "" : password);
+		byte[] bytes;
+		try {
+			bytes = un_pd.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new PaxmlRuntimeException(e);
+		}
+		String auth = "Basic " + new Base64Encoder().encode(bytes);
+		return new String[] { "Authorization", auth };
+
+	}
 }
