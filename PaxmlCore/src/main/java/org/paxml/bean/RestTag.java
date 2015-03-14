@@ -88,8 +88,8 @@ public class RestTag extends BeanTag {
 	public static final String TAG_NAME = "rest";
 
 	private String address;
-	private String verb;
-	private HttpMethod method;
+	private String verb = "get";
+	private HttpMethod method = HttpMethod.GET;
 	private Map headers;
 	private String username;
 	private String password;
