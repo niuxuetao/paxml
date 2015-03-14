@@ -31,18 +31,17 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.core.Context;
-import org.paxml.core.IEntity;
 import org.paxml.core.Context.Stack.IStackTraverser;
+import org.paxml.core.IEntity;
 import org.paxml.selenium.rc.SeleniumTag;
 import org.paxml.selenium.rc.XSelenium;
 import org.paxml.selenium.rc.XSelenium.SnapshotInfo;
 import org.paxml.tag.ITag;
 import org.paxml.testng.PaxmlTestCaseFactory.ILockedOperation;
+import org.paxml.util.XmlUtils;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
-
-import com.google.gson.Gson;
 
 /**
  * paxml test case impl for testNG.
@@ -281,7 +280,7 @@ public abstract class AbstractPaxmlTestResult {
 	public File writeReportFile(Object tr, boolean index) {
 		String str = null;
 		if (resultType == ResultType.JSON) {
-			str = serializeJson(tr);
+			str = XmlUtils.toJson(tr);
 		} else if (resultType == ResultType.XML) {
 			str = serializeXml(tr);
 		} else {
@@ -323,9 +322,6 @@ public abstract class AbstractPaxmlTestResult {
 
 	}
 
-	public static String serializeJson(Object obj) {
-		return new Gson().toJson(obj);
-	}
 
 	public static String serializeXml(Object obj) {
 		final String encoding = "UTF-8";
