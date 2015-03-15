@@ -40,14 +40,16 @@ public class CryptoUtils {
 	public static final String DEFAULT_KEY_STORE_NAME = "";
 	public static final String DEFAULT_KEY_NAME = "";
 	public static final String KEY_STORE_TYPE = "JCEKS";
-	public static final String KEY_STORE_EXT = KEY_STORE_TYPE;
+	public static final String KEY_STORE_EXT = KEY_STORE_TYPE.toLowerCase();
+	public static final int KEY_LENGTH = 128;
 	public static final String KEY_STORE_FOLDER = "keys";
 	public static final String KEY_TYPE = "AES";
 	public static final String KEY_VALUE_ENCODING = "UTF-8";
 
 	private static final RWTaskExecutor keyStoreExecutor = new RWTaskExecutor();
-	
-	// the below thread-unsafe cache will be made thread-safe by using the keyStoreExecutor
+
+	// the below thread-unsafe cache will be made thread-safe by using the
+	// keyStoreExecutor
 	// above.
 	private static final Map<String, KeyStore> keyStoreCache = new HashMap<String, KeyStore>();
 
@@ -68,7 +70,7 @@ public class CryptoUtils {
 		SecretKey SecKey = getSecretKey(password);
 		try {
 			KeyGenerator KeyGen = KeyGenerator.getInstance(KEY_TYPE);
-			KeyGen.init(128);
+			KeyGen.init(KEY_LENGTH);
 
 			Cipher cipher = Cipher.getInstance(KEY_TYPE);
 
@@ -199,7 +201,7 @@ public class CryptoUtils {
 		if (keyStore != null) {
 			return keyStore;
 		}
-	
+
 		final char[] pwd = password.toCharArray();
 		if (!file.exists()) {
 			FileOutputStream fos = null;
