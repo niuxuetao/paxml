@@ -45,6 +45,7 @@ public class CryptoUtils {
 	public static final String KEY_STORE_FOLDER = "keys";
 	public static final String KEY_TYPE = "AES";
 	public static final String KEY_VALUE_ENCODING = "UTF-8";
+	private static final String DEFAULT_KEY_PASSWORD = "key_pass";
 
 	private static final RWTaskExecutor keyStoreExecutor = new RWTaskExecutor();
 
@@ -107,6 +108,21 @@ public class CryptoUtils {
 		return PaxmlUtils.getFileUnderPaxmlHome(KEY_STORE_FOLDER + File.separatorChar + keyStoreName + "." + KEY_STORE_EXT, true);
 	}
 
+	public static void changeKeyStorePassword(String keyStoreName, final String oldPassword, final String newPassword) {
+		final File file = getKeyStoreFile(keyStoreName);
+		final String key = file.getAbsolutePath();
+		keyStoreExecutor.executeWrite(key, new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				KeyStore keyStore = getKeyStore(file, oldPassword);
+				saveKeyStore(file, newPassword, keyStore);
+				keyStoreCache.put(key, keyStore);
+				return null;
+			}
+		});
+	}
+
 	public static String getKey(String keyStoreName, final String keyStorePassword, final String keyName, final String keyPassword) {
 		final File file = getKeyStoreFile(keyStoreName);
 		final String key = file.getAbsolutePath();
@@ -115,7 +131,7 @@ public class CryptoUtils {
 			@Override
 			public String call() throws Exception {
 				KeyStore keyStore = getKeyStore(file, keyStorePassword);
-				return getKey(keyStore, keyName, keyPassword == null ? keyStorePassword : keyPassword);
+				return getKey(keyStore, keyName, keyPassword);
 			}
 		});
 
@@ -124,6 +140,9 @@ public class CryptoUtils {
 	private static String getKey(KeyStore keyStore, String keyName, String keyPassword) {
 		if (StringUtils.isBlank(keyName)) {
 			keyName = DEFAULT_KEY_NAME;
+		}
+		if (keyPassword == null) {
+			keyPassword = DEFAULT_KEY_PASSWORD;
 		}
 		PasswordProtection _keyPassword = new PasswordProtection(keyPassword.toCharArray());
 		KeyStore.Entry entry;
@@ -153,7 +172,7 @@ public class CryptoUtils {
 			public Void call() throws Exception {
 
 				KeyStore keyStore = getKeyStore(file, keyStorePassword);
-				setKey(keyStore, keyName, keyPassword == null ? keyStorePassword : keyPassword, keyValue);
+				setKey(keyStore, keyName, keyPassword, keyValue);
 				saveKeyStore(file, keyStorePassword, keyStore);
 				// update in the key store cache to propagate the changes to
 				// other threads.
@@ -166,6 +185,9 @@ public class CryptoUtils {
 	private static void setKey(KeyStore keyStore, String keyName, String keyPassword, String keyValue) {
 		if (StringUtils.isBlank(keyName)) {
 			keyName = DEFAULT_KEY_NAME;
+		}
+		if (keyPassword == null) {
+			keyPassword = DEFAULT_KEY_PASSWORD;
 		}
 		try {
 			SecretKey secretKey = getSecretKey(keyValue);
