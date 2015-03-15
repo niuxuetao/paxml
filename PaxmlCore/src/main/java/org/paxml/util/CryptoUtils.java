@@ -88,7 +88,7 @@ public class CryptoUtils {
 		SecretKey SecKey = getSecretKey(password);
 		try {
 			KeyGenerator KeyGen = KeyGenerator.getInstance(KEY_TYPE);
-			KeyGen.init(128);
+			KeyGen.init(KEY_LENGTH);
 
 			Cipher cipher = Cipher.getInstance(KEY_TYPE);
 
