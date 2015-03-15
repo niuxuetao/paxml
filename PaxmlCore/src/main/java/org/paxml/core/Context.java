@@ -57,6 +57,7 @@ import org.paxml.launch.Paxml;
 import org.paxml.tag.ITag;
 import org.paxml.tag.ITagLibrary;
 import org.paxml.tag.invoker.FileInvokerTag;
+import org.paxml.util.CryptoUtils;
 import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
 import org.paxml.util.XmlUtils;
@@ -1418,8 +1419,18 @@ public class Context implements IdentityManager {
 	public long getId() {
 		return id;
 	}
+	
+	public String getSecret(String name) {
+		// 1st check if the current user
+		return CryptoUtils.getKey(null, "internal 'security' key", name, null);
+	}
+
+	public void setSecret(String name, String value) {
+		CryptoUtils.setKey(null, "internal 'security' key", name, null, value);
+	}
 
 	public String dump() {
 		return XmlUtils.toXml(this, "context", null);
 	}
+
 }

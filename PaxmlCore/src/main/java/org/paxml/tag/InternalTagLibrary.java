@@ -51,6 +51,7 @@ import org.paxml.bean.RestTag;
 import org.paxml.bean.ResultTag;
 import org.paxml.bean.ReturnTag;
 import org.paxml.bean.RunTag;
+import org.paxml.bean.SecretTag;
 import org.paxml.bean.SetLocaleTag;
 import org.paxml.bean.SetTag;
 import org.paxml.bean.SftpTag;
@@ -163,6 +164,8 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(FromJsonTag.class);
         registerTag(ToXmlTag.class);
         registerTag(ToJsonTag.class);
+        
+        registerTag(SecretTag.class);
         
         // util functions
         registerUtil(UtilFunctions.class);
