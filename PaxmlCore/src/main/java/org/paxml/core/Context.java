@@ -57,6 +57,7 @@ import org.paxml.launch.Paxml;
 import org.paxml.tag.ITag;
 import org.paxml.tag.ITagLibrary;
 import org.paxml.tag.invoker.FileInvokerTag;
+import org.paxml.user.UserKeyRepository;
 import org.paxml.util.CryptoUtils;
 import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
@@ -1419,14 +1420,21 @@ public class Context implements IdentityManager {
 	public long getId() {
 		return id;
 	}
-	
+
 	public String getSecret(String name) {
-		// 1st check if the current user
-		return CryptoUtils.getKey(null, "internal 'security' key", name, null);
+		String pwd = UserKeyRepository.getCurrentUserMasterKey();
+		if (pwd == null) {
+			throw new PaxmlRuntimeException("No key store password given!");
+		}
+		return CryptoUtils.getKey(null, pwd, name, null);
 	}
 
 	public void setSecret(String name, String value) {
-		CryptoUtils.setKey(null, "internal 'security' key", name, null, value);
+		String pwd = UserKeyRepository.getCurrentUserMasterKey();
+		if (pwd == null) {
+			throw new PaxmlRuntimeException("No key store password given!");
+		}
+		CryptoUtils.setKey(null, pwd, name, null, value);
 	}
 
 	public String dump() {

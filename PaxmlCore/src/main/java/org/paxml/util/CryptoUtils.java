@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -31,9 +32,13 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.paxml.core.PaxmlRuntimeException;
+
+import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 public class CryptoUtils {
 
@@ -41,9 +46,11 @@ public class CryptoUtils {
 	public static final String DEFAULT_KEY_NAME = "";
 	public static final String KEY_STORE_TYPE = "JCEKS";
 	public static final String KEY_STORE_EXT = KEY_STORE_TYPE.toLowerCase();
-	public static final int KEY_LENGTH = 128;
+	public static final int KEY_LENGTH_BITS = 128;
+	public static final int KEY_LENGTH_BYTES = KEY_LENGTH_BITS / 8;
 	public static final String KEY_STORE_FOLDER = "keys";
 	public static final String KEY_TYPE = "AES";
+	public static final String HASH_TYPE = "SHA-1";
 	public static final String KEY_VALUE_ENCODING = "UTF-8";
 	private static final String DEFAULT_KEY_PASSWORD = "key_pass";
 
@@ -55,15 +62,40 @@ public class CryptoUtils {
 	private static final Map<String, KeyStore> keyStoreCache = new HashMap<String, KeyStore>();
 
 	private static SecretKey getSecretKey(String keyValue) {
+
 		byte[] b;
 		try {
-			b = keyValue.getBytes(KEY_VALUE_ENCODING);
-		} catch (UnsupportedEncodingException e) {
+			MessageDigest sha = MessageDigest.getInstance(HASH_TYPE);
+			b = sha.digest(keyValue.getBytes(KEY_VALUE_ENCODING));
+		} catch (Exception e) {
 			throw new PaxmlRuntimeException(e);
 		}
+		byte[] kb = new byte[KEY_LENGTH_BYTES];
+		// take the left 16 bytes part of the sha-1
+		System.arraycopy(b, 0, kb, 0, kb.length);
+		
+		return new SecretKeySpec(kb, KEY_TYPE);
 
-		return new SecretKeySpec(b, KEY_TYPE);
+	}
 
+	public static String base64Encode(byte[] data) {
+		return new Base64Encoder().encode(data);
+	}
+
+	public static byte[] base64Decode(String data) {
+		return new Base64Encoder().decode(data);
+	}
+
+	public static String hexEncode(byte[] data) {
+		return new String(Hex.encodeHex(data));
+	}
+
+	public static byte[] hexDecode(String data) {
+		try {
+			return Hex.decodeHex(data.toCharArray());
+		} catch (DecoderException e) {
+			throw new PaxmlRuntimeException(e);
+		}
 	}
 
 	public static byte[] encrypt(String data, String password) {
@@ -71,7 +103,7 @@ public class CryptoUtils {
 		SecretKey SecKey = getSecretKey(password);
 		try {
 			KeyGenerator KeyGen = KeyGenerator.getInstance(KEY_TYPE);
-			KeyGen.init(KEY_LENGTH);
+			KeyGen.init(KEY_LENGTH_BITS);
 
 			Cipher cipher = Cipher.getInstance(KEY_TYPE);
 
@@ -89,7 +121,7 @@ public class CryptoUtils {
 		SecretKey SecKey = getSecretKey(password);
 		try {
 			KeyGenerator KeyGen = KeyGenerator.getInstance(KEY_TYPE);
-			KeyGen.init(KEY_LENGTH);
+			KeyGen.init(KEY_LENGTH_BITS);
 
 			Cipher cipher = Cipher.getInstance(KEY_TYPE);
 
@@ -163,6 +195,19 @@ public class CryptoUtils {
 
 	}
 
+	public static boolean deleteKeyStore(String keyStoreName) {
+		final File file = getKeyStoreFile(keyStoreName);
+		return keyStoreExecutor.executeWrite(file.getAbsolutePath(), new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+				return file.delete();
+			}
+
+		});
+
+	}
+
 	public static void setKey(String keyStoreName, final String keyStorePassword, final String keyName, final String keyPassword, final String keyValue) {
 		final File file = getKeyStoreFile(keyStoreName);
 		final String key = file.getAbsolutePath();
@@ -190,7 +235,7 @@ public class CryptoUtils {
 			keyPassword = DEFAULT_KEY_PASSWORD;
 		}
 		try {
-			SecretKey secretKey = getSecretKey(keyValue);
+			SecretKey secretKey = new SecretKeySpec(keyValue.getBytes(KEY_VALUE_ENCODING), KEY_TYPE);;
 
 			KeyStore.SecretKeyEntry keyStoreEntry = new KeyStore.SecretKeyEntry(secretKey);
 			PasswordProtection _keyPassword = new PasswordProtection(keyPassword.toCharArray());
