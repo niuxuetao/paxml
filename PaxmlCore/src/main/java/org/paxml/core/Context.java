@@ -54,10 +54,11 @@ import org.paxml.annotation.Util;
 import org.paxml.el.IUtilFunctionsFactory;
 import org.paxml.file.IFile;
 import org.paxml.launch.Paxml;
+import org.paxml.security.Secret;
+import org.paxml.security.SecretRepository;
 import org.paxml.tag.ITag;
 import org.paxml.tag.ITagLibrary;
 import org.paxml.tag.invoker.FileInvokerTag;
-import org.paxml.user.UserKeyRepository;
 import org.paxml.util.CryptoUtils;
 import org.paxml.util.PaxmlUtils;
 import org.paxml.util.ReflectUtils;
@@ -1421,20 +1422,25 @@ public class Context implements IdentityManager {
 		return id;
 	}
 
-	public String getSecret(String name) {
-		String pwd = UserKeyRepository.getCurrentUserMasterKey();
+	public static Secret getSecret(String name) {
+		String pwd = SecretRepository.getCurrentUserMasterKey();
 		if (pwd == null) {
-			throw new PaxmlRuntimeException("No key store password given!");
+			throw new PaxmlRuntimeException("No secret store password given!");
 		}
-		return CryptoUtils.getKey(null, pwd, name, null);
+		String clear = CryptoUtils.getKey(null, pwd, name, null);
+		if (clear == null) {
+			return null;
+		}
+		return new Secret(name, clear);
 	}
 
-	public void setSecret(String name, String value) {
-		String pwd = UserKeyRepository.getCurrentUserMasterKey();
+	public static Secret setSecret(String name, String value) {
+		String pwd = SecretRepository.getCurrentUserMasterKey();
 		if (pwd == null) {
-			throw new PaxmlRuntimeException("No key store password given!");
+			throw new PaxmlRuntimeException("No secret store password given!");
 		}
 		CryptoUtils.setKey(null, pwd, name, null, value);
+		return new Secret(name, value);
 	}
 
 	public String dump() {

@@ -33,6 +33,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -45,8 +48,8 @@ import org.paxml.core.InMemoryResource;
 import org.paxml.core.PaxmlResource;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.launch.Paxml;
+import org.paxml.security.Secret;
 import org.paxml.tag.AbstractTag;
-import org.paxml.util.CryptoUtils;
 import org.paxml.util.ReflectUtils;
 
 /**
@@ -839,12 +842,30 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		return null;
 	}
 
-	public static String getSecret(String name) {
+	public static Secret getSecret(String name) {
 		return Context.getCurrentContext().getSecret(name);
 		
 	}
 
 	public static void setSecret(String name, String value) {
 		Context.getCurrentContext().setSecret(name, value);
+	}
+	
+	public static String ask(String question, boolean mask){
+		class DummyFrame extends JFrame {
+			DummyFrame(String title) {
+				super(title);
+				setUndecorated(true);
+				setVisible(true);
+				setLocationRelativeTo(null);
+			}
+		}
+		JPasswordField pf = new JPasswordField();
+		int okCxl = JOptionPane.showConfirmDialog(new DummyFrame(question), pf, question, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+		if (okCxl == JOptionPane.OK_OPTION) {
+			return new String(pf.getPassword());
+		}
+		return null;
 	}
 }

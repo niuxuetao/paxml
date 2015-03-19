@@ -23,8 +23,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
 import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.crypto.Cipher;
@@ -55,11 +53,6 @@ public class CryptoUtils {
 	private static final String DEFAULT_KEY_PASSWORD = "key_pass";
 
 	private static final RWTaskExecutor keyStoreExecutor = new RWTaskExecutor();
-
-	// the below thread-unsafe cache will be made thread-safe by using the
-	// keyStoreExecutor
-	// above.
-	private static final Map<String, KeyStore> keyStoreCache = new HashMap<String, KeyStore>();
 
 	private static SecretKey getSecretKey(String keyValue) {
 
@@ -149,7 +142,6 @@ public class CryptoUtils {
 			public Void call() throws Exception {
 				KeyStore keyStore = getKeyStore(file, oldPassword);
 				saveKeyStore(file, newPassword, keyStore);
-				keyStoreCache.put(key, keyStore);
 				return null;
 			}
 		});
@@ -219,9 +211,6 @@ public class CryptoUtils {
 				KeyStore keyStore = getKeyStore(file, keyStorePassword);
 				setKey(keyStore, keyName, keyPassword, keyValue);
 				saveKeyStore(file, keyStorePassword, keyStore);
-				// update in the key store cache to propagate the changes to
-				// other threads.
-				keyStoreCache.put(key, keyStore);
 				return null;
 			}
 		});
@@ -248,7 +237,7 @@ public class CryptoUtils {
 	}
 
 	private static void saveKeyStore(final File file, final String password, final KeyStore ks) {
-
+		file.delete();
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(file);
@@ -264,10 +253,7 @@ public class CryptoUtils {
 	private static KeyStore getKeyStore(final File file, final String password) {
 		final String key = file.getAbsolutePath();
 
-		KeyStore keyStore = keyStoreCache.get(key);
-		if (keyStore != null) {
-			return keyStore;
-		}
+		KeyStore keyStore;
 
 		final char[] pwd = password.toCharArray();
 		if (!file.exists()) {
@@ -275,7 +261,7 @@ public class CryptoUtils {
 			try {
 				file.getParentFile().mkdirs();
 				fos = new FileOutputStream(file);
-				// .keystore file not created yet => create it
+				// keystore file not created yet => create it
 				keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
 				keyStore.load(null, null);
 				keyStore.store(fos, pwd);
@@ -290,18 +276,16 @@ public class CryptoUtils {
 		try {
 			fis = new FileInputStream(file);
 			keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
-			// .keystore file already exists => load it
+			// keystore file already exists => load it
 			keyStore.load(fis, pwd);
-
+			
 		} catch (Exception e) {
 			throw new PaxmlRuntimeException("Cannot read from key store file: " + key, e);
 		} finally {
 			IOUtils.closeQuietly(fis);
 		}
-		// put to concurrent cache to propagate the key store to other
-		// threads
-		keyStoreCache.put(key, keyStore);
-		return keyStoreCache.get(key);
+
+		return keyStore;
 
 	}
 
