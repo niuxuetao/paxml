@@ -149,7 +149,7 @@ public class XmlUtils {
 
 	public static String toXml(final Object obj, final String rootTag, String topCollectionTag) {
 
-		XStream xstream = new XStream(new DomDriver("UTF-8", new XmlFriendlyNameCoder("_-", "_")));		
+		XStream xstream = new XStream(new DomDriver("UTF-8", new XmlFriendlyNameCoder("&#36;", "_")));		
 		xstream.alias(rootTag, obj.getClass());
 		xstream.alias(rootTag, Map.class);
 		xstream.registerConverter(new XStreamMapColConverter(topCollectionTag));
