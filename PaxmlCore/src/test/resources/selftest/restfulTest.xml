@@ -18,10 +18,14 @@
 
 -->
 <scenario>
+    
+    
     <return/>
-    <const id="rottenTomatoesApiKey">123</const>
+    
+    
+    <secret id="apiKey" name="rottenTomatoesApiKey"/>
     <rest id="res" verb="get"
-        address="http://api.rottentomatoes.com/api/public/v1.0/movies.json?q=love&amp;page_limit=11&amp;page=1&amp;apikey=${rottenTomatoesApiKey}" />
+        address="http://api.rottentomatoes.com/api/public/v1.0/movies.json?q=love&amp;page_limit=11&amp;page=1&amp;apikey=${apiKey.decrypted}" />
     <print>Rotten Tomatoes</print>
     <print><toXml>${res}</toXml></print>
     <iterate list="${res.body.movies}">

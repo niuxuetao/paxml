@@ -17,12 +17,14 @@
 package org.paxml.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.paxml.util.ReflectUtils;
 import org.paxml.util.XmlUtils;
 
 /**
@@ -35,6 +37,8 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 
 	private String id;
 	private String name;
+
+	private final Set<String> xmlAttributes = new HashSet<String>(0);
 
 	private final List<Object> list = new ArrayList<Object>();
 
@@ -141,6 +145,7 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	@Override
 	public ObjectTree copy() {
 		ObjectTree newTree = emptyCopy();
+		newTree.xmlAttributes.addAll(xmlAttributes);
 		for (Map.Entry<String, Object> entry : entrySet()) {
 			Object item = entry.getValue();
 			if (item instanceof IObjectContainer) {
@@ -154,7 +159,12 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	protected ObjectTree emptyCopy() {
 		return new ObjectTree(name);
 	}
-
+	public boolean isXmlAttribute(String propName){
+		return xmlAttributes.contains(propName);
+	}
+	public void addXmlAttributes(Collection<String> attrNames){
+		xmlAttributes.addAll(attrNames);
+	}
 	@Override
 	public List<Object> getList() {
 		return Collections.unmodifiableList(list);
@@ -204,9 +214,9 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	public String getName() {
 		return name;
 	}
-
+		
 //	@Override
 //	public String toString() {
-//		return toJson();
+//		return toXml();
 //	}
 }

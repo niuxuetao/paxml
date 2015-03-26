@@ -34,6 +34,7 @@ import org.paxml.bean.CallTag;
 import org.paxml.bean.ConcatTag;
 import org.paxml.bean.CountTag;
 import org.paxml.bean.DateTag;
+import org.paxml.bean.DeleteSecretTag;
 import org.paxml.bean.FindConstTag;
 import org.paxml.bean.FlattenTag;
 import org.paxml.bean.FromJsonTag;
@@ -166,6 +167,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(ToJsonTag.class);
         
         registerTag(SecretTag.class);
+        registerTag(DeleteSecretTag.class);
         
         // util functions
         registerUtil(UtilFunctions.class);

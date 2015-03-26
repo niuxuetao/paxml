@@ -3,6 +3,7 @@ package org.paxml.util;
 import java.util.Collection;
 import java.util.Map;
 
+import org.paxml.core.ObjectTree;
 import org.paxml.core.PaxmlRuntimeException;
 
 import com.thoughtworks.xstream.converters.Converter;
@@ -52,21 +53,46 @@ public class XStreamMapColConverter implements Converter {
 	}
 
 	private void marshal(Map map, HierarchicalStreamWriter writer, MarshallingContext context) {
-		for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) map).entrySet()) {
-			Object v = entry.getValue();
-			String key = String.valueOf(entry.getKey());
-			if (v instanceof Map) {
-				writer.startNode(key);
-				context.convertAnother(v);
-				writer.endNode();
-			} else if (v instanceof Collection) {
-				marshal((Collection) v, writer, context, key);
-			} else {
-				writer.startNode(key);
-				// writer.setValue(entry.getValue().toString());
-				context.convertAnother(v);
-				writer.endNode();
+		if (map instanceof ObjectTree) {
+			ObjectTree tree = (ObjectTree) map;
+			for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) map).entrySet()) {
+				Object v = entry.getValue();
+				String key = String.valueOf(entry.getKey());
+				if (tree.isXmlAttribute(key)) {
+					if (v != null) {
+						writer.addAttribute(key, v.toString());
+					}
+				} else if (v instanceof Map) {
+					writer.startNode(key);
+					context.convertAnother(v);
+					writer.endNode();
+				} else if (v instanceof Collection) {
+					marshal((Collection) v, writer, context, key);
+				} else {
+					writer.startNode(key);
+					// writer.setValue(entry.getValue().toString());
+					context.convertAnother(v);
+					writer.endNode();
 
+				}
+			}
+		} else {
+			for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) map).entrySet()) {
+				Object v = entry.getValue();
+				String key = String.valueOf(entry.getKey());
+				if (v instanceof Map) {
+					writer.startNode(key);
+					context.convertAnother(v);
+					writer.endNode();
+				} else if (v instanceof Collection) {
+					marshal((Collection) v, writer, context, key);
+				} else {
+					writer.startNode(key);
+					// writer.setValue(entry.getValue().toString());
+					context.convertAnother(v);
+					writer.endNode();
+
+				}
 			}
 		}
 	}

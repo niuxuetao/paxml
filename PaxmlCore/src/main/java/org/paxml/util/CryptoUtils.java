@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
+import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.util.concurrent.Callable;
 
@@ -66,7 +67,7 @@ public class CryptoUtils {
 		byte[] kb = new byte[KEY_LENGTH_BYTES];
 		// take the left 16 bytes part of the sha-1
 		System.arraycopy(b, 0, kb, 0, kb.length);
-		
+
 		return new SecretKeySpec(kb, KEY_TYPE);
 
 	}
@@ -200,6 +201,29 @@ public class CryptoUtils {
 
 	}
 
+	public static void deleteKey(String keyStoreName, final String keyStorePassword, final String keyName) {
+		final File file = getKeyStoreFile(keyStoreName);
+		keyStoreExecutor.executeWrite(file.getAbsolutePath(), new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				deleteKey(getKeyStore(file, keyStorePassword), keyName);
+				return null;
+			}
+
+		});
+	}
+
+	private static void deleteKey(KeyStore keyStore, String keyName) {
+		try {
+			if (keyStore.containsAlias(keyName)) {
+				keyStore.deleteEntry(keyName);
+			}
+		} catch (KeyStoreException e) {
+			throw new PaxmlRuntimeException(e);
+		}
+	}
+
 	public static void setKey(String keyStoreName, final String keyStorePassword, final String keyName, final String keyPassword, final String keyValue) {
 		final File file = getKeyStoreFile(keyStoreName);
 		final String key = file.getAbsolutePath();
@@ -224,7 +248,7 @@ public class CryptoUtils {
 			keyPassword = DEFAULT_KEY_PASSWORD;
 		}
 		try {
-			SecretKey secretKey = new SecretKeySpec(keyValue.getBytes(KEY_VALUE_ENCODING), KEY_TYPE);;
+			SecretKey secretKey = new SecretKeySpec(keyValue.getBytes(KEY_VALUE_ENCODING), KEY_TYPE);
 
 			KeyStore.SecretKeyEntry keyStoreEntry = new KeyStore.SecretKeyEntry(secretKey);
 			PasswordProtection _keyPassword = new PasswordProtection(keyPassword.toCharArray());
@@ -278,7 +302,7 @@ public class CryptoUtils {
 			keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
 			// keystore file already exists => load it
 			keyStore.load(fis, pwd);
-			
+
 		} catch (Exception e) {
 			throw new PaxmlRuntimeException("Cannot read from key store file: " + key, e);
 		} finally {

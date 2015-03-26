@@ -17,7 +17,9 @@
 package org.paxml.tag;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
@@ -58,6 +60,7 @@ public class ConstTag extends AbstractTag {
 	private String valueName;
 	private boolean subconst;
 	private Scope scope;
+	private final Set<String> attributes = new LinkedHashSet<String>(0);
 
 	private ChildrenResultList extractResults(ChildrenResultList from, ChildrenResultList to) {
 		if (to == null) {
@@ -99,6 +102,7 @@ public class ConstTag extends AbstractTag {
 			}
 			if (allSubconsts) {
 				ObjectTree tree = new ObjectTree(valueName);
+				tree.addXmlAttributes(attributes);
 				for (Object childResult : childrenResults) {
 					ConstNode node = (ConstNode) childResult;
 					if (node.getValue() != null) {
@@ -108,6 +112,7 @@ public class ConstTag extends AbstractTag {
 				myValue = tree.shrink();
 			} else if (hasSubconsts) {
 				ObjectTree tree = new ObjectTree(valueName);
+				tree.addXmlAttributes(attributes);
 				for (Object childResult : childrenResults) {
 					if (childResult instanceof ConstNode) {
 						ConstNode node = (ConstNode) childResult;
@@ -172,7 +177,9 @@ public class ConstTag extends AbstractTag {
 		// cancel the default behavior because the const has already been put on
 		// context in the 1st place.
 	}
-
+	void addAttributeName(String attr){
+		attributes.add(attr);
+	}
 	public String getValueName() {
 		return valueName;
 	}

@@ -30,6 +30,8 @@ import org.json.JSONObject;
 import org.paxml.core.PaxmlRuntimeException;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.io.xml.XmlFriendlyNameCoder;
 
 public class XmlUtils {
 	// @XmlRootElement
@@ -147,7 +149,7 @@ public class XmlUtils {
 
 	public static String toXml(final Object obj, final String rootTag, String topCollectionTag) {
 
-		XStream xstream = new XStream();
+		XStream xstream = new XStream(new DomDriver("UTF-8", new XmlFriendlyNameCoder("_-", "_")));		
 		xstream.alias(rootTag, obj.getClass());
 		xstream.alias(rootTag, Map.class);
 		xstream.registerConverter(new XStreamMapColConverter(topCollectionTag));

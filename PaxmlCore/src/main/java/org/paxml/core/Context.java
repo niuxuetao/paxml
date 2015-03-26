@@ -1443,6 +1443,15 @@ public class Context implements IdentityManager {
 		return new Secret(name, value);
 	}
 
+	public static void deleteSecret(String name) {
+		String pwd = SecretRepository.getCurrentUserMasterKey();
+		if (pwd == null) {
+			throw new PaxmlRuntimeException("No secret store password given!");
+		}
+		CryptoUtils.deleteKey(null, pwd, name);
+
+	}
+
 	public String dump() {
 		return XmlUtils.toXml(this, "context", null);
 	}

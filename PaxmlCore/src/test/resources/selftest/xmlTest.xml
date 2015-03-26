@@ -50,5 +50,18 @@
     <assert expected="${obj}" strict="true">
         <actual><fromJson>${json}</fromJson></actual>
     </assert>    
+    
+    <myXml id="myXml" myAttr="myAttr_val">
+        <subTag>subTag_val</subTag>
+        <iterate times="2">
+            <subTag_iter attrX="attrX_val">
+                <_subsub>_subsub_val</_subsub>
+            </subTag_iter>
+        </iterate>
+    </myXml>
+    
+    <print>with attributes:
+${myXml.toXml()}</print>
+    
 </scenario>
  
