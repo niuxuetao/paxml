@@ -17,27 +17,23 @@
 package org.paxml.bean;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
+import org.paxml.el.UtilFunctions;
 
 /**
- * Set tag impl.
+ * List tag impl.
  * 
  * @author Xuetao Niu
  * 
  */
-@Tag(name = "set")
-public class SetTag extends ListTag {
+@Tag(name = "list")
+public class ListTag extends BeanTag {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	protected Collection doInvoke(Context context) throws Exception {
-		Collection list = super.doInvoke(context);
-		return new LinkedHashSet(list);
-	}
+    protected Collection doInvoke(Context context) throws Exception {
+	    return UtilFunctions.list(getValue());
+    }
 
 }

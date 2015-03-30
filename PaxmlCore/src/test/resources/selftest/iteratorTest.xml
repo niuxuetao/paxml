@@ -107,5 +107,18 @@
   </iterate> 
   <assert expected="${util.list(0,1)}" actual="${list}"/>
   <assert expected="${util.list(0,1,2)}" actual="${innerList}"/>
+  
+  <!-- iteratively create a list -->
+  <list id="myList">
+    <value>
+        <iterate times="2">${var}</iterate>
+    </value>
+  </list>
+  <assert expected="${util.list(0,1)}" actual="${myList}" /> 
+  <list id="myList2">
+    <value>0</value>
+    <value>1</value>
+  </list>
+  <assert expected="${util.list(0,1)}" actual="${myList2}" />
 </scenario>
  

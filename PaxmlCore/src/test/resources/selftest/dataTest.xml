@@ -88,6 +88,19 @@
     <assert expected="1" actual="${size(x2_1)}" />
     <assert expected="4" actual="${size(x2_1.c)}" />
 
+    <data id="x2_2">
+        <c>
+            <!-- make c a list inside of a map -->
+            <iterate times="4" var="var"><c>${var}</c></iterate>
+        </c>
+    </data>
+    <log>x2_2=${x2_2}</log>
+    <assert actual="${x2_2}" >
+        <expected>
+            <c><c>${util.list(0,1,2,3)}</c></c>
+        </expected>
+    </assert>
+    
     <data id="x3">
         <log>123</log>
     </data>

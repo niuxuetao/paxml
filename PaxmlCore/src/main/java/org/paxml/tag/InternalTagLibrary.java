@@ -35,6 +35,7 @@ import org.paxml.bean.ConcatTag;
 import org.paxml.bean.CountTag;
 import org.paxml.bean.DateTag;
 import org.paxml.bean.DeleteSecretTag;
+import org.paxml.bean.EmailTag;
 import org.paxml.bean.FindConstTag;
 import org.paxml.bean.FlattenTag;
 import org.paxml.bean.FromJsonTag;
@@ -42,6 +43,7 @@ import org.paxml.bean.FromXmlTag;
 import org.paxml.bean.GroovyTag;
 import org.paxml.bean.HttpTag;
 import org.paxml.bean.JoinTag;
+import org.paxml.bean.ListTag;
 import org.paxml.bean.LogTag;
 import org.paxml.bean.PauseTag;
 import org.paxml.bean.PrintTag;
@@ -107,6 +109,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(ReturnTag.class);
         registerTag(ConstTag.class);
         registerTag(DefaultConstTag.class);
+        registerTag(ListTag.class);
         registerTag(SetTag.class);
         registerTag(AppendTag.class);
         
@@ -168,6 +171,8 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         
         registerTag(SecretTag.class);
         registerTag(DeleteSecretTag.class);
+        
+        registerTag(EmailTag.class);
         
         // util functions
         registerUtil(UtilFunctions.class);

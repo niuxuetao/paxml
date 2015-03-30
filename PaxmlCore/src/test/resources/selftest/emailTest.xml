@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+	This file is part of PaxmlCore.
+
+	PaxmlCore is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	PaxmlCore is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with PaxmlCore. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<scenario>
+
+	<const id="from">from@paxml.org</const>
+	<const id="replyTo">replyTo@paxml.org</const>
+	<list id="to">
+		<value>to1@paxml.org</value>
+		<value>to2@paxml.org</value>
+	</list>
+	<const id="cc">${util.list('cc1@paxml.org','cc2@paxml.org')}</const>
+
+	<const id="subject">this is the subject</const>
+	<const id="text">this is the text</const>
+
+	<const id="host">localhost</const>
+
+	<!-- start smtp server mock -->
+	<groovy id="gm">
+		import com.icegreen.greenmail.util.*;
+
+		GreenMail greenMail = new GreenMail(new
+		ServerSetup(25,"0.0.0.0","smtp")); //uses test ports by default
+		greenMail.start();
+		return greenMail;
+	</groovy>
+
+	<!-- send combined messages -->
+	<email username="blabla" password="xxx" isolate="false" />
+	<pause>2000</pause>
+
+	<assert expected="4" actual="${util.list(gm.receivedMessages).size()}" />
+	<iterate list="${gm.receivedMessages}">
+		<assert strict="true" actual="${new('org.paxml.test.MailMap',var)}">
+			<expected from="${from}" replyTo="${replyTo}" to="${to}" cc="${cc}" subject="${subject}" text="${text}" />
+		</assert>
+	</iterate>
+
+	<!-- send isolated messages -->
+	<expression>${gm.reset()}</expression>
+	<email username="blabla" password="xxx" isolate="true" />
+	<pause>2000</pause>
+
+	<groovy id="msgsActual">
+		def set=new HashSet();
+		for(msg in gm.getReceivedMessages()){
+		  set.add(new org.paxml.test.MailMap(msg));
+		}
+		return set;
+	</groovy>
+	<print>checking smtp emails: ${msgsActual}</print>
+	<set id="msgsExpected">
+		<value from="${from}" replyTo="${replyTo}" to="cc1@paxml.org" subject="${subject}" text="${text}" />
+		<value from="${from}" replyTo="${replyTo}" to="cc2@paxml.org" subject="${subject}" text="${text}" />
+		<value from="${from}" replyTo="${replyTo}" to="to1@paxml.org" subject="${subject}" text="${text}" />
+		<value from="${from}" replyTo="${replyTo}" to="to2@paxml.org" subject="${subject}" text="${text}" />
+	</set>
+	<print><toXml>${msgsExpected}</toXml></print>
+	<print><toXml>${msgsActual}</toXml></print>
+	<assert strict="true" expected="${msgsExpected}" actual="${msgsActual}" />
+
+</scenario>
+ 

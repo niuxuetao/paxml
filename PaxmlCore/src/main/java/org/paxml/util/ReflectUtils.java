@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.Set;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.paxml.core.PaxmlRuntimeException;
 import org.springframework.beans.BeanUtils;
 
@@ -386,11 +388,12 @@ public final class ReflectUtils {
 
 			try {
 				Constructor c = expectedType.getConstructor(Object.class);
-
 				targetValue = c.newInstance(from);
 			} catch (Exception e) {
 				throw new PaxmlRuntimeException(e);
 			}
+		} else if (from instanceof Map) {
+			return mapToBean((Map)from, expectedType);
 		} else {
 			targetValue = ConvertUtils.convert(from.toString(), expectedType);
 		}
@@ -410,6 +413,14 @@ public final class ReflectUtils {
 	public static int collect(Iterable it, Collection col) {
 		return collect(it.iterator(), col);
 	}
+	public static int collect(Map map, Collection col) {		
+		for(Map.Entry entry : ((Map<?,?>)map).entrySet()){
+			Map e=new HashMap();
+			e.put(entry.getKey(), entry.getValue());
+			col.add(e);
+		}
+		return map.size();
+	}	
 
 	/**
 	 * Collect elements from source to target.
@@ -424,28 +435,23 @@ public final class ReflectUtils {
 	 * @return the number of elements collected
 	 */
 	public static int collect(Object obj, Collection col, boolean collectSingle) {
-
-		if (obj instanceof Iterable) {
+		if(obj==null){
+			return 0;
+		}else if (obj instanceof Iterable) {
 			return collect((Iterable) obj, col);
 		} else if (obj instanceof Iterator) {
 			return collect((Iterator) obj, col);
 		} else if (obj instanceof Map) {
-			return collect(((Map) obj).values(), col);
+			return collect((Map) obj, col);
 		} else if (obj.getClass().isArray()) {
 			return collectArray(obj, col);
 		} else if (obj instanceof Enumeration) {
 			return collect((Enumeration) obj, col);
-		} else if (obj instanceof CharSequence) {
-			char[] seq = new char[((CharSequence) obj).length()];
-			for (int i = 0; i < seq.length; i++) {
-				seq[i] = ((CharSequence) obj).charAt(i);
-			}
-			return collectArray(seq, col);
 		} else if (collectSingle) {
 			col.add(obj);
 			return 1;
 		}
-		return -1;
+		return 0;
 	}
 
 	public static int collectArray(Object array, Collection col) {
@@ -620,4 +626,17 @@ public final class ReflectUtils {
 		}
 		return list;
 	}
+
+	public static Map beanToMap(Object bean) {
+		ObjectMapper m = new ObjectMapper();
+		Map<String, Object> mappedObject = m.convertValue(bean, Map.class);
+		return mappedObject;
+	}
+
+	public static <T> T mapToBean(Map map, Class<T> clazz) {
+		ObjectMapper m = new ObjectMapper();
+		T bean = m.convertValue(map, clazz);
+		return bean;
+	}
+
 }

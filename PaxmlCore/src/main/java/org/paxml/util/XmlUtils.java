@@ -16,12 +16,6 @@
  */
 package org.paxml.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -34,109 +28,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.XmlFriendlyNameCoder;
 
 public class XmlUtils {
-	// @XmlRootElement
-	public static class X {
-		private String pri = "pvivate value";
-		private Map m;
-		private String y;
-		private List objList = new LinkedList(Arrays.asList(new XX(), new XX()));
-
-		public List getObjList() {
-			return objList;
-		}
-
-		public void setObjList(List objList) {
-			this.objList = objList;
-		}
-
-		public String getY() {
-			return y;
-		}
-
-		public void setY(String y) {
-			this.y = y;
-		}
-
-		public Map getM() {
-			return m;
-		}
-
-		public void setM(Map m) {
-			this.m = m;
-		}
-
-	}
-
-	public static class XX {
-		private int val;
-		private Map xxMap = new LinkedHashMap();
-		private List myList = new ArrayList();
-
-		public XX() {
-			xxMap.put(1, 10);
-			xxMap.put(2, 20);
-
-			Map m1 = new HashMap();
-			m1.put("m1", Arrays.asList(1.0, 2.1));
-			Map m2 = new HashMap();
-			m2.put("m2", Arrays.asList(3, 4));
-
-			myList.add(m1);
-			myList.add(m2);
-		}
-
-		public Map getXxMap() {
-			return xxMap;
-		}
-
-		public void setXxMap(Map xxMap) {
-			this.xxMap = xxMap;
-		}
-
-		public int getVal() {
-			return val;
-		}
-
-		public void setVal(int val) {
-			this.val = val;
-		}
-
-		public List getMyList() {
-			return myList;
-		}
-
-		public void setMyList(List myList) {
-			this.myList = myList;
-		}
-
-	}
-
-	public static void main(String[] args) throws Exception {
-		System.out.println(toJson(fromJson(xmlToJson("<nn/>"))));
-		System.out.println(toJson(fromJson(toJson(Arrays.asList("x", 'Y')))));
-		System.out.println(xmlToJson("<xml a='1'>x</xml>"));
-
-		Map map1 = new LinkedHashMap();
-		Map map2 = new LinkedHashMap();
-		map2.put("deep", Arrays.asList("d1", "d2"));
-		map1.put(1, 100);
-		map1.put(2, map2);
-		map1.put("li", Arrays.asList("li1", "li2"));
-		map1.put("xx-val", new XX());
-		X x = new X();
-		x.setY("y-str");
-		x.setM(map1);
-		String xml1 = toXml(x, "root", "ele");
-		String xml2 = toXml(fromXml(xml1), "root", "ele");
-		System.out.println(xml1);
-		System.out.println(xml2);
-		System.out.println(toJson(x));
-		// System.err.println(StringUtils.difference(xml1, xml2));
-		// System.out.println(serializeXStream(Arrays.asList(map1, 2), "root",
-		// "ele"));
-		// System.out.println(serializeXStream(map1, "root", "ele"));
-	}
-
+	
 	public static String toJson(Object obj) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {

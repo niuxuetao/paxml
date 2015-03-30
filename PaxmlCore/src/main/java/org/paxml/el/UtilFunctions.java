@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
@@ -51,6 +52,7 @@ import org.paxml.launch.Paxml;
 import org.paxml.security.Secret;
 import org.paxml.tag.AbstractTag;
 import org.paxml.util.ReflectUtils;
+import org.paxml.util.XmlUtils;
 
 /**
  * The default util functions.
@@ -85,8 +87,10 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 	 * @return the list , never null
 	 */
 	public static List list(Object... objs) {
-		if (objs.length == 1 && objs[0] instanceof List) {
-			return (List) objs[0];
+		if (objs.length == 1) {
+			List r = new ArrayList();
+			ReflectUtils.collect(objs[0], r, true);
+			return r;
 		}
 		return new ArrayList(Arrays.asList(objs));
 
@@ -844,14 +848,14 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 
 	public static Secret getSecret(String name) {
 		return Context.getCurrentContext().getSecret(name);
-		
+
 	}
 
 	public static void setSecret(String name, String value) {
 		Context.getCurrentContext().setSecret(name, value);
 	}
-	
-	public static String ask(String question, boolean mask){
+
+	public static String ask(String question, boolean mask) {
 		class DummyFrame extends JFrame {
 			DummyFrame(String title) {
 				super(title);
@@ -868,4 +872,36 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		}
 		return null;
 	}
+	public static List sort(Collection list) {
+		return sort(list, true);
+	}
+	public static List sort(Collection list, boolean asc) {
+		List li = new ArrayList(list);
+		if (asc) {
+			Collections.sort(li);
+		} else {
+			Collections.reverse(li);
+		}
+		return li;
+	}
+	public static Object compress(Collection col) {
+		switch(col.size()){
+		case 0:
+			return null;
+		case 1:
+			return col.iterator().next();
+		}
+		return col;		
+	}
+	public static List collect(Object... objs) {
+		List list = new ArrayList();
+		for (Object obj : objs) {
+			ReflectUtils.collect(obj, list, true);
+		}
+		return list;
+	}
+	public static Object compactCollect(Object... objs) {
+		return compress(collect(objs));
+	}
+	
 }
