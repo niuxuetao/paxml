@@ -108,33 +108,39 @@ public abstract class SeleniumTag extends BeanTag {
 				return;
 			}
 			for (XSelenium selenium : seleniums) {
-				if (context == null) {
-					log.warn("Cleaning up selenium session without paxml context");
-					selenium.terminate();
-				} else if (context.getExceptionContext() == null) {
-					log.info("Cleaning up selenium session after successful execution");
-					selenium.terminate();
-				} else {
-					try {
-						// take snapshot because the test has errors.
-						if (selenium.getSnapshotsPath() != null) {
-							File file = selenium.takeSnapshot(context);
-							setErrorSnapshot(context.getExceptionContext(), file);
-						}
-					} finally {
-						boolean keep = true;
+				try {
+					if (context == null) {
+						log.warn("Cleaning up selenium session without paxml context");
+						selenium.terminate();
+					} else if (context.getExceptionContext() == null) {
+						log.info("Cleaning up selenium session after successful execution");
+						selenium.terminate();
+					} else {
 						try {
-							keep = isKeepSessionOnError(context);
+							// take snapshot because the test has errors.
+							if (selenium.getSnapshotsPath() != null) {
+								File file = selenium.takeSnapshot(context);
+								setErrorSnapshot(context.getExceptionContext(), file);
+							}
 						} finally {
-							if (keep) {
-								if (log.isWarnEnabled()) {
-									log.warn("The selenium session is not closed in the end," + " because the last <url> tag has @keepSessionOnError='true'!");
+							boolean keep = true;
+							try {
+								keep = isKeepSessionOnError(context);
+							} finally {
+								if (keep) {
+									if (log.isWarnEnabled()) {
+										log.warn("The selenium session is not closed in the end," + " because the last <url> tag has @keepSessionOnError='true'!");
+									}
+								} else {
+									log.info("Cleaning up selenium session after failed execution");
+									selenium.terminate();
 								}
-							} else {
-								log.info("Cleaning up selenium session after failed execution");
-								selenium.terminate();
 							}
 						}
+					}
+				} catch (Exception e) {
+					if (log.isWarnEnabled()) {
+						log.warn("Error closing selenium session", e);
 					}
 				}
 			}
