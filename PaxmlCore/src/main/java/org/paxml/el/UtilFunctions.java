@@ -911,12 +911,19 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		return compress(collect(objs));
 	}
 
-	public static boolean confirm(String msg, String... yes) {
-		if (StringUtils.isEmpty(msg)) {
-			msg = "Do you want to contibue?";
-		}
+	public static boolean confirm(String... args) {
+		String msg;
+		if (args.length == 0) {
 
-		if (yes.length == 0) {
+			msg = "Do you want to contibue?";
+		} else {
+			msg = args[0];
+		}
+		String[] yes;
+		if (args.length > 1) {
+			yes = new String[args.length - 1];
+			System.arraycopy(args, 1, yes, 0, yes.length);
+		}else{
 			yes = new String[] { "y", "yes" };
 			msg += " (y/n)";
 		}
