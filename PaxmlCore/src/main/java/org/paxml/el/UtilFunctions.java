@@ -16,6 +16,9 @@
  */
 package org.paxml.el;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -52,7 +55,6 @@ import org.paxml.launch.Paxml;
 import org.paxml.security.Secret;
 import org.paxml.tag.AbstractTag;
 import org.paxml.util.ReflectUtils;
-import org.paxml.util.XmlUtils;
 
 /**
  * The default util functions.
@@ -872,9 +874,11 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		}
 		return null;
 	}
+
 	public static List sort(Collection list) {
 		return sort(list, true);
 	}
+
 	public static List sort(Collection list, boolean asc) {
 		List li = new ArrayList(list);
 		if (asc) {
@@ -884,15 +888,17 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		}
 		return li;
 	}
+
 	public static Object compress(Collection col) {
-		switch(col.size()){
+		switch (col.size()) {
 		case 0:
 			return null;
 		case 1:
 			return col.iterator().next();
 		}
-		return col;		
+		return col;
 	}
+
 	public static List collect(Object... objs) {
 		List list = new ArrayList();
 		for (Object obj : objs) {
@@ -900,8 +906,34 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		}
 		return list;
 	}
+
 	public static Object compactCollect(Object... objs) {
 		return compress(collect(objs));
 	}
-	
+
+	public static boolean confirm(String msg, String... yes) {
+		if (StringUtils.isEmpty(msg)) {
+			msg = "Do you want to contibue?";
+		}
+
+		if (yes.length == 0) {
+			yes = new String[] { "y", "yes" };
+			msg += " (y/n)";
+		}
+		System.out.println(msg);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		String line;
+		try {
+			line = reader.readLine();
+		} catch (IOException e) {
+			throw new PaxmlRuntimeException("Cannot read from console", e);
+		}
+		for (String y : yes) {
+			if (y.trim().equalsIgnoreCase(line.trim())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

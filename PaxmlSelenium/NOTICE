@@ -5,8 +5,10 @@ This software is built on and attributes to third-party libraries with the follo
   Apache Ant + Commons Net under The Apache Software License, Version 2.0
   Apache Ant Core under The Apache Software License, Version 2.0
   Apache Ant Launcher under The Apache Software License, Version 2.0
+  Apache Commons BeanUtils under The Apache Software License, Version 2.0
   Apache Commons Codec under The Apache Software License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
+  Apache Commons Email under The Apache Software License, Version 2.0
   Apache Commons Lang under The Apache Software License, Version 2.0
   Apache Commons Logging under The Apache Software License, Version 2.0
   Apache HttpClient under Apache License, Version 2.0
@@ -27,8 +29,8 @@ This software is built on and attributes to third-party libraries with the follo
   Commons JXPath under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
   Commons Pool under The Apache Software License, Version 2.0
-  commons-beanutils under Apache License, Version 2.0
   CSS Parser under GNU Lesser General Public License
+  Data Mapper for Jackson under The Apache Software License, Version 2.0
   Groovy under The Apache Software License, Version 2.0
   Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
   H2 Database Engine under MPL 2.0, and EPL 1.0
@@ -37,10 +39,13 @@ This software is built on and attributes to third-party libraries with the follo
   HtmlUnit Core JS under Mozilla Public License version 2.0
   HttpClient under Apache License
   HyperSQL Database under HSQLDB License, a BSD open source license
+  Jackson under The Apache Software License, Version 2.0
   Jakarta Commons Net under The Apache Software License, Version 2.0
   Java Native Access under LGPL, version 2.1
   Java Native Access Platform under LGPL, version 2.1
+  JavaBeans(TM) Activation Framework under COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
   JavaMail 1.4 under The Apache Software License, Version 2.0
+  JavaMail API (compat) under CDDL or GPLv2+CE
   jaxen under Apache style license
   Jetty :: Http Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   Jetty :: IO Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
@@ -49,7 +54,7 @@ This software is built on and attributes to third-party libraries with the follo
   Jetty Server under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   Jetty Utilities under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   JSch under Revised BSD
-  JSON (JavaScript Object Notation) under provided without support or warranty
+  JSON in Java under The JSON License
   JUnit under Common Public License Version 1.0
   Log4j under The Apache Software License, Version 2.0
   MXP1: Xml Pull Parser 3rd Edition (XPP3) under Indiana University Extreme! Lab Software License, vesion 1.1.1 or Public Domain

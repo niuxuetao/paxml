@@ -14,34 +14,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with PaxmlCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.paxml.security;
+package org.paxml.bean;
 
-import org.paxml.util.CryptoUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.paxml.annotation.Tag;
+import org.paxml.core.Context;
+import org.paxml.el.UtilFunctions;
 
-public class Secret {
+/**
+ * Confirm tag impl.
+ * 
+ * @author Xuetao Niu
+ * 
+ */
+@Tag(name = "confirm")
+public class ConfirmTag extends BeanTag {
 
-	private final String encrypted;
-	private final String name;
-
-	public Secret(String name, String clearSecret) {
-		encrypted = CryptoUtils.base64Encode(CryptoUtils.encrypt(clearSecret, SecretRepository.getCurrentUserMasterKey()));
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getEncrypted() {
-		return encrypted;
-	}
-
-	public String getDecrypted() {
-		return CryptoUtils.decrypt(CryptoUtils.base64Decode(encrypted), SecretRepository.getCurrentUserMasterKey());
-	}
+	private static final Log log = LogFactory.getLog(ConfirmTag.class);
 
 	@Override
-	public String toString() {
-		return "******";
+	protected Object doInvoke(Context context) throws Exception {
+		Object v = getValue();
+		String msg = v == null ? null : v.toString();
+		return UtilFunctions.confirm(msg);
 	}
+
 }

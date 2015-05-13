@@ -32,6 +32,7 @@ import org.paxml.bean.BeanCreationTag;
 import org.paxml.bean.BundleTag;
 import org.paxml.bean.CallTag;
 import org.paxml.bean.ConcatTag;
+import org.paxml.bean.ConfirmTag;
 import org.paxml.bean.CountTag;
 import org.paxml.bean.DateTag;
 import org.paxml.bean.DeleteSecretTag;
@@ -112,6 +113,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
         registerTag(ListTag.class);
         registerTag(SetTag.class);
         registerTag(AppendTag.class);
+        registerTag(ConfirmTag.class);
         
         registerTag(MutexTag.class);
         registerTag(ReadFileTag.class);

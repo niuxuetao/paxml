@@ -19,6 +19,8 @@ package org.paxml.test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -48,7 +50,14 @@ public class ReflectUtilsTest {
 		Map map = new LinkedHashMap();
 		map.put(1, "x");
 		map.put(2, "y");
-		doTestCoerceType(map, LinkedHashSet.class, new LinkedHashSet(Arrays.asList("x", "y")));
+		Iterator<Map.Entry> it=map.entrySet().iterator();
+		doTestCoerceType(map, LinkedHashSet.class, new LinkedHashSet(Arrays.asList(entryToMap(it.next()), entryToMap(it.next()))));
+	}
+	
+	private Map entryToMap(Map.Entry entry){
+		Map map=new HashMap();
+		map.put(entry.getKey(), entry.getValue());
+		return map;
 	}
 
 	private void doTestCoerceType(Object from, Class targetClass, Object expected) {
