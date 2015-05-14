@@ -26,14 +26,14 @@ import org.paxml.tag.LeafTagFactory;
  * @author Xuetao Niu
  * 
  */
-@Tag(name = "die", factory = LeafTagFactory.class)
-public class DieTag extends AbstractControlTag {
+@Tag(name = "exit", factory = LeafTagFactory.class)
+public class ExitTag extends AbstractControlTag {
     /**
      * {@inheritDoc}
      */
     @Override
     protected Object doExecute(Context context) throws Exception {
-        context.getStack().die();
+        context.getStack().exit();
         return null;
     }
 

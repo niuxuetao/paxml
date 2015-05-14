@@ -28,7 +28,7 @@
         <log>Will die quickly, because factor1=${factor1}</log>
     </else>
     
-    <die unless="${factor1}" />
+    <exit unless="${factor1}" />
         
     <if test="${factor1}">
         <!-- do nothing here -->

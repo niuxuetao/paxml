@@ -178,7 +178,7 @@ public class Context implements IdentityManager {
 			boolean onItem(IEntity entity, ITag tag);
 		}
 
-		private boolean dying = false;
+		private boolean exit = false;
 
 		/**
 		 * Print out the stack.
@@ -194,16 +194,16 @@ public class Context implements IdentityManager {
 			}
 		}
 
-		public boolean isDying() {
-			return dying;
+		public boolean isExiting() {
+			return exit;
 		}
 
 		/**
 		 * Mark global termination, so that no more tags will be executed.
 		 * 
 		 */
-		public void die() {
-			this.dying = true;
+		public void exit() {
+			this.exit = true;
 		}
 
 		/**

@@ -16,8 +16,6 @@
  */
 package org.paxml;
 
-import java.io.File;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +45,7 @@ public class Application {
 		
 		String baseDir = System.getProperty(BASE_DIR);
 		if (StringUtils.isBlank(baseDir)) {
-			baseDir = new File("").getAbsolutePath();
+			baseDir = "";
 		}
 
 		if (log.isInfoEnabled()) {

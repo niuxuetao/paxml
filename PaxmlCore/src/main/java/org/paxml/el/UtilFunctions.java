@@ -923,7 +923,7 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		if (args.length > 1) {
 			yes = new String[args.length - 1];
 			System.arraycopy(args, 1, yes, 0, yes.length);
-		}else{
+		} else {
 			yes = new String[] { "y", "yes" };
 			msg += " (y/n)";
 		}
@@ -943,4 +943,8 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		return false;
 	}
 
+	public static void exit() {
+		Context.getCurrentContext().getStack().exit();
+	}
+	
 }

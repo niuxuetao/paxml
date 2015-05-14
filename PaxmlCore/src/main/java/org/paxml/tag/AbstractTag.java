@@ -113,7 +113,7 @@ public abstract class AbstractTag implements ITag {
      */
     public Object execute(Context context) {
         Stack stack = context.getStack();
-        if (stack.isDying() || (!stack.isEmpty() && context.getCurrentEntityContext().isReturning())) {
+        if (stack.isExiting() || (!stack.isEmpty() && context.getCurrentEntityContext().isReturning())) {
             return null;
         }
 
@@ -232,7 +232,7 @@ public abstract class AbstractTag implements ITag {
         Stack stack = context.getStack();
         ChildrenResultList result = new ChildrenResultList(1);
         for (ITag tag : getChildren()) {
-            if (stack.isDying()) {
+            if (stack.isExiting()) {
                 return null;
             }
             if (!stack.isEmpty() && context.getCurrentEntityContext().isReturning()) {

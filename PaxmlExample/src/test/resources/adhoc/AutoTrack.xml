@@ -17,7 +17,15 @@
 
 -->
 <scenario>
-    <print>${util.confirm()}</print>
-    <confirm id="y">blabla</confirm>
-    <print>${y}</print>
+    
+    <url>www.autotrack.nl</url>
+    <confirm otherwise="exit"/>
+    <LoadJQuery/>
+    <javascript id="results">window.jQuery('#resultlist .datarow_container').size()</javascript>
+    
+    <iterate times="${results}">
+        <print><pick locator="jq=#resultlist .datarow_container:eq(${index}) .carinfo .middle_content h2"/></print>
+    </iterate>
+    
+    
 </scenario>

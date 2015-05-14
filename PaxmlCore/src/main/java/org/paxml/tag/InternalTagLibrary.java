@@ -68,7 +68,7 @@ import org.paxml.bean.TrimTag;
 import org.paxml.bean.UuidTag;
 import org.paxml.bean.WriteFileTag;
 import org.paxml.bean.XpathSelectTag;
-import org.paxml.control.DieTag;
+import org.paxml.control.ExitTag;
 import org.paxml.control.ElseTag;
 import org.paxml.control.IfTag;
 import org.paxml.control.IterateTag;
@@ -133,7 +133,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
 
         registerTag(PrintTag.class);
         registerTag(LogTag.class);
-        registerTag(DieTag.class);
+        registerTag(ExitTag.class);
         registerTag(PauseTag.class);
         registerTag(ExpressionTag.class);
 

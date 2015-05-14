@@ -572,7 +572,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
                     .toString();
         }else if (locator.startsWith("jq=")) {
 			// compose a js expression using jquery
-			return "dom=var jq=window.jQuery(\"" + locator.substring(3) + "\"); return jq.size()==1?jq.get(0):(jq.size() ==0 ? null: jq.toArray());";
+			return "dom=var jq=window.jQuery(\"" + locator.substring(3) + "\"); \r\n jq.size()==1?jq.get(0):(jq.size() ==0 ? null: jq.toArray());";
 		} else if (locator.startsWith("text=")) {
 			// compose a js expression using jquery
 			return "css=*:contains(\"^" + locator.substring(5) + "$\")";

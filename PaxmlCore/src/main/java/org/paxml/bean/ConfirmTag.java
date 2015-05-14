@@ -30,14 +30,36 @@ import org.paxml.el.UtilFunctions;
  */
 @Tag(name = "confirm")
 public class ConfirmTag extends BeanTag {
-
 	private static final Log log = LogFactory.getLog(ConfirmTag.class);
+	private String otherwise;
 
 	@Override
 	protected Object doInvoke(Context context) throws Exception {
 		Object v = getValue();
-		String msg = v == null ? null : v.toString();
-		return UtilFunctions.confirm(msg);
+
+		boolean yes = v == null ? UtilFunctions.confirm() : UtilFunctions.confirm(v.toString());
+		if (!yes) {
+			if ("exit".equalsIgnoreCase(otherwise)) {
+				if (log.isInfoEnabled()) {
+					log.info("Not confirmed, exiting paxml ...");
+				}
+				UtilFunctions.exit();
+			} else if ("return".equalsIgnoreCase(otherwise)) {
+				if (log.isInfoEnabled()) {
+					log.info("Not confirmed, returning from current context ...");
+				}
+				context.getCurrentEntityContext().setReturning(true);
+			}
+		}
+		return yes;
+	}
+
+	public String getOtherwise() {
+		return otherwise;
+	}
+
+	public void setOtherwise(String otherwise) {
+		this.otherwise = otherwise;
 	}
 
 }

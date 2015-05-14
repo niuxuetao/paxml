@@ -21,7 +21,7 @@
 
   <returnTest />
   
-  <!-- make sure that this will be run, in case the <return> tag does the same like the <die> tag. -->
+  <!-- make sure that this will be run, in case the <return> tag does the same like the <exit> tag. -->
   <result>this is ok!!</result>
   
 </scenario>
