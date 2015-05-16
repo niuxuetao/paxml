@@ -68,8 +68,8 @@ import org.paxml.bean.TrimTag;
 import org.paxml.bean.UuidTag;
 import org.paxml.bean.WriteFileTag;
 import org.paxml.bean.XpathSelectTag;
-import org.paxml.control.ExitTag;
 import org.paxml.control.ElseTag;
+import org.paxml.control.ExitTag;
 import org.paxml.control.IfTag;
 import org.paxml.control.IterateTag;
 import org.paxml.control.MutexTag;
@@ -80,6 +80,7 @@ import org.paxml.el.UtilFunctions;
 import org.paxml.tag.invoker.ExpressionTag;
 import org.paxml.tag.sql.DdlTag;
 import org.paxml.tag.sql.SqlDataSourceTag;
+import org.paxml.tag.sql.SqlInsertTag;
 import org.paxml.tag.sql.SqlQueryTag;
 import org.paxml.tag.sql.SqlTag;
 
@@ -156,6 +157,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
 
         registerTag(SqlDataSourceTag.class);
         registerTag(SqlTag.class);
+        registerTag(SqlInsertTag.class);
         registerTag(SqlQueryTag.class);
         registerTag(DdlTag.class);
         

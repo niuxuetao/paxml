@@ -59,10 +59,12 @@ This software is built on and attributes to third-party libraries with the follo
   JUnit under Common Public License Version 1.0
   Log4j under The Apache Software License, Version 2.0
   MXP1: Xml Pull Parser 3rd Edition (XPP3) under Indiana University Extreme! Lab Software License, vesion 1.1.1 or Public Domain
+  MySQL java connector under The GNU General Public License, Version 2
   Neko HTML under The Apache Software License, Version 2.0
   oro under Apache License, Version 2.0
   PaxmlCore under GNU Affero General Public License, Version 3.0
   PaxmlSelenium under GNU Affero General Public License, Version 3.0
+  PostgreSQL JDBC Driver under BSD License
   selenium-api under The Apache Software License, Version 2.0
   selenium-chrome-driver under The Apache Software License, Version 2.0
   selenium-firefox-driver under The Apache Software License, Version 2.0

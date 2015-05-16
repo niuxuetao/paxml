@@ -19,11 +19,13 @@ package org.paxml.tag.sql;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -31,16 +33,18 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.formula.functions.T;
 import org.paxml.annotation.Tag;
 import org.paxml.bean.BeanTag;
 import org.paxml.core.Context;
 import org.paxml.core.PaxmlRuntimeException;
-import org.paxml.tag.sql.SqlQueryTag.ClosableResultSetIterable;
-import org.paxml.tag.sql.SqlQueryTag.ResultSetsHolder;
 import org.paxml.util.DBUtils;
 import org.paxml.util.PaxmlUtils;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
@@ -51,303 +55,307 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
  */
 @Tag(name = "sql")
 public class SqlTag extends BeanTag {
-    private static final Log log = LogFactory.getLog(SqlTag.class);
+	private static final Log log = LogFactory.getLog(SqlTag.class);
 
-    /**
-     * Executor for generic sql execution.
-     * 
-     * @author Xuetao Niu
-     * 
-     */
-    private static interface ISqlExecutor {
-        Object update(String sql);
+	/**
+	 * Executor for generic sql execution.
+	 * 
+	 * @author Xuetao Niu
+	 * 
+	 */
+	private static interface ISqlExecutor {
+		Object update(String sql);
 
-        Object query(String sql, boolean close);
+		Object query(String sql, boolean close);
 
-        DataSource getDataSource();
-    }
+	}
 
-    /**
-     * Update only impl.
-     * 
-     * @author Xuetao Niu
-     * 
-     */
-    private static class UpdateExecutor implements ISqlExecutor {
+	/**
+	 * Update only impl.
+	 * 
+	 * @author Xuetao Niu
+	 * 
+	 */
+	private static class UpdateExecutor implements ISqlExecutor {
 
-        private final DataSource ds;
+		private final DataSource ds;
 
-        UpdateExecutor(final DataSource ds) {
-            this.ds = ds;
-        }
+		UpdateExecutor(final DataSource ds) {
+			this.ds = ds;
+		}
 
-        private Object handleException(SQLException e, String sql) {
-            String msg = "Cannot execute sql: " + sql;
-            throw new PaxmlRuntimeException(msg, e);
-        }
+		private Object handleException(SQLException e, String sql) {
+			String msg = "Cannot execute sql: " + sql;
+			throw new PaxmlRuntimeException(msg, e);
+		}
 
-        public DataSource getDataSource() {
-            return ds;
-        }
+		public DataSource getDataSource() {
+			return ds;
+		}
 
-        public Object query(String sql, boolean close) {
-            Connection con = null;
-            Statement stmt = null;
-            ResultSet resultSet = null;
-            try {
-                con = ds.getConnection();
-                stmt = con.createStatement();
-                resultSet = stmt.executeQuery(sql);
-                return resultSet;
-            } catch (SQLException e) {
-                return handleException(e, sql);
-            } finally {
-                if (close) {
-                    SqlQueryTag.closeResultSet(resultSet);
-                    SqlQueryTag.closeStatement(stmt);
-                    SqlQueryTag.closeConnection(con);
-                }
-            }
-        }
+		public Object query(String sql, boolean close) {
+			Connection con = null;
+			Statement stmt = null;
+			ResultSet resultSet = null;
+			try {
+				con = ds.getConnection();
+				stmt = con.createStatement();
+				resultSet = stmt.executeQuery(sql);
+				return resultSet;
+			} catch (SQLException e) {
+				return handleException(e, sql);
+			} finally {
+				if (close) {
+					SqlQueryTag.closeResultSet(resultSet);
+					SqlQueryTag.closeStatement(stmt);
+					SqlQueryTag.closeConnection(con);
+				}
+			}
+		}
 
-        public Object update(String sql) {
-            Connection con = null;
-            Statement stmt = null;
-            try {
-                con = ds.getConnection();
-                stmt = con.createStatement();
-                return stmt.execute(sql);
-            } catch (SQLException e) {
-                return handleException(e, sql);
-            } finally {
-                SqlQueryTag.closeStatement(stmt);
-                SqlQueryTag.closeConnection(con);
-            }
-        }
+		public Object update(String sql) {
+			Connection con = null;
+			Statement stmt = null;
+			try {
+				con = ds.getConnection();
+				stmt = con.createStatement();
+				return stmt.execute(sql);
+			} catch (SQLException e) {
+				return handleException(e, sql);
+			} finally {
+				SqlQueryTag.closeStatement(stmt);
+				SqlQueryTag.closeConnection(con);
+			}
+		}
 
-    }
+	}
 
-    private JdbcTemplate jdbcTemplate;
-    private Object dataSource;
-    private String file;
-    private boolean readColumnNames = true;
-    private boolean list = true;
-    private boolean singleStatement;
+	private JdbcTemplate jdbcTemplate;
+	private Object dataSource;
+	private String file;
+	private boolean readColumnNames = true;
+	private boolean list = true;
+	private boolean singleStatement;
+	private Map param;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Object doInvoke(Context context) throws Exception {
-        Object result = null;
-        if (StringUtils.isNotBlank(file)) {
-            Resource res = PaxmlUtils.getResource(file, getResource().getSpringResource());
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            InputStream in = res.getInputStream();
-            try {
-                IOUtils.copy(in, out);
-            } finally {
-                IOUtils.closeQuietly(in);
-            }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Object doInvoke(Context context) throws Exception {
+		if (jdbcTemplate == null) {
+			final DataSource ds = findDataSource(context);
+			if (ds == null) {
+				throw new PaxmlRuntimeException("No data source found!");
+			}
+			jdbcTemplate = new JdbcTemplate(ds);
+		} else if (dataSource != null) {
+			throw new PaxmlRuntimeException("Cannot have both the 'jdbcTemplate'" + " and the 'dataSource' attributes given!");
+		}
+		Object result = null;
+		if (StringUtils.isNotBlank(file)) {
+			Resource res = PaxmlUtils.getResource(file, getResource().getSpringResource());
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			InputStream in = res.getInputStream();
+			try {
+				IOUtils.copy(in, out);
+			} finally {
+				IOUtils.closeQuietly(in);
+			}
 
-            result = executeSql(out.toString("UTF-8"), context);
+			result = executeSql(out.toString("UTF-8"), context);
 
-        }
-        Object value = getValue();
-        final String sql;
-        if (value == null) {
-            sql = null;
-        } else if (value instanceof List) {
-            StringBuilder sb = new StringBuilder();
-            for (Object item : (List) value) {
-                if (item != null) {
-                    sb.append(item).append(" ");
-                }
-            }
-            sql = sb.toString();
-        } else {
-            sql = value.toString();
-        }
-        if (StringUtils.isNotBlank(sql)) {
-            result = executeSql(sql, context);
-        }
-        return result;
-    }
+		}
+		Object value = getValue();
+		final String sql;
+		if (value == null) {
+			sql = null;
+		} else if (value instanceof List) {
+			StringBuilder sb = new StringBuilder();
+			for (Object item : (List) value) {
+				if (item != null) {
+					sb.append(item).append(" ");
+				}
+			}
+			sql = sb.toString();
+		} else {
+			sql = value.toString();
+		}
+		if (StringUtils.isNotBlank(sql)) {
+			result = executeSql(sql, context);
+		}
+		return result;
+	}
 
-    protected Object executeSql(String sql, Context context) {
+	protected Object executeSql(String sql, Context context) {
 
-        if (jdbcTemplate != null) {
-            if (dataSource != null) {
-                throw new PaxmlRuntimeException("Cannot have both the 'jdbcTemplate'"
-                        + " and the 'dataSource' attributes given!");
-            }
-            if (!list) {
-                throw new PaxmlRuntimeException(
-                        "jdbcTemplate always returns list, so the 'list' attribute cannot be false");
-            }
-            return executeSql(sql, new ISqlExecutor() {
+		return executeSql(sql, new ISqlExecutor() {
+			@Override
+			public Object update(final String sql) {
+				if (param != null) {
+					NamedParameterJdbcTemplate t = new NamedParameterJdbcTemplate(jdbcTemplate);
+					return t.execute(sql, param, new PreparedStatementCallback<Void>() {
 
-                public DataSource getDataSource() {
-                    return null;
-                }
+						@Override
+						public Void doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+							ps.executeUpdate();
+							return null;
+						}
 
-                public Object update(String sql) {
-                    jdbcTemplate.execute(sql);
-                    return null;
-                }
+					});
+				} else {
+					jdbcTemplate.execute(sql);
+				}
+				return null;
+			}
 
-                public Object query(String sql, boolean close) {
-                    return jdbcTemplate.queryForList(sql);
-                }
+			@Override
+			public Object query(String sql, boolean close) {
+				if (param != null) {
+					NamedParameterJdbcTemplate t = new NamedParameterJdbcTemplate(jdbcTemplate);
+					return t.queryForList(sql, param);
+				} else {
+					return jdbcTemplate.queryForList(sql);
+				}
+			}
 
-            });
-        } else {
+		});
 
-            final DataSource ds = findDataSource(context);
-            if (ds == null) {
-                throw new PaxmlRuntimeException("No data source found!");
-            }
+	}
 
-            final ResultSetsHolder holder = SqlQueryTag.getClosureTag(context);
-            if (null != holder) {
-                return executeSql(sql, new UpdateExecutor(ds) {
+	private Object executeSql(String sql, ISqlExecutor exe) {
 
-                    public Object query(String sql, boolean close) {
-                        ResultSet resultSet = (ResultSet) super.query(sql, false);
-                        ClosableResultSetIterable rs = new ClosableResultSetIterable(resultSet, readColumnNames);
-                        holder.register(rs);
-                        return rs;
-                    }
-                });
+		Object result = null;
+		List<String> sqlList;
+		if (singleStatement) {
+			sqlList = Arrays.asList(sql);
+		} else {
+			sqlList = DBUtils.breakSql(sql);
+		}
 
-            } else {
-                // do update only
-                return executeSql(sql, new UpdateExecutor(ds) {
+		final int maxIndex = sqlList.size() - 1;
+		for (int i = 0; i <= maxIndex; i++) {
 
-                    public Object query(String sql, boolean close) {
-                        return update(sql);
-                    }
-                });
-            }
+			if (isQuery(sql)) {
+				if (list) {
+					if (log.isDebugEnabled()) {
+						log.debug("Running sql: " + sql);
+					}
+					try {
+						if (param != null) {
+							NamedParameterJdbcTemplate t = new NamedParameterJdbcTemplate(jdbcTemplate);
+							result = t.queryForList(sql, param);
+						} else {
+							result = jdbcTemplate.queryForList(sql);
+						}
+					} catch (RuntimeException e) {
+						throw new PaxmlRuntimeException("Cannot execute sql: " + sql, e);
+					}
+				} else {
+					if (log.isDebugEnabled()) {
+						log.debug("Running sql: " + sqlList.get(i));
+					}
+					try {
+						result = exe.query(sqlList.get(i), true);
+					} catch (RuntimeException e) {
+						throw new PaxmlRuntimeException("Cannot execute sql: " + sqlList.get(i), e);
+					}
+				}
+			} else {
+				if (log.isDebugEnabled()) {
+					log.debug("Running sql: " + sqlList.get(i));
+				}
+				try {
+					exe.update(sqlList.get(i));
+				} catch (RuntimeException e) {
+					throw new PaxmlRuntimeException("Cannot execute sql: " + sqlList.get(i), e);
+				}
+			}
 
-        }
+		}
+		return result;
 
-    }
+	}
 
-    
+	private DataSource findDataSource(Context context) {
+		DataSource ds;
+		if (dataSource instanceof DataSource) {
+			ds = (DataSource) dataSource;
+		}
 
-    private Object executeSql(String sql, ISqlExecutor exe) {
+		if (dataSource == null) {
+			ds = SqlDataSourceTag.getDataSource(context);
+		} else {
+			ds= (DataSource) context.getConst(dataSource.toString(), true);
+		}
+		return ds;
+	}
 
-        Object result = null;
-        List<String> sqlList;
-        if (singleStatement) {
-            sqlList = Arrays.asList(sql);
-        } else {
-            sqlList = DBUtils.breakSql(sql);
-        }
+	public Object getDataSource() {
+		return dataSource;
+	}
 
-        final int maxIndex = sqlList.size() - 1;
-        for (int i = 0; i <= maxIndex; i++) {
+	public void setDataSource(Object dataSource) {
+		this.dataSource = dataSource;
+	}
 
-            if (isQuery(sql)) {
-                if (list && exe.getDataSource() != null) {
-                    JdbcTemplate temp = new JdbcTemplate();
-                    temp.setDataSource(exe.getDataSource());
-                    try {
-                        result = temp.queryForList(sql);
-                    } catch (RuntimeException e) {
-                        throw new PaxmlRuntimeException("Cannot execute sql: " + sql, e);
-                    }
-                } else {
-                    try {
-                        result = exe.query(sqlList.get(i), true);
-                    } catch (RuntimeException e) {
-                        throw new PaxmlRuntimeException("Cannot execute sql: " + sqlList.get(i), e);
-                    }
-                }
-            } else {
-                try {
-                    exe.update(sqlList.get(i));
-                } catch (RuntimeException e) {
-                    throw new PaxmlRuntimeException("Cannot execute sql: " + sqlList.get(i), e);
-                }
-            }
+	public String getFile() {
+		return file;
+	}
 
-        }
-        return result;
+	public void setFile(String file) {
+		this.file = file;
+	}
 
-    }
+	public boolean isReadColumnNames() {
+		return readColumnNames;
+	}
 
-    private DriverManagerDataSource findDataSource(Context context) {
-        if (dataSource instanceof DriverManagerDataSource) {
-            return (DriverManagerDataSource) dataSource;
-        }
+	public void setReadColumnNames(boolean readColumnNames) {
+		this.readColumnNames = readColumnNames;
+	}
 
-        if (dataSource == null) {
-            return SqlDataSourceTag.getDataSource(context);
-        } else {
-            return (DriverManagerDataSource) context.getConst(dataSource.toString(), true);
-        }
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
+	}
 
-    }
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
 
-    public Object getDataSource() {
-        return dataSource;
-    }
+	public boolean isList() {
+		return list;
+	}
 
-    public void setDataSource(Object dataSource) {
-        this.dataSource = dataSource;
-    }
+	public void setList(boolean list) {
+		this.list = list;
+	}
 
-    public String getFile() {
-        return file;
-    }
+	public boolean isSingleStatement() {
+		return singleStatement;
+	}
 
-    public void setFile(String file) {
-        this.file = file;
-    }
+	public void setSingleStatement(boolean singleStatement) {
+		this.singleStatement = singleStatement;
+	}
 
-    public boolean isReadColumnNames() {
-        return readColumnNames;
-    }
+	public static boolean isQuery(String sql) {
 
-    public void setReadColumnNames(boolean readColumnNames) {
-        this.readColumnNames = readColumnNames;
-    }
+		final String select = "select";
 
-    public JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
-    }
+		if (StringUtils.isBlank(sql) || sql.length() <= select.length()) {
+			return false;
+		}
 
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+		return Character.isWhitespace(sql.charAt(select.length())) && sql.toLowerCase().startsWith(select);
+	}
 
-    public boolean isList() {
-        return list;
-    }
+	public Map getParam() {
+		return param;
+	}
 
-    public void setList(boolean list) {
-        this.list = list;
-    }
-
-    public boolean isSingleStatement() {
-        return singleStatement;
-    }
-
-    public void setSingleStatement(boolean singleStatement) {
-        this.singleStatement = singleStatement;
-    }
-
-    public static boolean isQuery(String sql) {
-
-        final String select = "select";
-
-        if (StringUtils.isBlank(sql) || sql.length() <= select.length()) {
-            return false;
-        }
-
-        return Character.isWhitespace(sql.charAt(select.length())) && sql.toLowerCase().startsWith(select);
-    }
+	public void setParam(Map param) {
+		this.param = param;
+	}
 
 }

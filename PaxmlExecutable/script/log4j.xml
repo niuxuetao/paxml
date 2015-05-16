@@ -69,10 +69,9 @@
     <level value="ERROR" />
   </logger>
 
-  <logger name="org.paxml" additivity="false">
-    <level value="DEBUG" />
-    <appender-ref ref="file" />
-  </logger>
+  <category name="org.paxml">
+    <priority value="DEBUG" />
+  </category>
 
   <root>
     <level value="INFO" />

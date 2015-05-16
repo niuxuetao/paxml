@@ -39,17 +39,28 @@ public class ConfirmTag extends BeanTag {
 
 		boolean yes = v == null ? UtilFunctions.confirm() : UtilFunctions.confirm(v.toString());
 		if (!yes) {
-			if ("exit".equalsIgnoreCase(otherwise)) {
-				if (log.isInfoEnabled()) {
-					log.info("Not confirmed, exiting paxml ...");
+			boolean again;
+			do {
+				again = false;
+				if ("exit".equalsIgnoreCase(otherwise)) {
+					if (log.isInfoEnabled()) {
+						log.info("Not confirmed, exiting paxml ...");
+					}
+					UtilFunctions.exit();
+
+				} else if ("return".equalsIgnoreCase(otherwise)) {
+					if (log.isInfoEnabled()) {
+						log.info("Not confirmed, returning from current context ...");
+					}
+					context.getCurrentEntityContext().setReturning(true);
+
+				} else if ("confirm".equalsIgnoreCase(otherwise)) {
+					again = true;
+					if (log.isInfoEnabled()) {
+						log.info("Not confirmed, asking again ...");
+					}					
 				}
-				UtilFunctions.exit();
-			} else if ("return".equalsIgnoreCase(otherwise)) {
-				if (log.isInfoEnabled()) {
-					log.info("Not confirmed, returning from current context ...");
-				}
-				context.getCurrentEntityContext().setReturning(true);
-			}
+			} while (again);
 		}
 		return yes;
 	}
