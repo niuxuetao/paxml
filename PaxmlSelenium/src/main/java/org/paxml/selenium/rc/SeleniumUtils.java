@@ -26,7 +26,6 @@ import org.paxml.core.Context;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.el.IUtilFunctionsFactory;
 
-import com.thoughtworks.selenium.DefaultSelenium;
 
 /**
  * Selenium utils.
@@ -35,29 +34,24 @@ import com.thoughtworks.selenium.DefaultSelenium;
  * 
  */
 @Util("selenium")
-public class SeleniumUtils implements IUtilFunctionsFactory {
+public class SeleniumUtils extends AbstractSeleniumProxy implements IUtilFunctionsFactory {
 	private static final Log log = LogFactory.getLog(SeleniumUtils.class);
 	private static final FileServer fileServer = new FileServer();
 
 	private static final String WAIT_FOR_AJAX_START_JS = "typeof(window.jQuery)!='function' || window.jQuery.active!=0";
 	private static final String WAIT_FOR_AJAX_STOP_JS = "typeof(window.jQuery)!='function' || window.jQuery.active==0";
 
-	private DefaultSelenium selenium;
-	private XSelenium as;
+	private SeleniumHelper as;
 
-	public DefaultSelenium getSelenium(){
-		return selenium;
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
 	public SeleniumUtils getUtilFunctions(Context context) {
 		as = SeleniumTag.getSelenium(context);
-		selenium = as.getSelenium();
+		setSelenium(as.getSelenium());
 		return this;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -73,7 +67,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 */
 	public void setSpeed(long speed) {
 		log.trace("Setting selenium speed to " + speed + " ms");
-		selenium.setSpeed(speed + "");
+		super.setSpeed(speed + "");
 	}
 
 	/**
@@ -85,7 +79,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 *            the option string
 	 */
 	public void createCookie(String nameValuePair, String optionsString) {
-		selenium.createCookie(nameValuePair, optionsString);
+		super.createCookie(nameValuePair, optionsString);
 	}
 
 	/**
@@ -96,7 +90,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 * @return the cookie value
 	 */
 	public String getCookieByName(String name) {
-		return selenium.getCookieByName(name);
+		return super.getCookieByName(name);
 	}
 
 	/**
@@ -131,7 +125,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 			log.debug("Wait max " + timeout + " ms for condition: " + script);
 		}
 		try {
-			selenium.waitForCondition(script, timeout + "");
+			super.waitForCondition(script, timeout + "");
 		} catch (Exception e) {
 			if (hard) {
 				throw new PaxmlRuntimeException("Wait for javascript condition failed, because: " + e.getMessage(), e);
@@ -287,7 +281,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		}
 		String tlocator = getLocator(locator);
 
-		selenium.type(tlocator, value);
+		super.type(tlocator, value);
 		// This is the trick. Ajax will fire when you will leave the field and
 		// not during typing
 		// That was the problem!
@@ -305,7 +299,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 *            the event name
 	 */
 	public void fireEvent(String locator, String event) {
-		selenium.fireEvent(getLocator(locator), event);
+		super.fireEvent(getLocator(locator), event);
 	}
 
 	/**
@@ -319,7 +313,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public void keyUp(String locator, String keySequence) {
 		String tlocator = getLocator(locator);
 
-		selenium.keyUp(tlocator, keySequence);
+		super.keyUp(tlocator, keySequence);
 	}
 
 	/**
@@ -333,7 +327,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public void keyDown(String locator, String keySequence) {
 		String tlocator = getLocator(locator);
 
-		selenium.keyDown(tlocator, keySequence);
+		super.keyDown(tlocator, keySequence);
 	}
 
 	/**
@@ -347,7 +341,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public void keyPress(String locator, String keySequence) {
 		String tlocator = getLocator(locator);
 
-		selenium.keyPress(tlocator, keySequence);
+		super.keyPress(tlocator, keySequence);
 	}
 
 	/**
@@ -359,7 +353,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 */
 	public void focus(String locator) {
 		String tlocator = getLocator(locator);
-		selenium.focus(tlocator);
+		super.focus(tlocator);
 	}
 
 	/**
@@ -458,7 +452,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public String getValue(String locator) {
 		String tlocator = getLocator(locator);
 		log.trace("Getting value from: " + tlocator);
-		String ret = selenium.getValue(tlocator);
+		String ret = super.getValue(tlocator);
 		log.trace("Got value: " + ret);
 		return ret;
 	}
@@ -473,11 +467,11 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public String getText(String locator) {
 		String tlocator = getLocator(locator);
 		log.trace("Getting text from: " + tlocator);
-		String ret = selenium.getText(tlocator);
+		String ret = super.getText(tlocator);
 		log.trace("Got text: " + ret);
 		return ret;
 	}
-	
+
 	/**
 	 * Check for element being present and visible.
 	 * 
@@ -491,7 +485,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public boolean isVisible(String locator) {
 		String tlocator = getLocator(locator);
 
-		final boolean b = isPresent(tlocator) && selenium.isVisible(tlocator);
+		final boolean b = isPresent(tlocator) && super.isVisible(tlocator);
 		if (log.isDebugEnabled()) {
 			log.debug("Visibility checked, this element is " + (b ? "" : "NOT ") + "visible: " + tlocator);
 		}
@@ -509,7 +503,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public boolean isPresent(String locator) {
 		String tlocator = getLocator(locator);
 
-		final boolean b = selenium.isElementPresent(tlocator);
+		final boolean b = super.isElementPresent(tlocator);
 		if (log.isDebugEnabled()) {
 			log.debug("Presence checked, this element is " + (b ? "" : "NOT ") + "present: " + locator);
 		}
@@ -534,7 +528,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (log.isInfoEnabled()) {
 			log.info("Opening url with timeout " + timeout + " ms : " + url);
 		}
-		selenium.open(url);
+		super.open(url);
 		// any selenium call will change the 'pageFreshlyLoaded' flag to false.
 		waitForPageToLoad(timeout);
 	}
@@ -547,7 +541,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 * @return true editable, false not
 	 */
 	public boolean isEditable(String locator) {
-		return selenium.isEditable(getLocator(locator));
+		return super.isEditable(getLocator(locator));
 	}
 
 	/**
@@ -559,18 +553,17 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 			return null;
 		}
 		if (locator.startsWith("cssid:") || locator.startsWith("cssid=")) {
-            String tmp = locator.substring(6);
-            int s = tmp.indexOf("[");
-            int e = tmp.indexOf("]");
-            if (s == -1 || e == -1 || s > e) {
-                throw new IllegalArgumentException("Unable to parse a cssid: locator.");
-            }
-            String htmlElement = tmp.substring(0, s);
-            String id = tmp.substring(s + 1, e);
-            String rest = tmp.substring(e + 1);
-            return new StringBuilder("css=").append(htmlElement).append("[id=\"").append(id).append("\"]").append(rest)
-                    .toString();
-        }else if (locator.startsWith("jq=")) {
+			String tmp = locator.substring(6);
+			int s = tmp.indexOf("[");
+			int e = tmp.indexOf("]");
+			if (s == -1 || e == -1 || s > e) {
+				throw new IllegalArgumentException("Unable to parse a cssid: locator.");
+			}
+			String htmlElement = tmp.substring(0, s);
+			String id = tmp.substring(s + 1, e);
+			String rest = tmp.substring(e + 1);
+			return new StringBuilder("css=").append(htmlElement).append("[id=\"").append(id).append("\"]").append(rest).toString();
+		} else if (locator.startsWith("jq=")) {
 			// compose a js expression using jquery
 			return "dom=var jq=window.jQuery(\"" + locator.substring(3) + "\"); \r\n jq.size()==1?jq.get(0):(jq.size() ==0 ? null: jq.toArray());";
 		} else if (locator.startsWith("text=")) {
@@ -610,7 +603,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 
 		String fullLocator = locator;
 		if (locator.indexOf("/") != -1 || locator.indexOf("[") != -1 || locator.indexOf("@") != -1 || locator.indexOf("[") != -1 || locator.indexOf("]") != -1
-				|| locator.indexOf("'") != -1) {
+		        || locator.indexOf("'") != -1) {
 			fullLocator = "//div[@id='" + locator + "']/div/div[@class='error_tooltip_right']";
 		}
 		if (isPresent(fullLocator)) {
@@ -629,15 +622,15 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 *            the character that needs to be typed in
 	 */
 	public void keyPressNative(char ch) {
-		String[] codes = XSelenium.getKeyCodes(ch);
+		String[] codes = SeleniumHelper.getKeyCodes(ch);
 		if (codes.length == 1) {
-			selenium.keyDownNative(codes[0]);
-			selenium.keyUpNative(codes[0]);
+			super.keyDownNative(codes[0]);
+			super.keyUpNative(codes[0]);
 		} else {
-			selenium.keyDownNative(codes[0]);
-			selenium.keyDownNative(codes[1]);
-			selenium.keyUpNative(codes[1]);
-			selenium.keyUpNative(codes[0]);
+			super.keyDownNative(codes[0]);
+			super.keyDownNative(codes[1]);
+			super.keyUpNative(codes[1]);
+			super.keyUpNative(codes[0]);
 		}
 	}
 
@@ -651,7 +644,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 			// do nothing
 		}
 
-		if (waitForAjaxRequestsStart(XSelenium.WAIT_FOR_AJAX_START_TIMEOUT, false)) {
+		if (waitForAjaxRequestsStart(SeleniumHelper.WAIT_FOR_AJAX_START_TIMEOUT, false)) {
 			waitForAjaxRequestsStop(ajaxTimeout, false);
 		}
 
@@ -671,7 +664,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 			log.info("Waiting for page to reload, timeout: " + timeout + " ms");
 		}
 		final long start = System.currentTimeMillis();
-		selenium.waitForPageToLoad(timeout + "");
+		super.waitForPageToLoad(timeout + "");
 		if (log.isDebugEnabled()) {
 			log.debug("Page took " + (System.currentTimeMillis() - start) + " ms to load");
 		}
@@ -690,7 +683,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		String slocator = getLocator(selectLocator);
 		String olocator = getLocator(optionLocator);
 		log.debug("SELECT: " + slocator + " = " + olocator);
-		selenium.select(slocator, olocator);
+		super.select(slocator, olocator);
 		fireEvent(slocator, "blur");
 		fireEvent(slocator, "change");
 
@@ -706,7 +699,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public String[] getSelectOptions(String selectLocator) {
 		String slocator = getLocator(selectLocator);
 		log.debug("getSelectOptions: " + slocator + " = " + slocator);
-		return selenium.getSelectOptions(slocator);
+		return super.getSelectOptions(slocator);
 	}
 
 	/**
@@ -720,7 +713,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (log.isDebugEnabled()) {
 			log.debug("Clicking: " + tlocator);
 		}
-		selenium.click(tlocator);
+		super.click(tlocator);
 
 	}
 
@@ -730,7 +723,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 * @return the confirmation
 	 */
 	public String getConfirmation() {
-		return selenium.getConfirmation();
+		return super.getConfirmation();
 	}
 
 	/**
@@ -752,7 +745,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (log.isInfoEnabled()) {
 			log.info("Attaching file content to element, locator=" + loc + ", url=" + url);
 		}
-		selenium.attachFile(loc, url);
+		super.attachFile(loc, url);
 		return url;
 	}
 
@@ -766,9 +759,8 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	 *            from a remote server. If it does not start with http://, it
 	 *            means a file found on classpath.
 	 * 
-	 * @return the url of given file, or the published url of the file.
 	 */
-	public String attachFile(String locator, String file) {
+	public void attachFile(String locator, String file) {
 		if (StringUtils.isBlank(file)) {
 			throw new PaxmlRuntimeException("No file specified for attaching");
 		}
@@ -778,9 +770,8 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (log.isInfoEnabled()) {
 			log.info("Attaching file to element, locator=" + loc + ", url=" + url);
 		}
-		selenium.attachFile(loc, url);
+		super.attachFile(loc, url);
 
-		return file;
 	}
 
 	/**
@@ -798,12 +789,12 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public void selectFrame(String locator, boolean wait, long timeout) {
 		locator = getLocator(locator);
 		if (wait) {
-			selenium.waitForFrameToLoad(locator, timeout + "");
+			super.waitForFrameToLoad(locator, timeout + "");
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("Selecting frame: " + locator);
 		}
-		selenium.selectFrame(locator);
+		super.selectFrame(locator);
 		if (wait) {
 			settlePageJs(timeout);
 		}
@@ -819,7 +810,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (log.isDebugEnabled()) {
 			log.debug("Evaluating javascript: " + js);
 		}
-		return selenium.getEval(js);
+		return super.getEval(js);
 	}
 
 	/**
@@ -839,7 +830,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (log.isInfoEnabled()) {
 			log.info("Opening new window with window id: " + windowId);
 		}
-		selenium.openWindow(url, windowId);
+		super.openWindow(url, windowId);
 		return windowId;
 	}
 
@@ -852,12 +843,12 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 	public void selectWindow(String windowId) {
 		if (windowId == null || "null".equals(windowId)) {
 			log.info("Selecting the main window");
-			selenium.selectWindow(windowId);
+			super.selectWindow(windowId);
 		} else {
 			if (log.isInfoEnabled()) {
 				log.info("Selecting window: " + windowId);
 			}
-			selenium.selectWindow("name=" + windowId);
+			super.selectWindow("name=" + windowId);
 		}
 	}
 
@@ -874,7 +865,7 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		if (log.isInfoEnabled()) {
 			log.info("Refreshing the current page with timeout: " + timeout + " ms");
 		}
-		selenium.refresh();
+		super.refresh();
 		waitForPageToLoad(timeout);
 	}
 
@@ -890,4 +881,5 @@ public class SeleniumUtils implements IUtilFunctionsFactory {
 		}
 		return url;
 	}
+
 }

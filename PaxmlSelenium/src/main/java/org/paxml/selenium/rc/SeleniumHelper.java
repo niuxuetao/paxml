@@ -52,7 +52,7 @@ import com.thoughtworks.selenium.DefaultSelenium;
  * 
  * @author Xuetao Niu
  */
-public class XSelenium {
+public class SeleniumHelper {
 	private final DefaultSelenium selenium;
 	private volatile SeleniumServer seleniumServer;
 
@@ -168,7 +168,7 @@ public class XSelenium {
 
 	public static final long WAIT_FOR_AJAX_START_TIMEOUT = 1000;
 
-	private static final Log log = LogFactory.getLog(XSelenium.class);
+	private static final Log log = LogFactory.getLog(SeleniumHelper.class);
 
 	/**
 	 * Used by the framework for translating characters into key codes as used
@@ -241,12 +241,12 @@ public class XSelenium {
 	 * @param browserURL
 	 *            the url
 	 */
-	public XSelenium(String serverHost, int serverPort, String browserStartCommand, String browserURL) {
+	public SeleniumHelper(String serverHost, int serverPort, String browserStartCommand, String browserURL) {
 
 		if (StringUtils.isBlank(serverHost)) {
 			// start the selenium server programmatically
 
-			synchronized (XSelenium.class) {
+			synchronized (SeleniumHelper.class) {
 				if (seleniumServer == null) {
 					seleniumServer = startServer(serverPort);
 				}

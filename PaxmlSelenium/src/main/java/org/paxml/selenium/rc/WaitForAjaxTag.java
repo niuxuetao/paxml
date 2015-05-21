@@ -33,7 +33,7 @@ public class WaitForAjaxTag extends SeleniumTag {
     @Override
     protected Object onCommand(Context context) {
         SeleniumUtils selenium = getSeleniumUtils(context);        
-        if (selenium.waitForAjaxRequestsStart(XSelenium.WAIT_FOR_AJAX_START_TIMEOUT, false)) {
+        if (selenium.waitForAjaxRequestsStart(SeleniumHelper.WAIT_FOR_AJAX_START_TIMEOUT, false)) {
             return selenium.waitForAjaxRequestsStop(timeout, hard);
         } else {
             return false;

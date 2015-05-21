@@ -34,8 +34,8 @@ import org.paxml.core.Context;
 import org.paxml.core.Context.Stack.IStackTraverser;
 import org.paxml.core.IEntity;
 import org.paxml.selenium.rc.SeleniumTag;
-import org.paxml.selenium.rc.XSelenium;
-import org.paxml.selenium.rc.XSelenium.SnapshotInfo;
+import org.paxml.selenium.rc.SeleniumHelper;
+import org.paxml.selenium.rc.SeleniumHelper.SnapshotInfo;
 import org.paxml.tag.ITag;
 import org.paxml.testng.PaxmlTestCaseFactory.ILockedOperation;
 import org.paxml.util.XmlUtils;
@@ -191,12 +191,12 @@ public abstract class AbstractPaxmlTestResult {
 			ContextDump dump = new ContextDump();
 			r.setContextDump(dump);
 
-			for (SnapshotInfo si : XSelenium.getSnapshots(context)) {
+			for (SnapshotInfo si : SeleniumHelper.getSnapshots(context)) {
 				ScreenshotInfo info = new ScreenshotInfo();
 				r.getScreenshots().add(info);
 				info.setFileName(si.getFile().getName());
 
-				for (XSelenium.CallStack cs : si.getCallStack()) {
+				for (SeleniumHelper.CallStack cs : si.getCallStack()) {
 					CallStack _cs = new CallStack();
 					_cs.setEntityName(cs.getEntity().getResource().getName());
 					_cs.setTagName(cs.getTag().getTagName());

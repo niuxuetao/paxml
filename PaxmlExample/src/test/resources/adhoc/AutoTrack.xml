@@ -18,13 +18,24 @@
 -->
 <scenario>
     
+    <sqlDataSource 
+        url="jdbc:mysql://localhost/test" 
+        username="root">
+        <password>niuxuetao</password>
+    </sqlDataSource>     
+    
     <url>www.autotrack.nl</url>
     <confirm otherwise="exit"/>
     <LoadJQuery/>
     <javascript id="results">window.jQuery('#resultlist .datarow_container').size()</javascript>
     
     <iterate times="${results}">
-        <print><pick locator="jq=#resultlist .datarow_container:eq(${index}) .carinfo .middle_content h2"/></print>
+        <sqlInsert table="autotrack" >
+            <param>
+                <name><pick locator="jq=#resultlist .datarow_container:eq(${index}) .carinfo .middle_content h2"/></name>
+                
+            </param>
+        </sqlInsert>
     </iterate>
     
     

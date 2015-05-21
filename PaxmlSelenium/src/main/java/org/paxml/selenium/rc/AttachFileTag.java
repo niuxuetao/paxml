@@ -48,7 +48,8 @@ public class AttachFileTag extends LocatorTag {
         if (content) {
             return selenium.attachFileContent(locator, value.toString());
         } else {
-            return selenium.attachFile(locator, value.toString());
+            selenium.attachFile(locator, value.toString());
+            return null;
         }
 
     }

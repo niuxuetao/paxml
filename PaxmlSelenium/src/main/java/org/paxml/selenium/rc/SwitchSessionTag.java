@@ -35,10 +35,10 @@ public class SwitchSessionTag extends SeleniumTag {
 	@Override
 	protected Object onCommand(Context context) {
 		Object selenium = getValue();
-		if (selenium != null && !(selenium instanceof XSelenium)) {
+		if (selenium != null && !(selenium instanceof SeleniumHelper)) {
 			throw new PaxmlRuntimeException(
 					"The value parameter of the tag should be either null or a selenium session which is the result of a previous <url> tag");
 		}
-		return switchSelenium(context, (XSelenium) selenium);
+		return switchSelenium(context, (SeleniumHelper) selenium);
 	}
 }

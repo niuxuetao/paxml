@@ -40,7 +40,7 @@ public class ClickWaitTag extends LocatorTag {
      */
     @Override
     protected Object onCommandAfterWait(Context context) {
-        final XSelenium selenium = getSelenium(context);
+        final SeleniumHelper selenium = getSelenium(context);
         if (snapshotBeforePageLoad) {
             selenium.takeSnapshot(context);
         }

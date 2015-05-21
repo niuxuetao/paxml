@@ -41,7 +41,7 @@ public class UrlTag extends SeleniumTag {
      */
     @Override
     protected Object onCommand(Context context) {
-    	XSelenium selenium = getSelenium(context, newSession, browser);
+    	SeleniumHelper selenium = getSelenium(context, newSession, browser);
         final long to = timeout >= 0 ? timeout : selenium.getWaitForReloadTimeout();
         String url = String.valueOf(getValue());
         if (!url.startsWith("http://") && !url.startsWith("https://")) {

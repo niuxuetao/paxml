@@ -79,10 +79,10 @@ public abstract class SeleniumTag extends BeanTag {
 	 * 
 	 */
 	public static class PaxmlListener implements IExecutionListener, Runnable {
-		private final List<XSelenium> seleniums;
+		private final List<SeleniumHelper> seleniums;
 		private volatile boolean done = false;
 
-		PaxmlListener(final List<XSelenium> seleniums) {
+		PaxmlListener(final List<SeleniumHelper> seleniums) {
 			this.seleniums = seleniums;
 		}
 
@@ -107,7 +107,7 @@ public abstract class SeleniumTag extends BeanTag {
 			if (done) {
 				return;
 			}
-			for (XSelenium selenium : seleniums) {
+			for (SeleniumHelper selenium : seleniums) {
 				try {
 					if (context == null) {
 						log.warn("Cleaning up selenium session without paxml context");
@@ -321,7 +321,7 @@ public abstract class SeleniumTag extends BeanTag {
 	 *            selenium in the context
 	 * @return the target selenium
 	 */
-	public static XSelenium switchSelenium(Context context, XSelenium selenium) {
+	public static SeleniumHelper switchSelenium(Context context, SeleniumHelper selenium) {
 		if (selenium == null) {
 			if (log.isDebugEnabled()) {
 				log.debug("No target session given, finding the 1st active session.");
@@ -333,7 +333,7 @@ public abstract class SeleniumTag extends BeanTag {
 		} else if (selenium.isTerminated()) {
 			throw new PaxmlRuntimeException("The target session is already closed, you cannot switch to it any more!");
 		}
-		XSelenium old = getSelenium(context);
+		SeleniumHelper old = getSelenium(context);
 		context.setInternalObject(PrivateKeys.SELENIUM, selenium, true);
 		if (log.isInfoEnabled()) {
 			log.info("Selenium session switched from " + old + " to: " + selenium);
@@ -348,12 +348,12 @@ public abstract class SeleniumTag extends BeanTag {
 	 *            the context
 	 * @return the found session or null if not found.
 	 */
-	public static XSelenium findFirstActiveSelenium(Context context) {
-		List<XSelenium> seleniums = (List<XSelenium>) context.getInternalObject(PrivateKeys.SELENIUMS, true);
+	public static SeleniumHelper findFirstActiveSelenium(Context context) {
+		List<SeleniumHelper> seleniums = (List<SeleniumHelper>) context.getInternalObject(PrivateKeys.SELENIUMS, true);
 		if (seleniums == null || seleniums.isEmpty()) {
 			return null;
 		}
-		for (XSelenium s : seleniums) {
+		for (SeleniumHelper s : seleniums) {
 			if (!s.isTerminated()) {
 				return s;
 			}
@@ -370,7 +370,7 @@ public abstract class SeleniumTag extends BeanTag {
 	 * @throws RuntimeException
 	 *             if selenium object is not yet initialized.
 	 */
-	public static XSelenium getSelenium(Context context) {
+	public static SeleniumHelper getSelenium(Context context) {
 		return getSelenium(context, false, null);
 	}
 
@@ -388,15 +388,15 @@ public abstract class SeleniumTag extends BeanTag {
 	 * @throws RuntimeException
 	 *             if selenium object is not yet initialized.
 	 */
-	public static XSelenium getSelenium(Context context, boolean forceNew, String browser) {
+	public static SeleniumHelper getSelenium(Context context, boolean forceNew, String browser) {
 
-		List<XSelenium> seleniums = (List<XSelenium>) context.getInternalObject(PrivateKeys.SELENIUMS, true);
+		List<SeleniumHelper> seleniums = (List<SeleniumHelper>) context.getInternalObject(PrivateKeys.SELENIUMS, true);
 		if (seleniums == null) {
-			seleniums = new ArrayList<XSelenium>(1);
+			seleniums = new ArrayList<SeleniumHelper>(1);
 			context.setInternalObject(PrivateKeys.SELENIUMS, seleniums, true);
 		}
 
-		XSelenium selenium = forceNew ? null : (XSelenium) context.getInternalObject(PrivateKeys.SELENIUM, true);
+		SeleniumHelper selenium = forceNew ? null : (SeleniumHelper) context.getInternalObject(PrivateKeys.SELENIUM, true);
 
 		if (selenium == null) {
 			String url = getStartUrl(context);
@@ -413,7 +413,7 @@ public abstract class SeleniumTag extends BeanTag {
 			if (StringUtils.isBlank(browser)) {
 				browser = DEFAULT_BROWSER;
 			}
-			selenium = new XSelenium(host, port, browser, url);
+			selenium = new SeleniumHelper(host, port, browser, url);
 			selenium.start();
 
 			context.setInternalObject(PrivateKeys.SELENIUM, selenium, true);

@@ -33,7 +33,7 @@ public class CloseSessionTag extends SeleniumTag {
 	 */
 	@Override
 	protected Object onCommand(Context context) {
-		XSelenium selenium = getSelenium(context);
+		SeleniumHelper selenium = getSelenium(context);
 		selenium.terminate();
 		// switch to the 1st non-terminated session
 		selenium = findFirstActiveSelenium(context);
