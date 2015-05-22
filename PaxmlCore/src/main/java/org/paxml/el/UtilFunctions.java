@@ -867,8 +867,9 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 			}
 		}
 		JPasswordField pf = new JPasswordField();
-		int okCxl = JOptionPane.showConfirmDialog(new DummyFrame(question), pf, question, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-
+		DummyFrame frame = new DummyFrame(question);
+		int okCxl = JOptionPane.showConfirmDialog(frame, pf, question, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		frame.setVisible(false);
 		if (okCxl == JOptionPane.OK_OPTION) {
 			return new String(pf.getPassword());
 		}
@@ -946,5 +947,5 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 	public static void exit() {
 		Context.getCurrentContext().getStack().exit();
 	}
-	
+
 }

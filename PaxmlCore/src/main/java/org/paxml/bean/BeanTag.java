@@ -154,9 +154,9 @@ public abstract class BeanTag extends AbstractInvokerTag {
 		if (idExp != null) {
 			// only remove the id if given with default namespace
 			QName qn = idExp.getAttribute();
-			if (!Namespaces.ROOT.equals(qn.getNamespaceURI())) {
-				ids.remove(qn.getLocalPart());
-			}
+			// if (!Namespaces.ROOT.equals(qn.getNamespaceURI())) {
+			ids.remove(qn.getLocalPart());
+			// }
 		}
 		if (ids.size() > 0) {
 			throw new PaxmlRuntimeException("Unsupported parameter(s) passed: " + ids + ", the acceptable parameters are: " + settablePropNames);

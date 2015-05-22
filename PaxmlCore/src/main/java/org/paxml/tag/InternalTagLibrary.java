@@ -80,6 +80,7 @@ import org.paxml.el.UtilFunctions;
 import org.paxml.tag.invoker.ExpressionTag;
 import org.paxml.tag.sql.DdlTag;
 import org.paxml.tag.sql.SqlDataSourceTag;
+import org.paxml.tag.sql.SqlDeleteTag;
 import org.paxml.tag.sql.SqlInsertTag;
 import org.paxml.tag.sql.SqlQueryTag;
 import org.paxml.tag.sql.SqlTag;
@@ -157,6 +158,7 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
 
         registerTag(SqlDataSourceTag.class);
         registerTag(SqlTag.class);
+        registerTag(SqlDeleteTag.class);
         registerTag(SqlInsertTag.class);
         registerTag(SqlQueryTag.class);
         registerTag(DdlTag.class);

@@ -16,6 +16,7 @@
  */
 package org.paxml.core;
 
+
 /**
  * paxml namespace contants.
  * 
@@ -23,25 +24,21 @@ package org.paxml.core;
  * 
  */
 public final class Namespaces {
-    /**
-     * The root namespace of paxml.
-     */
-    public static final String ROOT = "http://paxml.org";
-    /**
-     * The name space of data tag definition.
-     */
-    public static final String DATA = ROOT + "/data";
-    /**
-     * The namespace of file invoker tag definition.
-     */
-    public static final String FILE = ROOT + "/file";
-    /**
-     * The namespace of command invoker tag definition.
-     */
-    public static final String COMMAND = ROOT + "/command";
-    
-    private Namespaces() {
-        
-    }
-}
+	/**
+	 * The root namespace of paxml.
+	 */
+	public static final String ROOT = "";
+	/**
+	 * The name space of data tag definition.
+	 */
+	public static final String DATA = "data";
+	/**
+	 * The namespace of file invoker tag definition.
+	 */
+	public static final String FILE = "file";
+	/**
+	 * The namespace of command invoker tag definition.
+	 */
+	public static final String COMMAND = "command";
 
+}

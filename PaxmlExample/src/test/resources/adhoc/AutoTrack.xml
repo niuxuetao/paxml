@@ -21,7 +21,7 @@
     <sqlDataSource 
         url="jdbc:mysql://localhost/test" 
         username="root">
-        <password>niuxuetao</password>
+        <password><secret name="mysql.password"/></password>
     </sqlDataSource>     
     
     <url>www.autotrack.nl</url>
@@ -30,8 +30,9 @@
     <javascript id="results">window.jQuery('#resultlist .datarow_container').size()</javascript>
     
     <iterate times="${results}">
-        <sqlInsert table="autotrack" >
+        <sqlInsert table="autotrack" correlation="url" >
             <param>
+                <url xmlns="data">${selenium.location}</url>
                 <name><pick locator="jq=#resultlist .datarow_container:eq(${index}) .carinfo .middle_content h2"/></name>
                 
             </param>

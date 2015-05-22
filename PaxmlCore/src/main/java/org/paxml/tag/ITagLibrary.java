@@ -27,6 +27,12 @@ import org.paxml.el.IUtilFunctionsFactory;
  * 
  */
 public interface ITagLibrary {
+	/**
+	 * Get the namespace uri of the tab lib.
+	 * @return the namespace uri
+	 */
+	String getNamespaceUri();
+	
     /**
      * Get a tag impl from the library.
      * 

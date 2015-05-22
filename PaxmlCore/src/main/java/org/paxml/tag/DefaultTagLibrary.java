@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Tag;
 import org.paxml.annotation.Util;
+import org.paxml.core.Namespaces;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.el.IUtilFunctionsFactory;
 import org.paxml.util.ReflectUtils;
@@ -121,5 +122,10 @@ public class DefaultTagLibrary implements ITagLibrary {
 	public Set<String> getUtilFunctionsFactoryNames() {
 		return Collections.unmodifiableSet(utils.keySet());
 	}
+
+	@Override
+    public String getNamespaceUri() {
+	    return Namespaces.ROOT;
+    }
 
 }

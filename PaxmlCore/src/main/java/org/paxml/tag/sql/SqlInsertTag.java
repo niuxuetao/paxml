@@ -16,14 +16,19 @@
  */
 package org.paxml.tag.sql;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Tag;
 
 /**
- * Sql tag impl.
+ * SqlInsert tag impl.
  * 
  * @author Xuetao Niu
  * 
@@ -33,13 +38,29 @@ public class SqlInsertTag extends SqlTag {
 	private static final Log log = LogFactory.getLog(SqlInsertTag.class);
 
 	private String table;
+	private String correlation;
+	private boolean delete = true;
 
 	@Override
 	public Object getValue() {
 
+		StringBuilder sb = new StringBuilder();
+
 		Map map = getParam();
-		StringBuilder sb = new StringBuilder("insert into ");
-		sb.append(table).append(" (");
+
+		if (delete && StringUtils.isNoneBlank(correlation)) {
+
+			Set<String> keys = new HashSet<String>();
+			for (String key : StringUtils.split(correlation, ",")) {
+				keys.add(key.trim());
+			}
+			Map coMap = new HashMap(map);
+			coMap.keySet().retainAll(Arrays.asList(keys));
+			sb.append(SqlDeleteTag.getDeleteStatement(table, coMap));
+
+		}
+
+		sb.append("insert into ").append(table).append(" (");
 		boolean first = true;
 		for (Object k : map.keySet()) {
 			if (first) {
@@ -59,7 +80,7 @@ public class SqlInsertTag extends SqlTag {
 			}
 			sb.append(":").append(k);
 		}
-		sb.append(")");
+		sb.append(");\r\n");
 		return sb.toString();
 	}
 
@@ -69,6 +90,22 @@ public class SqlInsertTag extends SqlTag {
 
 	public void setTable(String table) {
 		this.table = table;
+	}
+
+	public String getCorrelation() {
+		return correlation;
+	}
+
+	public void setCorrelation(String correlation) {
+		this.correlation = correlation;
+	}
+
+	public boolean isDelete() {
+		return delete;
+	}
+
+	public void setDelete(boolean delete) {
+		this.delete = delete;
 	}
 
 }
