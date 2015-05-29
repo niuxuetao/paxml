@@ -12,6 +12,7 @@
 
 	<properties>
 		<spring.version>4.1.4.RELEASE</spring.version>
+		<ivy.version>2.4.0</ivy.version>
 	</properties>
 
 	<name>PaxmlCore</name>
@@ -75,12 +76,16 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.ivy</groupId>
+			<artifactId>ivy</artifactId>
+			<version>${ivy.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
-
-
 
 		<dependency>
 			<groupId>commons-dbcp</groupId>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<paxml>
+    <namespace uri="http://test">
+        <java ><!-- tag lib / util / listener / entity class --></java>
+        <java/>
+        <resource><!-- exact or wildcard for searching all files within this zip/jar resource --></resource>
+        <resource/>
+    </namespace>
+    
+    <!-- only needed if this lib is not published via maven -->
+    <dependency>maven:groupId=org.test;artifactId=test;version=1.1</dependency>
+    
+</paxml>
+<!-- 
+
+Design concepts:
+- For developers, use maven for publishing java, and use maven for xml
+- For non-developers, use zip for publishing xml
+
+- Install: provide command line (or GUI) to install lib as dependency, with a dependency string:
+    - maven: put dependency into ivy file for execution
+    - ftp(s)/http(s): download as zip file then treat as local file
+    - otherwise: treat as local file path then ivy install to cache first, then put such dependency into ivy file for execution 
+- Install: dependencies will be automatically installed before this is installed
+    - look for all zip/jar files on resolved result and open each one that has paxml.xml, only register for those zip.jar files 
+    - if not given via maven, then resolve and (re)publish locally with:
+        - g: filename hash
+        - a: uri(s) hash
+        - v: file content hash 
+- Install: register in H2 db all java classes and xml files (find out specific files if given wildcard)
+- Install: generate ivy file for the next start up
+- Install: use ivy to resolve dependencies and download
+- Install: installing to the same ns requires confirmation to overwrite 
+
+- Uninstall: 
+    - unregister and regenerate ivy file
+    - clean uninstalled jar/zip files
+
+- Start up: 
+    - use generated ivy file (for libs) to launch    
+    - add paxml installation lib folder to classpath
+    - register all java classes
+    - register all xml resources by reading all registered files from registered zip/jar files
+
+- Execution: 
+    
+    - No namespace or default namespace "" treat tag def as:        
+        - the one from the same namespace or the same project
+        - the core ones from paxml
+        - treat as data tag:
+            <const id="x" >
+                <javascript xmlns="data">
+                    <pick xmlns="core" locator="blabla" />
+                </javascript>
+            </const>
+    - Attributes only means data even pushed down (push down better to have explicit "data" namespace insertion)
+    - Differentiate java tag impl and xml tag impl: the 1st letter being capital or not                    
+    - Use xmlns="data" as explicit data tags
+    - Use xmlns="core" to take only core paxml tags (useful to directly use core tags where the lib/project has one with the same name)
+    - Use xmlns="http://the lib namespace" to take tag def from that namespace/lib or from core or treat as data tag, because of providing a good chance that param tags do not need namespace escaping:
+        <x:test xmlns:x="http://3rd party lib">
+            <param1>1</param2>
+        </x:test>    
+    - Use xmlns="*" or "a*b" to take from all matching namespaces with such order (useful for multi namespace tags):
+        - same lib
+        - later installed lib
+        - earlier installed lib
+        - core tag
+        - data tag
+    - Introducing new core tag may break implicit data tags, for this, "migration impact analysis/helper" should be provided.    
+    - Do NOT automatically use lib tags unless explicitly defined with namespace !!! Because:
+        - otherwise existing code may break after installing a new lib.
+        - if many tags from the lib need to be used, "xmlns nesting/inheritance" will do it easily.
+    -           
+ -->
+ 
+ 
