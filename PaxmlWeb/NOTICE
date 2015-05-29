@@ -8,7 +8,9 @@ This software is built on and attributes to third-party libraries with the follo
   Apache Commons BeanUtils under The Apache Software License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Apache Commons Email under The Apache Software License, Version 2.0
+  Apache Commons Lang under Apache License, Version 2.0
   Apache Commons Logging under The Apache Software License, Version 2.0
+  Apache Ivy under The Apache Software License, Version 2.0
   Apache JAMES Mime4j (Core) under The Apache Software License, Version 2.0
   Apache POI under The Apache Software License, Version 2.0
   Axiom API under The Apache Software License, Version 2.0
@@ -19,7 +21,6 @@ This software is built on and attributes to third-party libraries with the follo
   Commons IO under The Apache Software License, Version 2.0
   Commons JEXL under The Apache Software License, Version 2.0
   Commons JXPath under The Apache Software License, Version 2.0
-  Commons Lang under The Apache Software License, Version 2.0
   Commons Pool under The Apache Software License, Version 2.0
   Data Mapper for Jackson under The Apache Software License, Version 2.0
   Groovy under The Apache Software License, Version 2.0

@@ -17,7 +17,7 @@
 package org.paxml.control;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.core.IParserContext;
 import org.paxml.el.ExpressionFactory;
 import org.paxml.tag.AbstractTagFactory;

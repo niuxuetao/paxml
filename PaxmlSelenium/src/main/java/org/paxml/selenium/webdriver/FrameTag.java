@@ -16,7 +16,7 @@
  */
 package org.paxml.selenium.webdriver;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver.TargetLocator;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;

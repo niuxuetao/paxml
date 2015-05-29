@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.Conditional;
 import org.paxml.core.IParserContext;
 import org.paxml.tag.AbstractTagFactory;

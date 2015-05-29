@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.core.EntityFactoryRegistry;
 import org.paxml.core.PaxmlResource;
 import org.paxml.launch.LaunchModelBuilder;

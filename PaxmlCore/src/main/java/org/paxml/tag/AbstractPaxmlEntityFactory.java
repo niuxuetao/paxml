@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Tag;
@@ -217,7 +217,6 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 	 * {@inheritDoc}
 	 */
 	public final IEntity create(OMElement root, IParserContext context) {
-		System.out.println("===================================== " + root.getNamespaceURI()+" ........... "+root.getPrefix()+" --------- "+root.getLocalName());
 		
 		ParserContext contextImpl = (ParserContext) context;
 		final ResourceLocator locator = contextImpl.getLocator();

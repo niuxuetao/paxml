@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.core.FileSystemResource;
 import org.paxml.core.IEntity;
 import org.paxml.core.IEntityExecutionListener;

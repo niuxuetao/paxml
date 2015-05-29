@@ -16,7 +16,7 @@
  */
 package org.paxml.tag.invoker;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.core.IParserContext;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.el.ExpressionFactory;

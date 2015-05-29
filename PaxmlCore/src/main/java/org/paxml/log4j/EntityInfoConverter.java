@@ -16,7 +16,7 @@
  */
 package org.paxml.log4j;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.helpers.PatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
 import org.paxml.core.Context;

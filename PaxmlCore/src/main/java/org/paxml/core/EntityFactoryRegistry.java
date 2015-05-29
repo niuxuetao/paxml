@@ -19,7 +19,7 @@ package org.paxml.core;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.RootTag;
 import org.paxml.tag.DataSetEntityFactory;
 import org.paxml.tag.ScenarioEntityFactory;

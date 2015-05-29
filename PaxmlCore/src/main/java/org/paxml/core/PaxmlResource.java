@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.util.PaxmlUtils;
 import org.springframework.core.io.Resource;
 

@@ -16,7 +16,7 @@
  */
 package org.paxml.el;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.paxml.annotation.Util;
 import org.paxml.core.Context;
 

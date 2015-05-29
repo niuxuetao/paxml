@@ -19,7 +19,7 @@ package org.paxml.selenium.rc;
 import java.text.MessageFormat;
 import java.util.Hashtable;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public final class FormattingUtils {
 

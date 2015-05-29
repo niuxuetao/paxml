@@ -16,7 +16,7 @@
  */
 package org.paxml.selenium.webdriver;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebElement;
 import org.paxml.annotation.Tag;
 import org.paxml.assertion.AssertTag.AssertTagException;

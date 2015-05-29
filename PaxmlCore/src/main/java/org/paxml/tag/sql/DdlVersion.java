@@ -19,7 +19,7 @@ package org.paxml.tag.sql;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class DdlVersion implements Comparable<DdlVersion> {
 

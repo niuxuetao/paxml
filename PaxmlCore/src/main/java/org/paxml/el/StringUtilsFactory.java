@@ -16,7 +16,7 @@
  */
 package org.paxml.el;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.Util;
 import org.paxml.core.Context;
 

@@ -17,7 +17,7 @@
 package org.paxml.tag;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.IdAttribute;
 import org.paxml.core.Context.Scope;
 import org.paxml.core.IParserContext;

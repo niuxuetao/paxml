@@ -36,7 +36,7 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.collections.iterators.ArrayIterator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.paxml.core.PaxmlRuntimeException;
 import org.springframework.beans.BeanUtils;

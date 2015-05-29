@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
 import org.paxml.core.PaxmlRuntimeException;

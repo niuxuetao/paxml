@@ -18,7 +18,7 @@ package org.paxml.bean;
 
 import java.beans.PropertyDescriptor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
 import org.paxml.core.PaxmlRuntimeException;

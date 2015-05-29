@@ -18,7 +18,7 @@ package org.paxml.tag.plan;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.Tag;
 import org.paxml.bean.BeanTag;
 import org.paxml.core.Context;
