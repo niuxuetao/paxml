@@ -25,7 +25,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.commons.lang3.StringUtils;
 import org.paxml.annotation.Conditional;
 import org.paxml.core.IParserContext;
-import org.paxml.tag.AbstractTagFactory;
+import org.paxml.tag.DefaultTagFactory;
 import org.paxml.tag.ITag;
 import org.paxml.util.AxiomUtils;
 import org.paxml.util.ReflectUtils;
@@ -38,7 +38,7 @@ import org.paxml.util.ReflectUtils;
  * @param <T>
  *            the invoker tag type that is being produced by the factory.
  */
-public class InvokerTagFactory<T extends AbstractInvokerTag> extends AbstractTagFactory<T> {
+public class InvokerTagFactory<T extends AbstractInvokerTag> extends DefaultTagFactory<T> {
 
     /**
      * Process the tag attributes and children.

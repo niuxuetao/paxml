@@ -16,12 +16,49 @@
  */
 package org.paxml.tag;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.TypeVariable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import org.apache.axiom.om.OMElement;
+import org.paxml.core.IParserContext;
+import org.paxml.core.PaxmlParseException;
+
 /**
- * Default tag factory.
+ * This is the annotation-based impl of a tag factory.
+ * 
  * @author Xuetao Niu
- *
- * @param <T> the tag type to produce
+ * 
+ * @param <T>
+ *            the type of tag this factory produces.
  */
-public class DefaultTagFactory<T extends ITag> extends AbstractTagFactory<T> {
-    
+public abstract class DefaultTagFactory<T extends ITag> extends AbstractTagFactory<T> {
+	private final ConcurrentMap<String, Class<? extends ITag>> tagImpl = new ConcurrentHashMap<String, Class<? extends ITag>>();
+
+	public void registerTag(String tagName, Class<? extends ITag> impl) {
+		tagImpl.put(tagName, impl);
+	}
+
+	@Override
+	protected T createTagInstance(OMElement ele, IParserContext context) {
+		Class<? extends ITag> clazz = tagImpl.get(ele.getLocalName());
+		if (clazz == null) {
+			// detect from the actual generic type
+			try {
+				TypeVariable[] types = getClass().getTypeParameters();
+				clazz = (Class) types[0].getBounds()[0];
+			} catch (Exception e) {
+
+				ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
+				clazz = (Class) genericSuperclass.getActualTypeArguments()[0];
+			}
+		}
+		try {
+			return (T) clazz.newInstance();
+		} catch (Exception e) {
+			throw new PaxmlParseException("Cannot create instance from class: " + clazz.getName(), e);
+		}
+	}
+
 }

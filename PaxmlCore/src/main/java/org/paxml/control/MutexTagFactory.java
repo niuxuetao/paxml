@@ -20,7 +20,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang3.StringUtils;
 import org.paxml.core.IParserContext;
 import org.paxml.el.ExpressionFactory;
-import org.paxml.tag.AbstractTagFactory;
+import org.paxml.tag.DefaultTagFactory;
 import org.paxml.util.AxiomUtils;
 
 /**
@@ -31,7 +31,7 @@ import org.paxml.util.AxiomUtils;
  * @param <T>
  *            the tag type to produce
  */
-public class MutexTagFactory<T extends MutexTag> extends AbstractTagFactory<T> {
+public class MutexTagFactory<T extends MutexTag> extends AbstractControlTagFactory<T> {
     /**
      * The name property for the mutext name.
      */

@@ -29,7 +29,7 @@ import org.paxml.core.Context;
 import org.paxml.core.ObjectList;
 import org.paxml.core.ObjectTree;
 import org.paxml.core.PaxmlRuntimeException;
-import org.paxml.tag.AbstractTagFactory;
+import org.paxml.tag.DefaultTagFactory;
 import org.paxml.tag.ConstTag;
 import org.paxml.util.PaxmlUtils;
 import org.springframework.core.io.Resource;
@@ -95,7 +95,7 @@ public class PropertiesTag extends BeanTag {
             }
         }
         if (StringUtils.isBlank(id)) {
-            final boolean group = AbstractTagFactory.isUnderConst(this);
+            final boolean group = DefaultTagFactory.isUnderConst(this);
             if (group) {
                 return new PropertiesObjectTree(props);
             } else {

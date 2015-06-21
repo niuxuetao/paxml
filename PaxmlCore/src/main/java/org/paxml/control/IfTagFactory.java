@@ -18,13 +18,13 @@ package org.paxml.control;
 
 import org.apache.axiom.om.OMElement;
 import org.paxml.core.IParserContext;
-import org.paxml.tag.AbstractTagFactory;
+import org.paxml.tag.DefaultTagFactory;
 /**
  * If tag factory.
  * @author Xuetao Niu
  *
  */
-public class IfTagFactory extends AbstractTagFactory<IfTag> {
+public class IfTagFactory extends AbstractControlTagFactory<IfTag> {
     /**
      * {@inheritDoc}
      */

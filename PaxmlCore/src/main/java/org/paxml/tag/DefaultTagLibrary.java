@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,27 +31,26 @@ import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Tag;
 import org.paxml.annotation.Util;
 import org.paxml.core.Namespaces;
+import org.paxml.core.PaxmlParseException;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.el.IUtilFunctionsFactory;
 import org.paxml.util.ReflectUtils;
+import org.paxml.util.ReflectUtils.IClassVisitor;
 
 /**
- * Default impl of tag library.
+ * Annotation-based impl of tag library.
  * 
  * @author Xuetao Niu
  * 
  */
 public class DefaultTagLibrary implements ITagLibrary {
 	private static final Log log = LogFactory.getLog(DefaultTagLibrary.class);
-	private final Map<String, Class<? extends IUtilFunctionsFactory>> utils = new ConcurrentHashMap<String, Class<? extends IUtilFunctionsFactory>>();
-	private final Map<String, Class<? extends ITag>> tags = new ConcurrentHashMap<String, Class<? extends ITag>>(0);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Class<? extends ITag> getTagImpl(String tagName) {
-		return tags.get(tagName);
-	}
+	private final Map<String, Class<? extends IUtilFunctionsFactory>> utils = new ConcurrentHashMap<String, Class<? extends IUtilFunctionsFactory>>();
+
+	private final ConcurrentMap<String, ITagFactory> tagNameToFactories = new ConcurrentHashMap<String, ITagFactory>(0);
+
+	private final ConcurrentMap<Class<? extends ITagFactory>, ITagFactory> cachedTagFactories = new ConcurrentHashMap<Class<? extends ITagFactory>, ITagFactory>(0);
 
 	/**
 	 * {@inheritDoc}
@@ -60,7 +60,10 @@ public class DefaultTagLibrary implements ITagLibrary {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Register tag by tag impl class.
+	 * 
+	 * @param clazz
+	 *            tag impl class
 	 */
 	public void registerTag(Class<? extends ITag> clazz) {
 		List<String> names = getTagNames(clazz);
@@ -71,8 +74,14 @@ public class DefaultTagLibrary implements ITagLibrary {
 
 		}
 		for (String tagName : names) {
-
-			tags.put(tagName, clazz);
+			ITagFactory fact = createTagFactory(clazz);
+			if (fact == null) {
+				throw new PaxmlRuntimeException("No tag factory found for tag class: " + clazz.getName());
+			}
+			tagNameToFactories.put(tagName, fact);
+			if (fact instanceof DefaultTagFactory) {
+				((DefaultTagFactory) fact).registerTag(tagName, clazz);
+			}
 		}
 	}
 
@@ -124,8 +133,65 @@ public class DefaultTagLibrary implements ITagLibrary {
 	}
 
 	@Override
-    public String getNamespaceUri() {
-	    return Namespaces.ROOT;
-    }
+	public String getNamespaceUri() {
+		return Namespaces.ROOT;
+	}
+
+	// ///////////////////////////////////
+
+	/**
+	 * Find the 1st non-abstract factory class from all @Tag annotations in the
+	 * inheritance tree.
+	 * 
+	 * @param clazz
+	 *            the tag implementing class
+	 * @return null if not found
+	 */
+	private ITagFactory createTagFactory(Class<? extends ITag> clazz) {
+		ITagFactory factory = doCreateTagFactory(clazz);
+		if (factory == null) {
+			return ReflectUtils.traverseInheritance(clazz, null, true, new IClassVisitor<ITagFactory>() {
+
+				public ITagFactory onVisit(Class<?> clazz) {
+					return doCreateTagFactory(clazz);
+				}
+
+			});
+		}
+
+		return factory;
+	}
+
+
+	private ITagFactory doCreateTagFactory(Class<?> clazz) {
+		Tag a = ReflectUtils.getAnnotation(clazz, Tag.class);
+		if (a == null) {
+			throw new PaxmlParseException("Tag class '" + clazz.getName() + "' has no @" + Tag.class.getSimpleName() + " annotation on itself nor its super classes");
+		}
+		Class<? extends ITagFactory> factoryClass = a.factory();
+		if (ReflectUtils.isAbstract(factoryClass)) {
+			return null;
+		}
+		ITagFactory factory = cachedTagFactories.get(factoryClass);
+
+		if (factory == null) {
+
+			try {
+				factory = factoryClass.newInstance();
+
+			} catch (Exception e) {
+				throw new PaxmlRuntimeException("Cannot create tag factory from class: " + factoryClass.getName(), e);
+			}
+			cachedTagFactories.put(factoryClass, factory);
+		}
+		
+		return factory;
+
+	}
+
+	@Override
+	public ITagFactory<? extends ITag> getFactory(String tagName) {
+		return tagNameToFactories.get(tagName);
+	}
 
 }

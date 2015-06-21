@@ -16,20 +16,12 @@
  */
 package org.paxml.tag;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.paxml.annotation.Tag;
 import org.paxml.core.IEntity;
 import org.paxml.core.IEntityFactory;
 import org.paxml.core.IParserContext;
@@ -40,10 +32,8 @@ import org.paxml.core.PaxmlResource;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.core.ResourceLocator;
 import org.paxml.launch.Paxml;
-import org.paxml.tag.invoker.FileInvokerTag;
+import org.paxml.tag.invoker.FileInvokerTagFactory;
 import org.paxml.util.Elements;
-import org.paxml.util.ReflectUtils;
-import org.paxml.util.ReflectUtils.IClassVisitor;
 
 /**
  * The base impl for paxml entity factories.
@@ -54,7 +44,7 @@ import org.paxml.util.ReflectUtils.IClassVisitor;
 public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 
 	private static final Log log = LogFactory.getLog(AbstractPaxmlEntityFactory.class);
-
+	
 	/**
 	 * Default impl of the parser context.
 	 * 
@@ -146,8 +136,6 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 
 	}
 
-	private final Map<Class<? extends ITagFactory>, ITagFactory> cachedTagFactories = new HashMap<Class<? extends ITagFactory>, ITagFactory>();
-
 	/**
 	 * Create a new parser context from parent context.
 	 * 
@@ -217,7 +205,7 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 	 * {@inheritDoc}
 	 */
 	public final IEntity create(OMElement root, IParserContext context) {
-		
+
 		ParserContext contextImpl = (ParserContext) context;
 		final ResourceLocator locator = contextImpl.getLocator();
 		final PaxmlResource resource = contextImpl.getResource();
@@ -239,7 +227,7 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 			contextImpl.setEntity(entity);
 			contextImpl.setParentTag(entity);
 
-			AbstractTagFactory.processExpressions(entity, contextImpl);
+			DefaultTagFactory.processExpressions(entity, contextImpl);
 
 			createChildren(contextImpl);
 
@@ -256,20 +244,23 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 	}
 
 	/**
-	 * Get the tag impl class from xml tag.
+	 * Check if a tag is created by a tag factory type
 	 * 
 	 * @param ele
-	 *            the xml tag
+	 *            the tag
 	 * @param context
-	 *            the parser context.
-	 * @return tag impl class
+	 *            the parser context
+	 * @param expectedType
+	 *            the type of tag factory
+	 * @return true yes, false no.
 	 */
-	public static Class<? extends ITag> getTagClass(OMElement ele, IParserContext context) {
+	public static boolean isCreatedByTagFactory(OMElement ele, IParserContext context, Class<? extends ITagFactory> expectedType) {
 		ParserContext contextImpl = (ParserContext) context;
 		final PaxmlResource res = contextImpl.getResource();
-		Class<? extends ITag> clazz = getTagImplClass(ele, contextImpl);
+		ITagFactory fact = getTagFactory(ele, contextImpl);
 		contextImpl.setResource(res);
-		return clazz;
+		return expectedType.isInstance(fact);
+
 	}
 
 	/**
@@ -283,72 +274,73 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 	 *            the context will be changed to the target resource.
 	 * @return never null.
 	 */
-	private static Class<? extends ITag> getTagImplClass(OMElement ele, ParserContext context) {
+	private static ITagFactory getTagFactory(OMElement ele, ParserContext context) {
 
 		final String tagName = ele.getLocalName();
-		Class<? extends ITag> clazz = null;
+		ITagFactory fact = null;
 
 		final String ns = ele.getNamespaceURI();
 		if (null == ns) {
-			clazz = getTagImplFromTabLibs(context, null, tagName);
-			if (clazz == null) {
-				clazz = getTagImplFromResources(context, null, tagName);
+			fact = getTagFactoryFromTagLibs(context, null, tagName);
+			if (fact == null) {
+				fact = getTagFactoryFromResources(context, null, tagName);
 			}
 		} else if (StringUtils.isBlank(ns) || Namespaces.DATA.equals(ns)) {
-			clazz = ConstTag.class;
+			fact = InternalTagLibrary.CONST_TAG_FACTORY;
 		} else if (Namespaces.COMMAND.equals(ns)) {
-			clazz = getTagImplFromTabLibs(context, null, tagName);
+			fact = getTagFactoryFromTagLibs(context, null, tagName);
 		} else if (Namespaces.FILE.equals(ns)) {
-			clazz = getTagImplFromResources(context, null, tagName);
+			fact = getTagFactoryFromResources(context, null, tagName);
 		} else {
 			// plugins
 			// first load from java class
-			clazz = getTagImplFromTabLibs(context, ns, tagName);
-			if (clazz == null) {
+			fact = getTagFactoryFromTagLibs(context, ns, tagName);
+			if (fact == null) {
 				// if not found, load from resource
-				clazz = getTagImplFromResources(context, ns, tagName);
+				fact = getTagFactoryFromResources(context, ns, tagName);
 			}
 		}
 
-		if (clazz == null) {
+		if (fact == null) {
 			if (StringUtils.isBlank(ns)) {
 				throw new PaxmlRuntimeException("Cannot recognize tag '" + ele.getLocalName());
 			} else {
 				throw new PaxmlRuntimeException("Cannot recognize tag '" + ele.getLocalName() + "' under namespace: " + ns);
 			}
 		}
-		return clazz;
+		return fact;
 	}
 
-	private static Class<? extends ITag> getTagImplFromTabLibs(ParserContext context, String ns, String tagName) {
+	private static ITagFactory getTagFactoryFromTagLibs(ParserContext context, String ns, String tagName) {
 		// search from tag libs
 		Parser parser = context.getParser();
 		for (ITagLibrary lib : parser.getTagLibraries()) {
 			if (ns != null && !ns.equals(lib.getNamespaceUri())) {
 				continue;
 			}
-			Class<? extends ITag> clazz = lib.getTagImpl(tagName);
-			if (clazz != null) {
-				return clazz;
+			ITagFactory fact = lib.getFactory(tagName);
+
+			if (fact != null) {
+				return fact;
 			}
 		}
 		return null;
 	}
 
-	private static Class<? extends ITag> getTagImplFromResources(ParserContext context, String ns, String tagName) {
-		Class<? extends ITag> clazz = null;
+	private static ITagFactory getTagFactoryFromResources(ParserContext context, String ns, String tagName) {
+		ITagFactory fact = null;
 		ResourceLocator locator = context.getLocator();
 		// search from resources
 		PaxmlResource tagRes = locator.getResource(tagName);
 		if (tagRes == null) {
 			// this tag is unknown, regarded as a const tag
-			clazz = ConstTag.class;
+			fact = InternalTagLibrary.CONST_TAG_FACTORY;
 		} else {
 			// this is a xml defined tag, create a file invoker
-			clazz = FileInvokerTag.class;
+			fact = InternalTagLibrary.FILE_INVOKER_TAG_FACTORY;
 			context.setResource(tagRes);
 		}
-		return clazz;
+		return fact;
 	}
 
 	private void createChildren(ParserContext context) {
@@ -356,17 +348,17 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 		for (OMElement child : new Elements(context.getElement())) {
 			final ParserContext newContext = context.copy();
 			newContext.setElement(child);
-			Class<? extends ITag> clazz = getTagImplClass(child, newContext);
-			createTagObjectFull(clazz, newContext);
+			ITagFactory fact = getTagFactory(child, newContext);
+			createTagObjectFull(fact, child, newContext);
 			newContext.discard();
 		}
 	}
 
-	private ITag createTagObjectFull(Class<? extends ITag> clazz, IParserContext context) {
+	private ITag createTagObjectFull(ITagFactory fact, OMElement ele, IParserContext context) {
 
 		ParserContext implContext = (ParserContext) context;
 
-		final TagCreationResult<ITag> result = createTagObject(clazz, implContext);
+		final TagCreationResult<ITag> result = fact.create(ele, context);
 		final ITag obj = result.getTagObject();
 
 		if (!result.isChildrenParsed()) {
@@ -377,66 +369,6 @@ public abstract class AbstractPaxmlEntityFactory implements IEntityFactory {
 		}
 
 		return obj;
-	}
-
-	private TagCreationResult<ITag> createTagObject(Class<? extends ITag> clazz, ParserContext context) {
-
-		ITagFactory factory = createTagFactory(clazz);
-
-		if (factory == null) {
-			throw new PaxmlRuntimeException("No tag factory found for tag class: " + clazz.getName());
-		}
-
-		TagCreationResult<ITag> result = factory.create(clazz, context);
-
-		return result;
-	}
-
-	/**
-	 * Find the 1st non-abstract factory class from all @Tag annotations in the
-	 * inheritance tree.
-	 * 
-	 * @param clazz
-	 *            the tag implementing class
-	 * @return null if not found
-	 */
-	private ITagFactory createTagFactory(Class<? extends ITag> clazz) {
-		ITagFactory factory = doCreateTagFactory(clazz);
-		if (factory == null) {
-			return ReflectUtils.traverseInheritance(clazz, null, true, new IClassVisitor<ITagFactory>() {
-
-				public ITagFactory onVisit(Class<?> clazz) {
-					return doCreateTagFactory(clazz);
-				}
-
-			});
-		}
-		return factory;
-	}
-
-	private ITagFactory doCreateTagFactory(Class<?> clazz) {
-		Tag a = ReflectUtils.getAnnotation(clazz, Tag.class);
-		if (a == null) {
-			throw new PaxmlParseException("Tag class '" + clazz.getName() + "' has no @" + Tag.class.getSimpleName() + " annotation on itself nor its super classes");
-		}
-		Class<? extends ITagFactory> factoryClass = a.factory();
-		if (ReflectUtils.isAbstract(factoryClass)) {
-			return null;
-		}
-		ITagFactory factory = cachedTagFactories.get(factoryClass);
-
-		if (factory == null) {
-			try {
-				factory = factoryClass.newInstance();
-
-			} catch (Exception e) {
-				throw new PaxmlRuntimeException("Cannot create tag factory from class: " + factoryClass.getName(), e);
-			}
-			cachedTagFactories.put(factoryClass, factory);
-		}
-		factory.setEntityFactory(this);
-		return factory;
-
 	}
 
 }

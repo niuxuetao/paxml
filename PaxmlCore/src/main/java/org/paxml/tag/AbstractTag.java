@@ -45,7 +45,7 @@ import org.paxml.el.ExpressionFactory;
  * @author Xuetao Niu
  * 
  */
-@Tag(factory = DefaultTagFactory.class)
+@Tag(factory = SimpleTagFactory.class)
 @IdAttribute
 public abstract class AbstractTag implements ITag {
     

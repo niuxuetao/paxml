@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.paxml.core.IParserContext;
 import org.paxml.core.PaxmlRuntimeException;
-import org.paxml.tag.AbstractTagFactory;
+import org.paxml.tag.DefaultTagFactory;
 import org.paxml.tag.ITag;
 
 /**
@@ -30,7 +30,7 @@ import org.paxml.tag.ITag;
  * @author Xuetao Niu
  * 
  */
-public class ElseTagFactory extends AbstractTagFactory<ElseTag> {
+public class ElseTagFactory extends AbstractControlTagFactory<ElseTag> {
     /**
      * {@inheritDoc}
      */

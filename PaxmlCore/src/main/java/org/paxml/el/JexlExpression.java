@@ -86,7 +86,8 @@ public class JexlExpression extends AbstractExpression {
             }
 
             public boolean has(String name) {
-                if (!context.hasConstId(name, true)) {
+            	Context c=context;
+                if (!c.hasConstId(name, true)) {
                     if(strict){
                         throw new PaxmlRuntimeException("Unknown const name: " + name);
                     }

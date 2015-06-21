@@ -38,7 +38,7 @@ import org.paxml.tag.invoker.InvokerTagFactory;
  *            const tag
  */
 @IdAttribute
-public class ConstTagFactory<T extends ConstTag> extends AbstractTagFactory<T> {
+public class ConstTagFactory<T extends ConstTag> extends DefaultTagFactory<T> {
 
 	/**
 	 * {@inheritDoc}
@@ -87,5 +87,7 @@ public class ConstTagFactory<T extends ConstTag> extends AbstractTagFactory<T> {
 
 		return false;
 	}
+
+	
 
 }

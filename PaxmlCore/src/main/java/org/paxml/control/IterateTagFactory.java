@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.paxml.core.IParserContext;
 import org.paxml.core.PaxmlRuntimeException;
 import org.paxml.el.ExpressionFactory;
-import org.paxml.tag.AbstractTagFactory;
+import org.paxml.tag.DefaultTagFactory;
 import org.paxml.util.AxiomUtils;
 
 /**
@@ -32,7 +32,7 @@ import org.paxml.util.AxiomUtils;
  * @author Xuetao Niu
  * 
  */
-public class IterateTagFactory extends AbstractTagFactory<IterateTag> {
+public class IterateTagFactory extends AbstractControlTagFactory<IterateTag> {
 
     /**
      * The attr name for var name.

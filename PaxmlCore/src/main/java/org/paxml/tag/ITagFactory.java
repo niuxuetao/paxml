@@ -16,7 +16,7 @@
  */
 package org.paxml.tag;
 
-import org.paxml.core.IEntityFactory;
+import org.apache.axiom.om.OMElement;
 import org.paxml.core.IParserContext;
 /**
  * Prototype for tag factories.
@@ -27,22 +27,15 @@ import org.paxml.core.IParserContext;
 public interface ITagFactory<T extends ITag> {
       
     /**
-     * Set the entity factory that manages this tag factory.
-     * @param factory the entity factory, cannot be null.
-     */
-    void setEntityFactory(IEntityFactory  factory);
-    /**
-     * Get the entity factory that manages this tag factory.
-     * @return the entity factory, never null.
-     */
-    IEntityFactory getEntityFactory();
-    
-    /**
      * Create the tag impl object from parse context.
      * @param tagImplClass the tag impl class
      * @param context the parse context
      * @return the tag object, never null
      */
-    TagCreationResult<T> create(Class<? extends T> tagImplClass, IParserContext context);
+    //TagCreationResult<T> create(Class<? extends T> tagImplClass, IParserContext context);
+    
+    TagCreationResult<T> create(OMElement ele, IParserContext context);
+    
+    
     
 }

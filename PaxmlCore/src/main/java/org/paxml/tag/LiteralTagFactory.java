@@ -32,7 +32,7 @@ import org.paxml.el.ExpressionFactory;
  * 
  */
 
-public class LiteralTagFactory extends AbstractTagFactory<LiteralTag> {
+public class LiteralTagFactory extends DefaultTagFactory<LiteralTag> {
 
     /**
      * {@inheritDoc}

@@ -18,7 +18,7 @@ package org.paxml.control;
 
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
-import org.paxml.tag.DefaultTagFactory;
+import org.paxml.tag.SimpleTagFactory;
 
 /**
  * Abstract closure tag.
@@ -26,7 +26,7 @@ import org.paxml.tag.DefaultTagFactory;
  * @author Xuetao Niu
  * 
  */
-@Tag(factory = DefaultTagFactory.class)
+@Tag(factory = SimpleTagFactory.class)
 public abstract class AbstractClosureTag extends AbstractControlTag {
 
     /**

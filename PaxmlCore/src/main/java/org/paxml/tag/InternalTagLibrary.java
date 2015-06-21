@@ -78,6 +78,7 @@ import org.paxml.el.DateUtilsFactory;
 import org.paxml.el.StringUtilsFactory;
 import org.paxml.el.UtilFunctions;
 import org.paxml.tag.invoker.ExpressionTag;
+import org.paxml.tag.invoker.FileInvokerTagFactory;
 import org.paxml.tag.sql.DdlTag;
 import org.paxml.tag.sql.SqlDataSourceTag;
 import org.paxml.tag.sql.SqlDeleteTag;
@@ -96,10 +97,11 @@ public final class InternalTagLibrary extends DefaultTagLibrary {
      * The single instance.
      */
     public static final InternalTagLibrary INSTANCE = new InternalTagLibrary();
+    
+	public static final ConstTagFactory CONST_TAG_FACTORY = new ConstTagFactory();
+	public static final FileInvokerTagFactory FILE_INVOKER_TAG_FACTORY = new FileInvokerTagFactory();
 
     private InternalTagLibrary() {
-        super();
-
         // tags
         registerTag(GroovyTag.class);
         registerTag(FindConstTag.class);

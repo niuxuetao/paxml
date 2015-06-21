@@ -29,34 +29,34 @@ import org.paxml.el.IUtilFunctionsFactory;
 public interface ITagLibrary {
 	/**
 	 * Get the namespace uri of the tab lib.
+	 * 
 	 * @return the namespace uri
 	 */
 	String getNamespaceUri();
-	
-    /**
-     * Get a tag impl from the library.
-     * 
-     * @param tagName
-     *            the tag name
-     * 
-     * @return tag impl, null if not found from this library
-     */
-    Class<? extends ITag> getTagImpl(String tagName);
 
-    /**
-     * Get the util function impl class by name.
-     * 
-     * @param name
-     *            the name of util in context
-     * @return the util impl class, null if not found.
-     */
-    Class<? extends IUtilFunctionsFactory> getUtilFunctionsFactory(String name);
+	/**
+	 * Get tag factory instance from tag name.
+	 * 
+	 * @param tagName
+	 *            the tag name
+	 * @return the tag factory instance used to construct the tag with
+	 */
+	ITagFactory<? extends ITag> getFactory(String tagName);
 
-    /**
-     * Return the names for the util functions factories.
-     * 
-     * @return non null set
-     */
-    Set<String> getUtilFunctionsFactoryNames();
+	/**
+	 * Get the util function impl class by name.
+	 * 
+	 * @param name
+	 *            the name of util in context
+	 * @return the util impl class, null if not found.
+	 */
+	Class<? extends IUtilFunctionsFactory> getUtilFunctionsFactory(String name);
+
+	/**
+	 * Return the names for the util functions factories.
+	 * 
+	 * @return non null set
+	 */
+	Set<String> getUtilFunctionsFactoryNames();
 
 }
