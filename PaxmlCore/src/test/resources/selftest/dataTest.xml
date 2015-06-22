@@ -289,7 +289,6 @@
    <data id="pureMap"><name>myName</name></data>
    <assert expected="data" actual="${pureMap.name()}"/>
    <assert expected="myName" actual="${pureMap.name}"/>
-   <assert expected="pureMap" actual="${pureMap.id}"/>
    <assert expected="1" actual="${pureMap.size()}"/>
 </scenario>
  

@@ -55,7 +55,7 @@ public class ObjectList extends ArrayList<Object> implements IObjectContainer {
 	}
 
 	@Override
-	public List<Object> getList() {
+	public List<Object> list() {
 		return this;
 	}
 

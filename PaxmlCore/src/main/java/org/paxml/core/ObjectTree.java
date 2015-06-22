@@ -166,7 +166,7 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 		xmlAttributes.addAll(attrNames);
 	}
 	@Override
-	public List<Object> getList() {
+	public List<Object> list() {
 		return Collections.unmodifiableList(list);
 	}
 

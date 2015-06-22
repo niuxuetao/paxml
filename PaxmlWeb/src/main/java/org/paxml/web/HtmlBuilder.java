@@ -26,7 +26,7 @@ public class HtmlBuilder {
 
 	public HtmlBuilder(Object from) {
 		if (from instanceof IObjectContainer) {
-			this.from = ((IObjectContainer) from).getList();
+			this.from = ((IObjectContainer) from).list();
 		} else if (from instanceof List) {
 			this.from = (List) from;
 		} else {
