@@ -16,9 +16,11 @@
  */
 package org.paxml.tag;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +47,8 @@ public class DefaultTagLibrary implements ITagLibrary {
 	private final Map<String, Class<? extends IUtilFunctionsFactory>> utils = new ConcurrentHashMap<String, Class<? extends IUtilFunctionsFactory>>();
 	private final Map<String, Class<? extends ITag>> tags = new ConcurrentHashMap<String, Class<? extends ITag>>(0);
 
+	private final Set<String> analyzedMethods = new HashSet<String>();
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -59,10 +63,16 @@ public class DefaultTagLibrary implements ITagLibrary {
 		return utils.get(name);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void registerTag(Class<? extends ITag> clazz) {
+	public void registerTag(Class clazz) {
+		registerClassTag(clazz);
+		registerMethodTag(clazz);
+	}
+
+	private void registerMethodTag(Class clazz) {
+		
+	}
+
+	private void registerClassTag(Class clazz) {
 		List<String> names = getTagNames(clazz);
 		if (names == null || names.isEmpty()) {
 
@@ -71,14 +81,10 @@ public class DefaultTagLibrary implements ITagLibrary {
 
 		}
 		for (String tagName : names) {
-
 			tags.put(tagName, clazz);
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void registerUtil(Class<? extends IUtilFunctionsFactory> clazz) {
 		String utilName = getUtilName(clazz);
 		if (StringUtils.isBlank(utilName)) {
@@ -98,9 +104,11 @@ public class DefaultTagLibrary implements ITagLibrary {
 		return null;
 	}
 
-	private static List<String> getTagNames(Class<? extends ITag> clazz) {
+	private static List<String> getTagNames(Class clazz) {
 		List<String> result = new ArrayList<String>(1);
-		Tag a = clazz.getAnnotation(Tag.class);
+
+		// find class level annotation
+		Tag a = (Tag) clazz.getAnnotation(Tag.class);
 		if (a != null) {
 			result.add(a.name());
 			String[] alias = a.alias();
@@ -124,8 +132,8 @@ public class DefaultTagLibrary implements ITagLibrary {
 	}
 
 	@Override
-    public String getNamespaceUri() {
-	    return Namespaces.ROOT;
-    }
+	public String getNamespaceUri() {
+		return Namespaces.ROOT;
+	}
 
 }
