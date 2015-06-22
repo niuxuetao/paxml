@@ -43,5 +43,5 @@ public interface IObjectContainer {
     String toJson();
     void loadXml(String xml);
     void loadJson(String json);
-    String getName();
+    String name();
 }

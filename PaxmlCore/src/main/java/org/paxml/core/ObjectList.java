@@ -169,7 +169,7 @@ public class ObjectList extends ArrayList<Object> implements IObjectContainer {
 		ReflectUtils.collect(XmlUtils.fromJson(json, false), this, true);
 	}
 	@Override
-	public String getName() {
+	public String name() {
 		return name;
 	}
 //	@Override

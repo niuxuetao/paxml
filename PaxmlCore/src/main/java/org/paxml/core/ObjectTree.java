@@ -211,7 +211,7 @@ public class ObjectTree extends LinkedHashMap<String, Object> implements IObject
 	}
 
 	@Override
-	public String getName() {
+	public String name() {
 		return name;
 	}
 		

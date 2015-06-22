@@ -44,7 +44,7 @@ public class ToXmlTag extends BeanTag {
 		}
 		String rt = rootTag;
 		if (rt == null && val instanceof IObjectContainer) {
-			rt = ((IObjectContainer) val).getName();
+			rt = ((IObjectContainer) val).name();
 		}
 		if (rt == null) {
 			rt = "xml-fragment";
