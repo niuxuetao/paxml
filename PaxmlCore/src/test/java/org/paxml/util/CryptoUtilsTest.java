@@ -28,7 +28,7 @@ import org.paxml.core.Context;
 public class CryptoUtilsTest {
 	private static final String store = UUID.randomUUID().toString();
 
-	@Test
+	//@Test
 	public void testEncryption() {
 		String clear = "clear text 123";
 		String key = "pwd";
@@ -40,7 +40,7 @@ public class CryptoUtilsTest {
 		Assert.assertEquals(clear, decrypted);
 	}
 
-	@Test
+	//@Test
 	public void testKeyStore() {
 
 		final String pwd = "pass";
@@ -53,7 +53,7 @@ public class CryptoUtilsTest {
 		Assert.assertEquals(keyValue, got);
 	}
 
-	//@Test
+	//@Test 
 	public void testContextSecret() {
 		//CryptoUtils.deleteKeyStore(CryptoUtils.DEFAULT_KEY_STORE_NAME);
 		final String keyName = "keyName";
@@ -70,8 +70,8 @@ public class CryptoUtilsTest {
 		//CryptoUtils.deleteKeyStore(CryptoUtils.DEFAULT_KEY_STORE_NAME);
 	}
 
-	@After
-	@Before
+	//@After
+	//@Before
 	public void cleanup() {
 		CryptoUtils.deleteKeyStore(store);
 	}
