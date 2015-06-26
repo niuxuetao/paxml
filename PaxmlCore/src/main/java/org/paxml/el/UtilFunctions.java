@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -45,6 +46,8 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Util;
 import org.paxml.core.Context;
 import org.paxml.core.IEntity;
@@ -64,6 +67,9 @@ import org.paxml.util.ReflectUtils;
  */
 @Util("util")
 public class UtilFunctions implements IUtilFunctionsFactory {
+
+	private static final Log log = LogFactory.getLog(UtilFunctions.class);
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -948,4 +954,28 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 		Context.getCurrentContext().getStack().exit();
 	}
 
+	/**
+	 * Get a random available port.
+	 * @return the port, or minus if no available port found
+	 */
+	public static int getRandomPort() {
+		ServerSocket s = null;
+
+		try {
+			s = new ServerSocket(0);
+			return s.getLocalPort();
+		} catch (IOException e) {
+			log.warn("Cannot get random port", e);
+			return -1;
+		} finally {
+			try {
+				if (s != null) {
+					s.close();
+				}
+			} catch (Exception e) {
+				log.warn("Cannot close server socket of port: " + s.getLocalPort(), e);
+			}
+		}
+
+	}
 }

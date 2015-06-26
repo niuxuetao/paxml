@@ -19,7 +19,6 @@ package org.paxml.selenium.rc;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +42,7 @@ import org.paxml.core.Context;
 import org.paxml.core.Context.Stack.IStackTraverser;
 import org.paxml.core.IEntity;
 import org.paxml.core.PaxmlRuntimeException;
+import org.paxml.el.UtilFunctions;
 import org.paxml.tag.ITag;
 
 import com.thoughtworks.selenium.DefaultSelenium;
@@ -262,31 +262,12 @@ public class SeleniumHelper {
 		this.browserStartCommand = browserStartCommand;
 	}
 
-	private static int getAvailablePort() {
-		ServerSocket s = null;
-
-		try {
-			s = new ServerSocket(0);
-			return s.getLocalPort();
-		} catch (IOException e) {
-			throw new PaxmlRuntimeException(e);
-		} finally {
-			try {
-				if (s != null) {
-					s.close();
-				}
-			} catch (Exception e) {
-				log.warn("Cannot close server socket of port: " + s.getLocalPort(), e);
-			}
-		}
-
-	}
 
 	public static SeleniumServer startServer(int port) {
 
 		RemoteControlConfiguration rcc = new RemoteControlConfiguration();
 		if (port <= 0) {
-			port = getAvailablePort(); // RemoteControlConfiguration.DEFAULT_PORT;
+			port = UtilFunctions.getRandomPort(); // RemoteControlConfiguration.DEFAULT_PORT;
 		}
 		rcc.setPort(port);
 		SeleniumServer server;

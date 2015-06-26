@@ -49,19 +49,21 @@
 	<const id="text">this is the text</const>
 
 	<const id="host">localhost</const>
+	<const id="smtpPort">${util.getRandomPort()}</const>
+	<log>found random smtp port: ${smtpPort}</log>
 
 	<!-- start smtp server mock -->
 	<groovy id="gm">
 		import com.icegreen.greenmail.util.*;
 
 		GreenMail greenMail = new GreenMail(new
-		ServerSetup(25,"0.0.0.0","smtp")); //uses test ports by default
+		ServerSetup(${smtpPort},"0.0.0.0","smtp")); //uses test ports by default
 		greenMail.start();
 		return greenMail;
 	</groovy>
 
 	<!-- send combined messages -->
-	<email username="blabla" password="xxx" isolate="false" />
+	<email username="blabla" password="xxx" isolate="false" port="${smtpPort}" />
 	<pause>2000</pause>
 
 	<assert expected="4" actual="${util.list(gm.receivedMessages).size()}" />
@@ -73,7 +75,7 @@
 
 	<!-- send isolated messages -->
 	<expression>${gm.reset()}</expression>
-	<email username="blabla" password="xxx" isolate="true" />
+	<email username="blabla" password="xxx" isolate="true" port="${smtpPort}" />
 	<pause>2000</pause>
 
 	<groovy id="msgsActual">
