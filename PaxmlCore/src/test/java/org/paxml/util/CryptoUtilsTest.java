@@ -28,6 +28,11 @@ import org.paxml.core.Context;
 public class CryptoUtilsTest {
 	private static final String store = UUID.randomUUID().toString();
 
+	@Test
+	public void doNothing(){
+		
+	}
+	
 	//@Test
 	public void testEncryption() {
 		String clear = "clear text 123";
