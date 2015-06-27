@@ -131,7 +131,12 @@ public class CryptoUtils {
 		if (StringUtils.isBlank(keyStoreName)) {
 			keyStoreName = DEFAULT_KEY_STORE_NAME;
 		}
-		return PaxmlUtils.getFileUnderPaxmlHome(KEY_STORE_FOLDER + File.separatorChar + keyStoreName + "." + KEY_STORE_EXT, true);
+		String fileName = KEY_STORE_FOLDER + File.separatorChar + keyStoreName + "." + KEY_STORE_EXT;
+		File file = PaxmlUtils.getFileUnderPaxmlHome(fileName, false);
+		if (file == null) {
+			file = PaxmlUtils.getFileUnderUserHome(fileName);
+		}
+		return file;
 	}
 
 	public static void changeKeyStorePassword(String keyStoreName, final String oldPassword, final String newPassword) {
