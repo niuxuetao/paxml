@@ -5,6 +5,6 @@ Process Automation eXtensible Markup Language. XML-based syntax, accessing datab
 
 Check the [wiki](https://github.com/niuxuetao/paxml/wiki) for more details.
 
-The project page is at http://paxml.org
+The project home page is at: http://paxml.org
 
 Continuous integration: http://build.paxml.org
