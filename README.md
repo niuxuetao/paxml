@@ -7,4 +7,3 @@ Check the [wiki](https://github.com/niuxuetao/paxml/wiki) for more details.
 
 The project home page is at: http://paxml.org
 
-Continuous integration: http://ci.paxml.org
