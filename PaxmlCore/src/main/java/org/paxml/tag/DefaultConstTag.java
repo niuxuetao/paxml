@@ -46,6 +46,9 @@ public class DefaultConstTag extends ConstTag {
             Object existing = context.getConst(id, true);
             if (!UtilFunctions.isEmpty(existing)) {
                 return null;
+            }else{
+            	// #10, remove existing empty value so that later it will be rewritten by the default value  
+            	context.removeConst(id);
             }
 
         }

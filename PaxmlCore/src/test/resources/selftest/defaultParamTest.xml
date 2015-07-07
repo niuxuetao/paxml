@@ -30,5 +30,26 @@
   <default id="bla1" >2</default>
   <assert expected="1" actual="${bla1}" />
   <assertFalse actual="${util.isEmpty(bla1)}" />
-     
+  
+  <!-- really invoke something -->
+  <assert expected="">
+    <actual>
+        <DefaultParamInvoked param="" paramVal=""/>
+    </actual>
+  </assert>
+  <assert expected="1">
+    <actual>
+        <DefaultParamInvoked param="" paramVal="1"/>
+    </actual>
+  </assert>
+  <assert expected="2">
+    <actual>
+        <DefaultParamInvoked param="2" paramVal="1"/>
+    </actual>
+  </assert>  
+  <assert expected="2">
+    <actual>
+        <DefaultParamInvoked param="2" paramVal=""/>
+    </actual>
+  </assert>      
 </scenario>
