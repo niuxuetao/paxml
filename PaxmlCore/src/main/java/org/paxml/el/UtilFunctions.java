@@ -89,7 +89,7 @@ public class UtilFunctions implements IUtilFunctionsFactory {
 	 * @return the list , never null
 	 */
 	public static List list(Object... objs) {
-		if (objs.length == 1) {
+		if (objs.length == 1 && !(objs[0] instanceof Map)) {
 			List r = new ArrayList();
 			ReflectUtils.collect(objs[0], r, true);
 			return r;
