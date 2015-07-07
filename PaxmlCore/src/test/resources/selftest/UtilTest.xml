@@ -56,5 +56,37 @@
   <UtilTestInvoked exist="?{nonExistingConst1}" expected="okokok" />
   <UtilTestInvoked exist="${''}" expected="okokok" />
    -->
-       
+  
+  <assert actual="${util.list(1)}" >
+    <expected><groovy>Arrays.asList(1)</groovy></expected>
+  </assert>
+  <assert>
+    <actual><list><value>1</value></list></actual>
+    <expected><groovy>Arrays.asList(1)</groovy></expected>
+  </assert>
+  
+  <assert actual="${util.list(1,2)}" >
+    <expected><groovy>Arrays.asList(1,2)</groovy></expected>
+  </assert>      
+  <assert>
+    <actual><list><value>1</value><value>2</value></list></actual>
+    <expected><groovy>Arrays.asList(1,2)</groovy></expected>
+  </assert>  
+    
+  <data id="dList">
+    <x>1</x>
+    <x>2</x>
+  </data>  
+  <assert actual="${util.list(dList.x)}" >
+    <expected><groovy>Arrays.asList(1,2)</groovy></expected>
+  </assert>   
+  <!-- test that map is also wrapped as list -->
+  <assert actual="${util.list(dList)}" >
+    <expected><groovy>
+        def theMap=new HashMap();
+        theList=Arrays.asList(1,2);
+        theMap.put("x", theList);
+        Arrays.asList(theMap);
+    </groovy></expected>
+  </assert> 
 </scenario>
