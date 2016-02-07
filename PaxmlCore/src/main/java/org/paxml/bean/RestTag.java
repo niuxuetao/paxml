@@ -16,9 +16,15 @@
  */
 package org.paxml.bean;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.paxml.annotation.Tag;
 import org.paxml.core.Context;
 import org.paxml.core.PaxmlRuntimeException;
@@ -28,6 +34,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -38,7 +46,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Tag(name = RestTag.TAG_NAME)
 public class RestTag extends BeanTag {
-
+	private static final Log log = LogFactory.getLog(RestTag.class);
 	public static class RestResult {
 		private Object body;
 		private Map headers;
@@ -93,30 +101,112 @@ public class RestTag extends BeanTag {
 	private Map headers;
 	private String username;
 	private String password;
-	private boolean autoParse = true;
-
+	private String contentType = MediaType.APPLICATION_JSON;
+	private boolean parseResponse = true;
+	private boolean simple = true;
+	private String xmlRootTag="request";
+	private String xmlTopCollectionTag;
+	
 	@Override
 	protected Object doInvoke(Context context) throws Exception {
 
 		RestTemplate t = new RestTemplate();
+		if (!simple) {
+			// cancel default error handling
+			t.setErrorHandler(new ResponseErrorHandler() {
+
+				@Override
+				public boolean hasError(ClientHttpResponse response) throws IOException {
+					// always say no error
+					return false;
+				}
+
+				@Override
+				public void handleError(ClientHttpResponse response) throws IOException {
+					// do nothing
+				}
+
+			});
+		}
 		Object value = getValue();
-		HttpEntity<String> entity = new HttpEntity<String>(value == null ? null : value.toString());
+		HttpHeaders hds = new HttpHeaders();
 		if (username != null) {
 			String[] auth = PaxmlUtils.makeHttpClientAutorizationHeader(username, password);
-			entity.getHeaders().set(auth[0], auth[1]);
+			hds.set(auth[0], auth[1]);
 		}
 		if (headers != null) {
 			Map<String, String> map = new LinkedHashMap<String, String>();
-			HttpHeaders hds = entity.getHeaders();
 			for (Map.Entry<String, String> entry : map.entrySet()) {
 				hds.set(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
 			}
 		}
-
+		if(StringUtils.isNotBlank(contentType)){
+			hds.setContentType(org.springframework.http.MediaType.parseMediaType(contentType));
+		}
+		String reqBody=makeRequestBody(value);
+		log.debug("REST request body="+reqBody);
+		HttpEntity<String> entity = new HttpEntity<String>(reqBody, hds);
+		
 		ResponseEntity<String> rsp = t.exchange(target, _method, entity, String.class);
-		Object body = autoParse ? XmlUtils.parseJsonOrXmlOrString(rsp.getBody()) : rsp.getBody();
+
+		Object body = parseResponse ? parseResponse(rsp) : rsp.getBody();
+		if (simple) {
+			return body;
+		}
 		return new RestResult(body, rsp.getHeaders(), rsp.getStatusCode().value());
 
+	}
+
+	private Object parseResponse(ResponseEntity<String> rsp) {
+		String body = rsp.getBody();
+		if (StringUtils.isBlank(body)) {
+			return null;
+		}
+		String ct = String.valueOf(rsp.getHeaders().getContentType());
+		if (StringUtils.containsIgnoreCase(ct, "json")) {
+			log.debug("Parsing REST response body as json");
+			return XmlUtils.fromJson(body);
+		}
+		if (StringUtils.containsIgnoreCase(ct, "xml")) {
+
+			log.debug("Parsing REST response body as xml");
+			return XmlUtils.fromXml(body);
+		}
+		return body;
+	}
+
+	private String makeRequestBody(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if(value instanceof String){
+			return (String)value;
+		}
+		if (StringUtils.containsIgnoreCase(contentType, "json")) {
+			log.debug("Serializing REST request body to json");
+			return XmlUtils.toJson(value);
+		}
+		if (StringUtils.containsIgnoreCase(contentType, "xml")) {
+			log.debug("Serializing REST request body to xml");
+			return XmlUtils.toXml(value, xmlRootTag, xmlTopCollectionTag);
+		}
+		return value.toString();
+	}
+
+	public String getXmlTopCollectionTag() {
+		return xmlTopCollectionTag;
+	}
+
+	public void setXmlTopCollectionTag(String xmlTopCollectionTag) {
+		this.xmlTopCollectionTag = xmlTopCollectionTag;
+	}
+
+	public boolean isSimple() {
+		return simple;
+	}
+
+	public void setSimple(boolean simple) {
+		this.simple = simple;
 	}
 
 	public String getUsername() {
@@ -135,6 +225,14 @@ public class RestTag extends BeanTag {
 		this.password = password;
 	}
 
+	public String getXmlRootTag() {
+		return xmlRootTag;
+	}
+
+	public void setXmlRootTag(String xmlRootTag) {
+		this.xmlRootTag = xmlRootTag;
+	}
+
 	public Map getHeaders() {
 		return headers;
 	}
@@ -143,7 +241,6 @@ public class RestTag extends BeanTag {
 		this.headers = headers;
 	}
 
-	
 	public String getTarget() {
 		return target;
 	}
@@ -152,12 +249,20 @@ public class RestTag extends BeanTag {
 		this.target = target;
 	}
 
-	public boolean isAutoParse() {
-		return autoParse;
+	public String getContentType() {
+		return contentType;
 	}
 
-	public void setAutoParse(boolean autoParse) {
-		this.autoParse = autoParse;
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+	public boolean isParseResponse() {
+		return parseResponse;
+	}
+
+	public void setParseResponse(boolean parseResponse) {
+		this.parseResponse = parseResponse;
 	}
 
 	public String getMethod() {

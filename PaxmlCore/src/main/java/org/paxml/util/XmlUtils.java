@@ -18,9 +18,15 @@ package org.paxml.util;
 
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONObject;
+import org.paxml.core.IObjectContainer;
 import org.paxml.core.PaxmlRuntimeException;
 
 import com.thoughtworks.xstream.XStream;
@@ -38,8 +44,23 @@ public class XmlUtils {
 		}
 
 	}
-
+	public static String toXml(final Object obj) {
+		return toXml(obj, null, null);
+	}
 	public static String toXml(final Object obj, final String rootTag, String topCollectionTag) {
+		if(obj==null){
+			return null;
+		}
+		String rt=rootTag;
+		if (rt == null && obj instanceof IObjectContainer) {
+			rt = ((IObjectContainer) obj).getName();
+		}
+		if (rt == null) {
+			rt = "xml-fragment";
+		}
+		if(topCollectionTag==null){
+			topCollectionTag="item";
+		}
 
 		XStream xstream = new XStream(new DomDriver("UTF-8", new XmlFriendlyNameCoder("&#36;", "_")));		
 		xstream.alias(rootTag, obj.getClass());

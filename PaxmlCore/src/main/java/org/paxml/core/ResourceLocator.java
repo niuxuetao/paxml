@@ -94,7 +94,7 @@ public class ResourceLocator {
             springPattern = getRelativeResource(baseFile, springPattern);
         }
         if (log.isInfoEnabled()) {
-            log.info("Searching paxml resource with pattern: " + springPattern);
+            log.info("Searching for paxml resource with pattern: " + springPattern);
         }
         try {
             for (Resource res : new PathMatchingResourcePatternResolver().getResources(springPattern)) {

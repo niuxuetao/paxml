@@ -38,19 +38,7 @@ public class ToXmlTag extends BeanTag {
 
 	@Override
 	protected Object doInvoke(Context context) throws Exception {
-		Object val = getValue();
-		if (val == null) {
-			return null;
-		}
-		String rt = rootTag;
-		if (rt == null && val instanceof IObjectContainer) {
-			rt = ((IObjectContainer) val).getName();
-		}
-		if (rt == null) {
-			rt = "xml-fragment";
-		}
-
-		return XmlUtils.toXml(val, rt, rootListItemTag == null ? "item" : rootListItemTag);
+		return XmlUtils.toXml(getValue(), rootTag, rootListItemTag);
 	}
 
 	public String getRootTag() {
