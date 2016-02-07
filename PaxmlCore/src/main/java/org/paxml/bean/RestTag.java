@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -101,11 +100,11 @@ public class RestTag extends BeanTag {
 	private Map headers;
 	private String username;
 	private String password;
-	private String contentType = MediaType.APPLICATION_JSON;
+	private String contentType = "application/json";
 	private boolean parseResponse = true;
 	private boolean simple = true;
 	private String xmlRootTag="request";
-	private String xmlTopCollectionTag;
+	private String xmlRootListItemTag;
 	
 	@Override
 	protected Object doInvoke(Context context) throws Exception {
@@ -188,17 +187,17 @@ public class RestTag extends BeanTag {
 		}
 		if (StringUtils.containsIgnoreCase(contentType, "xml")) {
 			log.debug("Serializing REST request body to xml");
-			return XmlUtils.toXml(value, xmlRootTag, xmlTopCollectionTag);
+			return XmlUtils.toXml(value, xmlRootTag, xmlRootListItemTag);
 		}
 		return value.toString();
 	}
 
-	public String getXmlTopCollectionTag() {
-		return xmlTopCollectionTag;
+	public String getXmlRootListItemTag() {
+		return xmlRootListItemTag;
 	}
 
-	public void setXmlTopCollectionTag(String xmlTopCollectionTag) {
-		this.xmlTopCollectionTag = xmlTopCollectionTag;
+	public void setXmlRootListItemTag(String xmlRootListItemTag) {
+		this.xmlRootListItemTag = xmlRootListItemTag;
 	}
 
 	public boolean isSimple() {
