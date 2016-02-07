@@ -26,10 +26,12 @@
     <springData includeType="${class}" />
     <data id="alwaysList">false</data>
     <data id="objects">
-        <iterate xpath="${class}">
+        <iterate xpath="${class}">        	
             <value>${var}</value>
             <xx>
+            
             <!-- has to be enclosed, otherwise it will break the rules -->
+            <log>objectIndex=${index}, objectValue=${var}</log>
             <assert expected="${class}" actual="${var.class.name}"/>
             <assert expected="${var}" >
                 <actual>
@@ -54,6 +56,7 @@
     <assertNotNull actual="${objects}"/>    
     <assert expected="2" actual="${size(objects.value)}" />
     
+    <log>objects=${objects}</log>
     <iterate values="${objects.value}">
         <!-- make sure it is a file tag -->
         <f:springObjectAsserter bean="${var}"  />

@@ -68,4 +68,10 @@ public class UnitTestObject {
     public int doAdd(int i, int j) {
         return i + j;
     }
+
+	@Override
+	public String toString() {
+		return "UnitTestObject [intValue=" + intValue + ", stringValue=" + stringValue + "]";
+	}
+    
 }

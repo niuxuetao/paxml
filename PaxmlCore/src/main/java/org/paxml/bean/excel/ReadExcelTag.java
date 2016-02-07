@@ -24,7 +24,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -139,7 +138,7 @@ public class ReadExcelTag extends AbstractLazyTag {
 		return new Iterator() {
 			private Iterator<Row> it;
 			private int index;
-			private Map<Integer, String> headers = new HashMap<Integer, String>();
+			private Map<Integer, String> headers = new LinkedHashMap<Integer, String>();
 
 			private void start() {
 

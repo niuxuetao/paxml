@@ -87,9 +87,9 @@ public class RestTag extends BeanTag {
 	 */
 	public static final String TAG_NAME = "rest";
 
-	private String address;
-	private String verb = "get";
-	private HttpMethod method = HttpMethod.GET;
+	private String target;
+	private String method = "get";
+	private HttpMethod _method = HttpMethod.GET;
 	private Map headers;
 	private String username;
 	private String password;
@@ -113,7 +113,7 @@ public class RestTag extends BeanTag {
 			}
 		}
 
-		ResponseEntity<String> rsp = t.exchange(address, method, entity, String.class);
+		ResponseEntity<String> rsp = t.exchange(target, _method, entity, String.class);
 		Object body = autoParse ? XmlUtils.parseJsonOrXmlOrString(rsp.getBody()) : rsp.getBody();
 		return new RestResult(body, rsp.getHeaders(), rsp.getStatusCode().value());
 
@@ -143,12 +143,13 @@ public class RestTag extends BeanTag {
 		this.headers = headers;
 	}
 
-	public String getAddress() {
-		return address;
+	
+	public String getTarget() {
+		return target;
 	}
 
-	public void setAddress(String address) {
-		this.address = address;
+	public void setTarget(String target) {
+		this.target = target;
 	}
 
 	public boolean isAutoParse() {
@@ -159,17 +160,17 @@ public class RestTag extends BeanTag {
 		this.autoParse = autoParse;
 	}
 
-	public String getVerb() {
-		return verb;
+	public String getMethod() {
+		return method;
 	}
 
-	public void setVerb(String verb) {
+	public void setMethod(String method) {
 
-		this.verb = verb;
+		this.method = method;
 		try {
-			method = HttpMethod.valueOf(verb.toUpperCase());
+			_method = HttpMethod.valueOf(method.toUpperCase());
 		} catch (Exception e) {
-			throw new PaxmlRuntimeException("Unsupported rest verb: " + verb);
+			throw new PaxmlRuntimeException("Unsupported rest method: " + method);
 		}
 	}
 

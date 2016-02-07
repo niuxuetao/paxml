@@ -54,7 +54,7 @@ public class PaxmlUtils {
 		}
 		if (paxmlHome == null) {
 			if (assert_PAXML_HOME) {
-				throw new PaxmlRuntimeException("System environment 'PAXML_HOME' not set!");
+				throw new PaxmlRuntimeException("System environment variable 'PAXML_HOME' not set!");
 			} else {
 				return null;
 			}
