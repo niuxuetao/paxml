@@ -53,7 +53,7 @@ public class XmlUtils {
 		}
 		String rt=rootTag;
 		if (rt == null && obj instanceof IObjectContainer) {
-			rt = ((IObjectContainer) obj).getName();
+			rt = ((IObjectContainer) obj).name();
 		}
 		if (rt == null) {
 			rt = "xml-fragment";
