@@ -51,10 +51,7 @@ public class PaxmlUtils {
 	public static final String PAXML_HOME_ENV_KEY = "PAXML_HOME";
 
 	public static File getPaxmlHome(boolean assert_PAXML_HOME) {
-		String paxmlHome = System.getenv(PAXML_HOME_ENV_KEY);
-		if (paxmlHome == null) {
-			paxmlHome = System.getProperty(PAXML_HOME_ENV_KEY);
-		}
+		String paxmlHome = getSystemProperty(PAXML_HOME_ENV_KEY);
 		if (paxmlHome == null) {
 			if (assert_PAXML_HOME) {
 				throw new PaxmlRuntimeException("System environment variable 'PAXML_HOME' not set!");

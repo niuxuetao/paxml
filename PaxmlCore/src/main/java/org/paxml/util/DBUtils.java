@@ -17,6 +17,7 @@
 package org.paxml.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -38,10 +39,15 @@ public class DBUtils {
 	public static final String H2_DRIVER_CLASS = "org.h2.Driver";
 	public static final String H2_USER = "sa";
 	public static final String H2_PASSWORD = "";
-	
-	public static String getDefaultH2Url(){
-		String file = PaxmlUtils.getFileUnderPaxmlHome("/data/h2", true).getAbsolutePath();
-		return "jdbc:h2:" + file +";AUTO_SERVER=TRUE";
+
+	public static String getDefaultH2Url() {
+		String h2File = "/data/h2";
+		File h2 = PaxmlUtils.getFileUnderPaxmlHome(h2File, false);
+		if (h2 == null) {
+			h2 = PaxmlUtils.getFileUnderUserHome(h2File);
+		}
+		String file = h2.getAbsolutePath();
+		return "jdbc:h2:" + file + ";AUTO_SERVER=TRUE";
 	}
 
 	public static void initDatabase(DataSource ds) {
