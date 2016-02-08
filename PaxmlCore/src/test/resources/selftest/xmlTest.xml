@@ -18,6 +18,70 @@
 
 -->
 <scenario>
+	<!-- test list item tag and root tag -->
+	<data id="myList1">${util.list(1,2)}</data>	
+	<assert>
+		<expected><literal><r>
+  <x>1</x>
+  <x>2</x>
+</r></literal></expected>
+		<actual><toXml rootTag="r" rootListItemTag="x" value="${myList1}"/></actual>
+	</assert>
+
+	<!-- test list item tag and root tag -->
+	<data id="myList2">${util.list(1,2)}</data>	
+	<assert>
+		<expected><literal><xml-fragment>
+  <item>1</item>
+  <item>2</item>
+</xml-fragment></literal></expected>
+		<actual><toXml value="${myList2}"/></actual>
+	</assert>
+		
+	<!-- test root tag -->
+	<data id="xml1">
+		<bla>1</bla>
+	</data>
+	<assert>
+		<expected><literal><data>
+  <bla>1</bla>
+</data></literal></expected>
+		<actual><toXml value="${xml1}"></toXml></actual>
+	</assert>
+	
+	<xxx id="xml2">
+		<bla>1</bla>
+	</xxx>
+	<assert>
+		<expected><literal><xxx>
+  <bla>1</bla>
+</xxx></literal></expected>
+		<actual><toXml value="${xml2}"></toXml></actual>
+	</assert>
+		
+	<assert>
+		<expected><literal><value>
+  <bla>1</bla>
+</value></literal></expected>
+		<actual><toXml ><value><bla>1</bla></value></toXml></actual>
+	</assert>
+	
+	<assert>
+		<expected><literal><r>
+  <bla>1</bla>
+</r></literal></expected>
+		<actual><toXml rootTag="r"><value><bla>1</bla></value></toXml></actual>
+	</assert>
+	
+	<fromXml id="parsedXml1"><value><literal><x><y>1</y></x></literal></value></fromXml>
+	<print>${parsedXml1}</print>
+	<assert expected="1" actual="${parsedXml1.x.y}"/>
+	
+	<fromXml id="parsedXml2" ignoreRootTag="true"><value><literal><x><y>1</y></x></literal></value></fromXml>
+	<print>${parsedXml2}</print>
+	<assert expected="1" actual="${parsedXml2.y}"/>
+	
+	<!-- test back/forth -->
     <r id="obj">
         <li>li1</li>
         <li>li2</li>
@@ -44,7 +108,7 @@
     <print>${json}</print>
     
     <assert expected="${obj}" strict="true">
-        <actual><fromXml>${xml}</fromXml></actual>
+        <actual><fromXml ignoreRootTag="true">${xml}</fromXml></actual>
     </assert>    
     
     <assert expected="${obj}" strict="true">

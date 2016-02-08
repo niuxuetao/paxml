@@ -16,12 +16,8 @@
  */
 package org.paxml.util;
 
+import java.util.List;
 import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -47,16 +43,15 @@ public class XmlUtils {
 	public static String toXml(final Object obj) {
 		return toXml(obj, null, null);
 	}
-	public static String toXml(final Object obj, final String rootTag, String topCollectionTag) {
+	public static String toXml(final Object obj, String rootTag, String topCollectionTag) {
 		if(obj==null){
 			return null;
 		}
-		String rt=rootTag;
-		if (rt == null && obj instanceof IObjectContainer) {
-			rt = ((IObjectContainer) obj).name();
+		if (rootTag == null && obj instanceof IObjectContainer) {
+			rootTag = ((IObjectContainer) obj).name();
 		}
-		if (rt == null) {
-			rt = "xml-fragment";
+		if (rootTag == null) {
+			rootTag = "xml-fragment";
 		}
 		if(topCollectionTag==null){
 			topCollectionTag="item";
@@ -65,6 +60,7 @@ public class XmlUtils {
 		XStream xstream = new XStream(new DomDriver("UTF-8", new XmlFriendlyNameCoder("&#36;", "_")));		
 		xstream.alias(rootTag, obj.getClass());
 		xstream.alias(rootTag, Map.class);
+		xstream.alias(rootTag, List.class);
 		xstream.registerConverter(new XStreamMapColConverter(topCollectionTag));
 		// xstream.registerConverter(new XStreamFilterConverter(new String[] {
 		// "java.lang.*", "java.util.*", "org.paxml.*" }, null),

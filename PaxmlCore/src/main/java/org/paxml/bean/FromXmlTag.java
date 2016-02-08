@@ -38,7 +38,7 @@ public class FromXmlTag extends BeanTag {
 	 */
 	public static final String TAG_NAME = "fromXml";
 
-	private boolean useRootTagName = true;
+	private boolean ignoreRootTag;
 
 	@Override
 	protected Object doInvoke(Context context) throws Exception {
@@ -51,13 +51,19 @@ public class FromXmlTag extends BeanTag {
 		String rootName = map.keySet().iterator().next().toString();
 
 		Object obj = XmlUtils.extractSingleMapRoot(map);
+		
+		if(!ignoreRootTag){
+			ObjectTree tree=new ObjectTree(null);
+			tree.addValue(rootName, obj);
+			return tree;
+		}		
 
 		if (obj instanceof Map) {
-			ObjectTree tree = new ObjectTree(useRootTagName ? rootName : null);
+			ObjectTree tree = new ObjectTree(rootName);
 			tree.addValues((Map) obj);
 			return tree;
 		} else if (obj instanceof Collection) {
-			ObjectList list = new ObjectList(useRootTagName ? rootName : null, true);
+			ObjectList list = new ObjectList(rootName, true);
 			list.addAll((Collection) obj);
 			return list;
 		} else {
@@ -65,12 +71,12 @@ public class FromXmlTag extends BeanTag {
 		}
 	}
 
-	public boolean isUseRootTagName() {
-		return useRootTagName;
+	public boolean isIgnoreRootTag() {
+		return ignoreRootTag;
 	}
 
-	public void setUseRootTagName(boolean useRootTagName) {
-		this.useRootTagName = useRootTagName;
+	public void setIgnoreRootTag(boolean ignoreRootTag) {
+		this.ignoreRootTag = ignoreRootTag;
 	}
 
 }
