@@ -22,6 +22,6 @@ import org.paxml.launch.PaxmlRunner;
 public class TestRunner {
 	@Test
 	public void runPaxml(){
-		new PaxmlRunner().run("xmlTest", null, "");
+		new PaxmlRunner().run("jsonTest", null, "");
 	}
 }

@@ -25,6 +25,11 @@
 	}</data>
 	<assert expected="${strings.normalizeSpace(json1Exp)}" 
 		actual="${strings.normalizeSpace(json1Act)}" />
-
+	
+	<assert expected="${util.list(1,2)}">
+		<actual><fromJson>[
+	1,2
+	]</fromJson></actual>	
+	</assert>
 </scenario>
  
