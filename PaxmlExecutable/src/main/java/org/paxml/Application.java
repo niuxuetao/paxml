@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.launch.PaxmlRunner;
+import org.paxml.util.PaxmlUtils;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -45,13 +46,13 @@ public class Application {
 		}
 		final String fn = args[0];
 		
-		String baseDir = System.getProperty(BASE_DIR);
-		if (StringUtils.isBlank(baseDir)) {
-			baseDir = new File("").getAbsolutePath();
+		String baseDir = PaxmlUtils.getSystemProperty(BASE_DIR);
+		if (StringUtils.isEmpty(baseDir)) {
+			baseDir = PaxmlUtils.getCurrentDir().getAbsolutePath();
 		}
 
 		if (log.isInfoEnabled()) {
-			log.info("Searching for Paxml " + fn + " from dir: " + baseDir);
+			log.info("Searching for Paxml [" + fn + "] from base dir: " + baseDir);
 		}
 		
 		PaxmlRunner.run(fn, null, baseDir, org.paxml.selenium.rc.TagLibrary.class);

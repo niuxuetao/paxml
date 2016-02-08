@@ -22,12 +22,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.paxml.core.PaxmlParseException;
@@ -93,7 +96,8 @@ public class PaxmlUtils {
 				try {
 					path = base.createRelative(path).getURI().toString();
 				} catch (IOException e) {
-					throw new PaxmlParseException("Cannot create relative path '" + path + "' from base resource: " + base + ", because: " + e.getMessage());
+					throw new PaxmlParseException("Cannot create relative path '" + path + "' from base resource: "
+							+ base + ", because: " + e.getMessage());
 				}
 			}
 		}
@@ -263,15 +267,17 @@ public class PaxmlUtils {
 	public static long recordExecutionScheduled(LaunchPoint p, long planExecutionId) {
 		final long id = getNextExecutionId();
 		JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
-		temp.update("insert into paxml_execution (id, session_id, process_id, paxml_name, paxml_path, paxml_params, status) values(?,?,?,?,?,?,?)", id, p.getExecutionId(),
-		        p.getProcessId(), p.getResource().getName(), p.getResource().getPath(), null, 0);
+		temp.update(
+				"insert into paxml_execution (id, session_id, process_id, paxml_name, paxml_path, paxml_params, status) values(?,?,?,?,?,?,?)",
+				id, p.getExecutionId(), p.getProcessId(), p.getResource().getName(), p.getResource().getPath(), null,
+				0);
 		return id;
 	}
 
 	/*
 	 * public static void recordExecutionStart(long recId) { JdbcTemplate temp =
-	 * new JdbcTemplate(DBUtils.getPooledDataSource());
-	 * temp.update("update paxml_execution ", p.get); }
+	 * new JdbcTemplate(DBUtils.getPooledDataSource()); temp.update(
+	 * "update paxml_execution ", p.get); }
 	 * 
 	 * public static void recordExecutionStop(long recId, boolean succeeded) {
 	 * JdbcTemplate temp = new JdbcTemplate(DBUtils.getPooledDataSource());
@@ -317,29 +323,35 @@ public class PaxmlUtils {
 		return new File(base.getParentFile(), appendName ? base.getName() : name);
 	}
 
+	public static File getCurrentDir() {
+		return Paths.get("").toFile();
+	}
+
 	public static String createRegexFromGlob(String glob) {
-		String out = "^";
-		for (int i = 0; i < glob.length(); ++i) {
+		StringBuilder sb = new StringBuilder();
+
+		for (int i = 0; i < glob.length(); i++) {
 			final char c = glob.charAt(i);
 			switch (c) {
 			case '*':
-				out += ".*";
+				sb.append(".*");
 				break;
 			case '?':
-				out += '.';
-				break;
-			case '.':
-				out += "\\.";
-				break;
-			case '\\':
-				out += "\\\\";
+				sb.append(".{1}");
 				break;
 			default:
-				out += c;
+				sb.append(Pattern.quote(c + ""));
 			}
 		}
-		out += '$';
-		return out;
+		return sb.toString();
+	}
+
+	public static String getSystemProperty(String key) {
+		String value = System.getProperty(key);
+		if (StringUtils.isEmpty(value)) {
+			value = System.getenv(key);
+		}
+		return value;
 	}
 
 	public static String[] makeHttpClientAutorizationHeader(String username, String password) {
