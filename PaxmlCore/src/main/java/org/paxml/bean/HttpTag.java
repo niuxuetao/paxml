@@ -17,7 +17,7 @@
 package org.paxml.bean;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -88,7 +88,7 @@ public class HttpTag extends BeanTag {
             }
 
             // Read the response body.
-            Map<String, Object> result = new HashMap<String, Object>();
+            Map<String, Object> result = new LinkedHashMap<String, Object>();
             result.put("code", statusCode);
             result.put("body", m.getResponseBodyAsString());
             result.put("all", m);
@@ -107,7 +107,7 @@ public class HttpTag extends BeanTag {
     private Map<String, List<String>> getNameValuePairs(Object object, String propertyName) {
         // System.out.println(object.getClass().getName()+"\r\n"+ object);
         if (object instanceof Map) {
-            Map<String, List<String>> result = new HashMap<String, List<String>>();
+            Map<String, List<String>> result = new LinkedHashMap<String, List<String>>();
             Map<?, ?> hd = (Map<?, ?>) object;
             for (Map.Entry<?, ?> entry : hd.entrySet()) {
                 Object value = entry.getValue();
@@ -124,7 +124,7 @@ public class HttpTag extends BeanTag {
             }
             return result.size() > 0 ? result : null;
         } else if (object instanceof List) {
-            Map<String, List<String>> result = new HashMap<String, List<String>>();
+            Map<String, List<String>> result = new LinkedHashMap<String, List<String>>();
 
             int i = 1;
             for (Object v : (List<?>) object) {

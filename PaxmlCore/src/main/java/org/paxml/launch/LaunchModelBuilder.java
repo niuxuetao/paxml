@@ -19,6 +19,7 @@ package org.paxml.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -195,8 +196,8 @@ public class LaunchModelBuilder {
 		if (excludes == null) {
 			excludes = Collections.EMPTY_SET;
 		}
-		if (base == null) {
-			base = ""; // the current working dir
+		if (StringUtils.isEmpty(base)) {
+			base = PaxmlUtils.getCurrentDir().getAbsolutePath();
 		}
 		File f = new File(base);
 		if (f.isDirectory()) {

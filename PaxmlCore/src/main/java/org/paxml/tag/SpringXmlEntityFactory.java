@@ -19,8 +19,9 @@ package org.paxml.tag;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -104,7 +105,7 @@ public class SpringXmlEntityFactory implements IEntityFactory {
          */
         @Override
         protected Map<String, String> getDataNameMap(Context context, Map<String, Object> dataMap) {
-            Map<String, String> map = new HashMap<String, String>();
+            Map<String, String> map = new LinkedHashMap<String, String>();
             for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
                 Object value = entry.getValue();
                 map.put(entry.getKey(), value == null ? null : value.getClass().getName());
@@ -120,10 +121,10 @@ public class SpringXmlEntityFactory implements IEntityFactory {
 
             final ApplicationContext factory = getApplicationContext(targetResource);
 
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new LinkedHashMap<String, Object>();
 
             Object value = context.getDefaultParameter();
-            Map<String, String> idMap = new HashMap<String, String>();
+            Map<String, String> idMap = new LinkedHashMap<String, String>();
 
             if (value instanceof Map) {
                 for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
@@ -144,9 +145,9 @@ public class SpringXmlEntityFactory implements IEntityFactory {
                 }
 
             }
-            Set<String> exclude = new HashSet<String>(parseDelimitedString(
+            Set<String> exclude = new LinkedHashSet<String>(parseDelimitedString(
                     context.getConst(EXCLUDE, false), DELEMITER));
-            Set<String> include = new HashSet<String>(parseDelimitedString(
+            Set<String> include = new LinkedHashSet<String>(parseDelimitedString(
                     context.getConst(INCLUDE, false), DELEMITER));
 
             Set<String> excludeType = new HashSet<String>(parseDelimitedString(context.getConst(EXCLUDE_TYPE, false),
@@ -163,6 +164,7 @@ public class SpringXmlEntityFactory implements IEntityFactory {
                     include.add(id);
                 }
             }
+            //System.err.print(includeType+"="+);
             for (String className : excludeType) {
                 for (String id : factory.getBeanNamesForType(ReflectUtils.loadClassStrict(className, null))) {
                     exclude.add(id);
@@ -182,7 +184,7 @@ public class SpringXmlEntityFactory implements IEntityFactory {
                     map.put(id, bean);
                 }
             }
-
+            
             return map;
         }
         /**

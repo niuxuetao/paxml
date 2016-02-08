@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -252,7 +251,7 @@ public class Context implements IdentityManager {
 	private boolean returning = false;
 
 	private final ObjectTree idConstsMap = new ObjectTree(null);
-	private final Map<String, String> idToTagName = new HashMap<String, String>();
+	private final Map<String, String> idToTagName = new LinkedHashMap<String, String>();
 	private final Map<Object, Object> localMap = new LinkedHashMap<Object, Object>(0);
 	private final Map<Object, Object> globalMap;
 	private final Context parent;
@@ -797,7 +796,7 @@ public class Context implements IdentityManager {
 	 */
 	public Map<String, Object> getIdMap(boolean mergeParents, boolean includesRoot) {
 		if (mergeParents) {
-			Map<String, Object> map = new HashMap<String, Object>();
+			Map<String, Object> map = new LinkedHashMap<String, Object>();
 			if (parent != null && (includesRoot || parent != root)) {
 				map.putAll(parent.getIdMap(mergeParents, includesRoot));
 			}
@@ -889,7 +888,7 @@ public class Context implements IdentityManager {
 		if (from == null) {
 			ObjectTree nameGlobal = getRootContext().getNameMap(false, true);
 			ObjectTree nameLocal = getNameMap(true, false);
-
+			
 			vars.declareVariable(XPATH_NAME_GLOBAL_VAR, nameGlobal);
 			vars.declareVariable(XPATH_NAME_LOCAL_VAR, nameLocal);
 

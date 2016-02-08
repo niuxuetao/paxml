@@ -76,7 +76,7 @@ This software is built on and attributes to third-party libraries with the follo
   JSON in Java under The JSON License
   Log4j under The Apache Software License, Version 2.0
   MXP1: Xml Pull Parser 3rd Edition (XPP3) under Indiana University Extreme! Lab Software License, vesion 1.1.1 or Public Domain
-  MySQL java connector under The GNU General Public License, Version 2
+  MySQL Connector/J under The GNU General Public License, Version 2
   Neko HTML under The Apache Software License, Version 2.0
   oro under Apache License, Version 2.0
   PaxmlAll under GNU Affero General Public License, Version 3.0
@@ -130,6 +130,7 @@ This software is built on and attributes to third-party libraries with the follo
   Spring Web MVC under The Apache Software License, Version 2.0
   StAX API under The Apache Software License, Version 2.0
   Stax2 API under The BSD License
+  Streaming API for XML under Sun Binary Code License
   Streaming API for XML (STAX API 1.0) under The Apache Software License, Version 2.0
   Super CSV Core under Apache License, Version 2.0
   TestNG under Apache License, Version 2.0

@@ -19,17 +19,59 @@
 -->
 <scenario>
     
+    <data id="server">${new('org.paxml.rest.RestServerTest')}</data> 
+    <expression>${server.setUp()}</expression>
     
-    <return/>
+    <data id="rspSimple">
+    	<rest method="get" 
+        	target="${server.baseUri}restTest/getJson" />
+        <rest method="get" contentType="application/xml"
+        	target="${server.baseUri}restTest/getXml" />	
+        <rest method="post" 
+        	target="${server.baseUri}restTest/postJson" >
+        	<value intValue="2" />
+        </rest>	
+        <rest method="post" contentType="application/xml"
+        	target="${server.baseUri}restTest/postXml" xmlRootTag="request" >
+        	<value>
+        		<intValue>3</intValue>
+        	</value>
+        </rest>			
+    </data>
+      
+    <print>rspSimple=${rspSimple}</print>
+    <assert expected="1" actual="${rspSimple.0.strValue}" />
+    <assert expected="1" actual="${rspSimple.1.response.strValue}" />
+    <assert expected="2" actual="${rspSimple.2.strValue}" />
+    <assert expected="3" actual="${rspSimple.3.response.strValue}" />
     
+    <!-- test advanced mode -->
     
-    <secret id="apiKey" name="rottenTomatoesApiKey"/>
-    <rest id="res" verb="get"
-        address="http://api.rottentomatoes.com/api/public/v1.0/movies.json?q=love&amp;page_limit=11&amp;page=1&amp;apikey=${apiKey.decrypted}" />
-    <print>Rotten Tomatoes</print>
-    <print><toXml>${res}</toXml></print>
-    <iterate list="${res.body.movies}">
-        <print>${var.title} (${var.year}) ${var.ratings.audience_score}</print>
-    </iterate>
+    <data id="rspAdvanced">
+    	<rest method="get" simple="false"
+        	target="${server.baseUri}restTest/getJson" />
+        <rest method="get" contentType="application/xml" simple="false"
+        	target="${server.baseUri}restTest/getXml" />	
+        <rest method="post" simple="false"
+        	target="${server.baseUri}restTest/postJson" >
+        	<value intValue="2" />
+        </rest>	
+        <rest method="post" contentType="application/xml" simple="false"
+        	target="${server.baseUri}restTest/postXml" xmlRootTag="request" >
+        	<value>
+        		<intValue>3</intValue>
+        	</value>
+        </rest>			
+    </data>
+      
+    <print>rspAdvanced=${rspAdvanced}</print>
+    <assert expected="1" actual="${rspAdvanced.0.body.strValue}" />
+    <assert expected="1" actual="${rspAdvanced.1.body.response.strValue}" />
+    <assert expected="2" actual="${rspAdvanced.2.body.strValue}" />
+    <assert expected="3" actual="${rspAdvanced.3.body.response.strValue}" />
+    
+    <!-- TODO: put in "finally" block to shutdown server quickly instead of waiting till the end of all tests in case of test failures -->
+    <expression>${server.tearDown()}</expression>
+    
 </scenario>
 
